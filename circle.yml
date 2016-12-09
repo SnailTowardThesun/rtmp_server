@@ -5,3 +5,4 @@ general:
 test:
     override:
         - (echo "build rtmp-server" && cd trunk && cmake . && make)
+        - (echo "run unit test" && cd trunk && ./objs/utest_rs_server)
