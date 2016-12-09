@@ -1,0 +1,7 @@
+general:
+    branches:
+        only:
+            - master
+test:
+    override:
+        - (echo "build rtmp-server" && cd trunk && cmake . && make)

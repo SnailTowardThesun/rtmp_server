@@ -32,6 +32,7 @@ void _server_info()
 {
     // TODO:FIXME: implemet log system
     std::cout << "version: " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_REVISION << std::endl;
+    std::cout << "Copyright (c) 2016 ME_Kun_Han hanvskun@hotmail.com" << std::endl;
     std::cout << "author : " << AUTHOR << std::endl;
 }
 
