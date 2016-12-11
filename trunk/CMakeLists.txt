@@ -10,7 +10,10 @@ set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set (SRC_FILE_LISTS ${SRC_DIR}/main/rs_main_server.cpp)
 
 # 3rdlibrary
-include_directories(${SRC_DIR}/include)
+if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/googletest-release-1.8.0)
+else()
+    execute_process(COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/scripts/dependency.sh ${CMAKE_CURRENT_SOURCE_DIR})
+endif (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/googletest-release-1.8.0)
 
 # common part
 include_directories(${SRC_DIR}/common)
@@ -23,9 +26,4 @@ set (LIBRARY_OUTPUT_PATH ${RS_SERVER_BINARY_DIR})
 
 add_executable(rs_server ${SRC_FILE_LISTS})
 
-
-# utest
-set(UTEST_SRC_FILE ${SRC_DIR}/utest/rs_utest_main.cpp)
-
-add_executable(utest_rs_server ${UTEST_SRC_FILE})
-target_link_libraries(utest_rs_server ${SRC_DIR}/libs/libgtest.a)
+add_subdirectory(${SRC_DIR}/utest)
