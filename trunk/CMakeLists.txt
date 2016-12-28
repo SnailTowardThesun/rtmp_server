@@ -7,17 +7,30 @@ set(CMAKE_CXX_FLAGS "-g -std=c++11 -Wall")
 
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-set (SRC_FILE_LISTS ${SRC_DIR}/main/rs_main_server.cpp)
+set (SRC_FILE_LISTS ${SRC_DIR}/main/rs_main_server.cpp src/common/rs_common.cpp)
 
 # 3rdlibrary
 if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/googletest-release-1.8.0)
 else()
-    execute_process(COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/scripts/dependency.sh ${CMAKE_CURRENT_SOURCE_DIR})
+    execute_process(COMMAND "tar" "xvf" "googletest-release-1.8.0.tar"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary
+        )
 endif (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/googletest-release-1.8.0)
+
+if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1)
+else()
+    execute_process(COMMAND "tar" "xvf" "libuv-v1.9.1.tar.gz"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary
+        )
+endif (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1)
 
 # common part
 include_directories(${SRC_DIR}/common)
 aux_source_directory(${SRC_DIR}/common SRC_FILE_LISTS)
+
+# module part
+include_directories(${SRC_DIR}/module)
+aux_source_directory(${SRC_DIR}/module SRC_FILE_LISTS)
 
 # objs
 set (RS_SERVER_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/objs/)

@@ -20,21 +20,35 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-The common value for rtmp server
 */
 
-#ifndef RS_COMMON_H
-#define RS_COMMON_H
+#ifndef RS_MODULE_LOG_H
+#define RS_MODULE_LOG_H
+/**
+ * The log system for rtmp server
+ */
 
-#define AUTHOR "hanvskun@hotmail.com"
+#include "rs_common.h"
 
-#define VERSION_MAJOR 1
-#define VERSION_MINOR 0
-#define VERSION_REVISION 0
+class IRSLog
+{
+public:
+    IRSLog() {};
+    virtual ~IRSLog() {};
+public:
+    virtual int32_t log(std::string level, std::string message) = 0;
+};
 
-#include <iostream>
 
-#include "rs_common_errno.h"
+class RSConsoleLog : public IRSLog
+{
+public:
+    RSConsoleLog();
+    virtual ~RSConsoleLog();
+public:
+    virtual int32_t log(std::string level, std::string message);
+};
+
+// TODO:FIXME: implement the log using disk.
 
 #endif

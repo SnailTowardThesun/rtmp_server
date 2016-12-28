@@ -20,21 +20,17 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-The common value for rtmp server
 */
 
-#ifndef RS_COMMON_H
-#define RS_COMMON_H
+/**
+ * The Error Number for rtmp server.
+ * 0 for success
+ * Begin with 1000
+ */
 
-#define AUTHOR "hanvskun@hotmail.com"
+#ifndef RS_COMMON_ERRNO_H
+#define RS_COMMON_ERRNO_H
 
-#define VERSION_MAJOR 1
-#define VERSION_MINOR 0
-#define VERSION_REVISION 0
-
-#include <iostream>
-
-#include "rs_common_errno.h"
+#define ERROR_SUCCESS 0
 
 #endif

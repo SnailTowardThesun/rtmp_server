@@ -20,21 +20,27 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-The common value for rtmp server
 */
 
-#ifndef RS_COMMON_H
-#define RS_COMMON_H
+#include "rs_module_log.h"
+#include <sstream>
 
-#define AUTHOR "hanvskun@hotmail.com"
+using namespace std;
 
-#define VERSION_MAJOR 1
-#define VERSION_MINOR 0
-#define VERSION_REVISION 0
+RSConsoleLog::RSConsoleLog()
+{
+}
 
-#include <iostream>
+RSConsoleLog::~RSConsoleLog()
+{
+}
 
-#include "rs_common_errno.h"
-
-#endif
+int32_t RSConsoleLog::log(string level, string message)
+{
+    int32_t ret = ERROR_SUCCESS;
+    stringstream ss;
+    ss << "[" << level << "]";
+    ss << ": " << message << endl;
+    cout << ss.str();
+    return ret;
+}
