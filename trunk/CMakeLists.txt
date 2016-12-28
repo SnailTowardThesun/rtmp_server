@@ -22,6 +22,18 @@ else()
     execute_process(COMMAND "tar" "xvf" "libuv-v1.9.1.tar.gz"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary
         )
+
+    # compile
+    execute_process(COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1/autogen.sh
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1
+        )
+    execute_process(COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1/configure
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1
+        )
+    execute_process(COMMAND make
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1
+        )
+
 endif (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1)
 
 # common part
