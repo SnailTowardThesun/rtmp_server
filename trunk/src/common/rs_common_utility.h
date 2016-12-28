@@ -20,25 +20,10 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-The common value for rtmp server
 */
 
-#ifndef RS_COMMON_H
-#define RS_COMMON_H
-
-#define AUTHOR "hanvskun@hotmail.com"
-
-#define VERSION_MAJOR 1
-#define VERSION_MINOR 0
-#define VERSION_REVISION 0
-
-#include <iostream>
-#include <vector>
-#include <map>
-#include <string>
-
-#include "rs_common_errno.h"
-#include "rs_common_utility.h"
-
-#endif
+#define rs_freep(p) \
+if (p != nullptr) { \
+    delete p;\
+    p = nullptr;\
+}

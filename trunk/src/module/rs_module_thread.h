@@ -20,25 +20,31 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-The common value for rtmp server
 */
 
-#ifndef RS_COMMON_H
-#define RS_COMMON_H
+#pragma once
+#include "uv.h"
 
-#define AUTHOR "hanvskun@hotmail.com"
+class RSLocker
+{
+private:
+    uv_mutex_t *_locker;
+public:
+    RSLocker();
+    virtual ~RSLocker();
+};
 
-#define VERSION_MAJOR 1
-#define VERSION_MINOR 0
-#define VERSION_REVISION 0
-
-#include <iostream>
-#include <vector>
-#include <map>
-#include <string>
-
-#include "rs_common_errno.h"
-#include "rs_common_utility.h"
-
-#endif
+class BaseThread
+{
+private:
+    uv_thread_t *_thread;
+public:
+    BaseThread();
+    virtual ~BaseThread();
+private:
+    static void cycle(void *param);
+public:
+    virtual int start();
+    virtual int stop();
+    virtual int do_cycle();
+};

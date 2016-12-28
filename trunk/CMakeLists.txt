@@ -49,6 +49,10 @@ set (RS_SERVER_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/objs/)
 set (EXECUTABLE_OUTPUT_PATH ${RS_SERVER_BINARY_DIR})
 set (LIBRARY_OUTPUT_PATH ${RS_SERVER_BINARY_DIR})
 
+# libuv
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1/include)
+
 add_executable(rs_server ${SRC_FILE_LISTS})
+target_link_libraries(rs_server ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1/.libs/libuv.a)
 
 add_subdirectory(${SRC_DIR}/utest)
