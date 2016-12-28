@@ -2,7 +2,9 @@ general:
     branches:
         only:
             - master
-test:
+compile:
     override:
         - (echo "build rtmp-server" && cd trunk && cmake . && make)
+test:
+    override:
         - (echo "run unit test" && cd trunk && ./objs/utest_rs_server)

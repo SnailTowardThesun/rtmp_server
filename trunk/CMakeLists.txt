@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 Project(RtmpServer)
 
 # compile params
-set(CMAKE_CXX_FLAGS "-g -std=c++11 -Wall")
+set(CMAKE_CXX_FLAGS "-g -std=c++11 -pthread -Wall")
 
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
@@ -27,7 +27,7 @@ else()
     execute_process(COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1/autogen.sh
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1
         )
-    execute_process(COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1/configure
+    execute_process(COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1/configure
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1
         )
     execute_process(COMMAND make
