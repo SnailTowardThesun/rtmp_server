@@ -47,26 +47,11 @@ int RSServer::run()
 {
     int ret = ERROR_SUCCESS;
 
-    if ((ret = start()) != ERROR_SUCCESS) {
-        std::cout << "start server thread failed. ret=" << ret << std::endl;
-        return ret;
-    }
 
     while (!is_exit) {
         usleep(10 * 1000);
     }
-
-    if ((ret = stop()) != ERROR_SUCCESS) {
-        std::cout << "stop server thread failed. ret=" << ret << std::endl;
-    }
-
     return ret;
-}
-
-int RSServer::do_cycle()
-{
-    std::cout << "this is server run" << std::endl;
-    return ERROR_SUCCESS;
 }
 
 void RSServer::exit()

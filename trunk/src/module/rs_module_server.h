@@ -23,9 +23,7 @@ SOFTWARE.
 */
 #pragma once
 
-#include "rs_module_thread.h"
-
-class RSServer : public BaseThread
+class RSServer
 {
 private:
     bool is_exit;
@@ -37,6 +35,5 @@ public:
     static RSServer* getInstance();
 public:
     virtual int run();
-    virtual int do_cycle();
     virtual void exit();
 };

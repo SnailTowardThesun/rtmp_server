@@ -31,7 +31,7 @@ SOFTWARE.
  // TODO:FIXME: need to us libuv signal
  static void signal_handle(int sig)
 {
-    if (sig == SIGINT || sig == SIGQUIT) {
+    if (sig == SIGINT || sig == SIGQUIT || sig == SIGTERM) {
         RSServer::getInstance()->exit();
         std::cout << "terminate the program successfully" << std::endl;
     }
@@ -54,6 +54,9 @@ int main(int argc, char* argv[])
 
     // initialize the signal system
     if (signal(SIGINT, signal_handle) == SIG_ERR) {
+        exit(ERROR_SIGNAL_INITIALIZE);
+    }
+    if (signal(SIGTERM, signal_handle) == SIG_ERR) {
         exit(ERROR_SIGNAL_INITIALIZE);
     }
     if (signal(SIGQUIT, signal_handle) == SIG_ERR) {
