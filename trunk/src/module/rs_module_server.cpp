@@ -22,18 +22,54 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/**
- * The Error Number for rtmp server.
- * 0 for success
- * Begin with 1000
- */
+#include <zconf.h>
+#include "rs_common.h"
+#include "rs_module_server.h"
 
-#ifndef RS_COMMON_ERRNO_H
-#define RS_COMMON_ERRNO_H
+RSServer::RSServer() : is_exit(false)
+{
+}
 
-#define ERROR_SUCCESS 0
+RSServer::~RSServer()
+{
+}
 
-// error number for signal
-#define ERROR_SIGNAL_INITIALIZE 1000
+static RSServer* _instance = nullptr;
+RSServer* RSServer::getInstance()
+{
+    if (_instance == nullptr) {
+        _instance = new RSServer();
+    }
+    return _instance;
+}
 
-#endif
+int RSServer::run()
+{
+    int ret = ERROR_SUCCESS;
+
+    if ((ret = start()) != ERROR_SUCCESS) {
+        std::cout << "start server thread failed. ret=" << ret << std::endl;
+        return ret;
+    }
+
+    while (!is_exit) {
+        usleep(10 * 1000);
+    }
+
+    if ((ret = stop()) != ERROR_SUCCESS) {
+        std::cout << "stop server thread failed. ret=" << ret << std::endl;
+    }
+
+    return ret;
+}
+
+int RSServer::do_cycle()
+{
+    std::cout << "this is server run" << std::endl;
+    return ERROR_SUCCESS;
+}
+
+void RSServer::exit()
+{
+    is_exit = true;
+}

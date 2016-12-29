@@ -21,19 +21,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+#pragma once
 
-/**
- * The Error Number for rtmp server.
- * 0 for success
- * Begin with 1000
- */
+#include "rs_module_thread.h"
 
-#ifndef RS_COMMON_ERRNO_H
-#define RS_COMMON_ERRNO_H
-
-#define ERROR_SUCCESS 0
-
-// error number for signal
-#define ERROR_SIGNAL_INITIALIZE 1000
-
-#endif
+class RSServer : public BaseThread
+{
+private:
+    bool is_exit;
+public:
+    RSServer();
+    virtual ~RSServer();
+public:
+    // the server is unique.
+    static RSServer* getInstance();
+public:
+    virtual int run();
+    virtual int do_cycle();
+    virtual void exit();
+};

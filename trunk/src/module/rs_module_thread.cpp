@@ -106,7 +106,7 @@ int BaseThread::stop()
 
 int BaseThread::do_cycle()
 {
+    // TODO:FIXME implement log module
     cout << "this is base thread do cycle function" << endl;
-
     return ERROR_SUCCESS;
 }

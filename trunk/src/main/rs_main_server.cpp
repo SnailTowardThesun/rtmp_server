@@ -23,6 +23,19 @@ SOFTWARE.
 */
 
 #include "rs_common.h"
+#include "rs_module_server.h"
+
+/**
+ * add signal system
+ */
+ // TODO:FIXME: need to us libuv signal
+ static void signal_handle(int sig)
+{
+    if (sig == SIGINT || sig == SIGQUIT) {
+        RSServer::getInstance()->exit();
+        std::cout << "terminate the program successfully" << std::endl;
+    }
+}
 
 /**
  * Output the server info
@@ -38,5 +51,14 @@ void _server_info()
 int main(int argc, char* argv[])
 {
     _server_info();
-    return 0;
+
+    // initialize the signal system
+    if (signal(SIGINT, signal_handle) == SIG_ERR) {
+        exit(ERROR_SIGNAL_INITIALIZE);
+    }
+    if (signal(SIGQUIT, signal_handle) == SIG_ERR) {
+        exit(ERROR_SIGNAL_INITIALIZE);
+    }
+
+    return RSServer::getInstance()->run();
 }
