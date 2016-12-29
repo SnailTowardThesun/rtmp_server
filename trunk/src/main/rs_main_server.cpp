@@ -24,6 +24,7 @@ SOFTWARE.
 
 #include "rs_common.h"
 #include "rs_module_server.h"
+#include <signal.h>
 
 /**
  * add signal system
