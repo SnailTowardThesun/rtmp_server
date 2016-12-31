@@ -34,13 +34,15 @@ public:
     virtual ~RSLocker();
 };
 
-class BaseThread
+class RSBaseThread
 {
 private:
     uv_thread_t *_thread;
 public:
-    BaseThread();
-    virtual ~BaseThread();
+    bool interupt;
+public:
+    RSBaseThread();
+    virtual ~RSBaseThread();
 private:
     static void cycle(void *param);
 public:

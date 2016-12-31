@@ -23,10 +23,26 @@ SOFTWARE.
 */
 #pragma once
 
+#include "rs_common.h"
+#include "rs_module_thread.h"
+
+class RSuvSocket;
+
+class RSRtmpServer
+{
+private:
+    std::unique_ptr<RSuvSocket> _socket;
+public:
+    RSRtmpServer();
+    virtual ~RSRtmpServer();
+public:
+    virtual int initialize();
+};
+
 class RSServer
 {
 private:
-    bool is_exit;
+    RSRtmpServer _rtmp_server;
 public:
     RSServer();
     virtual ~RSServer();

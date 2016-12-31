@@ -23,10 +23,33 @@ SOFTWARE.
 */
 
 #include <zconf.h>
-#include "rs_common.h"
 #include "rs_module_server.h"
+#include "rs_module_io.h"
+using namespace std;
 
-RSServer::RSServer() : is_exit(false)
+RSRtmpServer::RSRtmpServer() : _socket(new RSuvSocket())
+{
+
+}
+
+RSRtmpServer::~RSRtmpServer()
+{
+}
+
+int RSRtmpServer::initialize()
+{
+    int ret = ERROR_SUCCESS;
+
+    if ((ret = _socket->initialize(RTMP_DEFAULTPORT)) != ERROR_SUCCESS) {
+        cout << "initialize listen socket failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    return ret;
+}
+
+
+RSServer::RSServer()
 {
 }
 
@@ -47,14 +70,18 @@ int RSServer::run()
 {
     int ret = ERROR_SUCCESS;
 
-
-    while (!is_exit) {
-        usleep(10 * 1000);
+    // initialize the all servers
+    if ((ret = _rtmp_server.initialize()) != ERROR_SUCCESS) {
+        cout << "initialize the rtmp server failed. ret=" << ret << endl;
+        return ret;
     }
-    return ret;
+
+    return uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 }
 
 void RSServer::exit()
 {
-    is_exit = true;
+    // stop all loop
+    uv_stop(uv_default_loop());
+    uv_loop_close(uv_default_loop());
 }

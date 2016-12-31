@@ -47,28 +47,31 @@ RSLocker::~RSLocker()
     rs_freep(_locker);
 }
 
-BaseThread::BaseThread() : _thread(nullptr)
+RSBaseThread::RSBaseThread() : _thread(nullptr), 
+    interupt(false)
 {
 
 }
 
-BaseThread::~BaseThread()
+RSBaseThread::~RSBaseThread()
 {
     stop();
     rs_freep(_thread);
 }
 
-void BaseThread::cycle(void *param)
+void RSBaseThread::cycle(void *param)
 {
-    BaseThread *th = static_cast<BaseThread*>(param);
+    RSBaseThread *th = static_cast<RSBaseThread*>(param);
     if (th) {
         th->do_cycle();
     }
 }
 
-int BaseThread::start()
+int RSBaseThread::start()
 {
     int ret = ERROR_SUCCESS;
+
+    interupt = false;
 
     if (_thread != nullptr && (ret = stop()) != ERROR_SUCCESS) {
         // TODO:FIXME implement log module
@@ -86,7 +89,7 @@ int BaseThread::start()
     return ret;
 }
 
-int BaseThread::stop()
+int RSBaseThread::stop()
 {
     int ret = ERROR_SUCCESS;
 
@@ -94,17 +97,20 @@ int BaseThread::stop()
         return ret;
     }
 
+    interupt = true;
+
     if ((ret = uv_thread_join(_thread)) != ERROR_SUCCESS) {
         // TODO:FIXME implement log module
         cout << "join uv thread failed. ret=" << ret << endl;
         return ret;
     }
     rs_freep(_thread);
+    cout << "stop thread successfully" << endl;
 
     return ret;
 }
 
-int BaseThread::do_cycle()
+int RSBaseThread::do_cycle()
 {
     // TODO:FIXME implement log module
     cout << "this is base thread do cycle function" << endl;

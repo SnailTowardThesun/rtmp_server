@@ -20,28 +20,46 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-The common value for rtmp server
 */
 
-#ifndef RS_COMMON_H
-#define RS_COMMON_H
+#pragma once
+#include "rs_common.h"
+#include "uv.h"
+#include <netinet/in.h>
 
-#define AUTHOR "hanvskun@hotmail.com"
+class RSuvSocket
+{
+    typedef struct {
+        const char *bind_host;
+        unsigned short bind_port;
+        unsigned int idle_timeout;
+    } server_config;
 
-#define VERSION_MAJOR 1
-#define VERSION_MINOR 0
-#define VERSION_REVISION 0
+    typedef struct {
+        unsigned int idle_timeout;  /* Connection idle timeout in ms. */
+        uv_tcp_t tcp_handle;
+        uv_loop_t *loop;
+    } server_ctx;
 
-#include <iostream>
-#include <vector>
-#include <map>
-#include <string>
-#include <assert.h>
+    typedef struct {
+        uv_getaddrinfo_t getaddrinfo_req;
+        server_config config;
+        server_ctx *servers;
+        uv_loop_t *loop;
+    }server_state;
 
-#include "rs_common_errno.h"
-#include "rs_common_utility.h"
-
-#define RTMP_DEFAULTPORT 1935
-
-#endif
+private:
+    int _port;
+    struct addrinfo addr;
+    server_state state;
+private:
+    static void do_bind(uv_getaddrinfo_t *req, int status, struct addrinfo *addrs);
+    static void on_connection(uv_stream_t *server, int status);
+    static void conn_alloc(uv_handle_t *handle, size_t size, uv_buf_t *buf);
+    static void conn_read_done(uv_stream_t *handle, ssize_t  nread, const uv_buf_t *buf);
+public:
+    RSuvSocket();
+    virtual ~RSuvSocket();
+public:
+    virtual int initialize(int port);
+};
