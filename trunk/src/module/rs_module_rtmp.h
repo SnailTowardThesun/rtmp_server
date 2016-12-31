@@ -24,3 +24,22 @@ SOFTWARE.
 
 #pragma once
 #include "rs_common.h"
+#include "uv.h"
+
+class RsRtmpConn
+{
+private:
+    uv_tcp_t* _incomming;
+    char* _buffer_ptr;
+    std::string _buffer;
+public:
+    RsRtmpConn();
+    virtual ~RsRtmpConn();
+private:
+    static void conn_alloc(uv_handle_t *handle, size_t size, uv_buf_t *buf);
+    static void conn_read_done(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf);
+public:
+    int initialzie(uv_stream_t *server);
+    void do_conn_alloc(uv_handle_t *handle, size_t size, uv_buf_t *buf);
+    void do_conn_read_done(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf);
+};
