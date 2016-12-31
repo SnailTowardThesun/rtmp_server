@@ -57,6 +57,7 @@ private:
     static void on_connection(uv_stream_t *server, int status);
     static void conn_alloc(uv_handle_t *handle, size_t size, uv_buf_t *buf);
     static void conn_read_done(uv_stream_t *handle, ssize_t  nread, const uv_buf_t *buf);
+    static void close_done(uv_handle_t *handle);
 public:
     RSuvSocket();
     virtual ~RSuvSocket();

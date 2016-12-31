@@ -38,6 +38,7 @@ The common value for rtmp server
 #include <map>
 #include <string>
 #include <assert.h>
+#include <memory>
 
 #include "rs_common_errno.h"
 #include "rs_common_utility.h"

@@ -228,7 +228,12 @@ void RSuvSocket::conn_read_done(uv_stream_t *handle, ssize_t nread, const uv_buf
         cout << "stop read failed. ret=" << ret;
         return;
     }
-    uv_close((uv_handle_t*)handle, nullptr);
+    uv_close((uv_handle_t*)handle, close_done);
+}
+
+void RSuvSocket::close_done(uv_handle_t *handle)
+{
+    rs_freep(handle);
 }
 
 
