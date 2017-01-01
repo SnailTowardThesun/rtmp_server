@@ -28,15 +28,23 @@ using namespace std;
 #define DEFAULT_BUFFER_LENGTH 4096
 
 RsRtmpConn::RsRtmpConn() : _incomming(new uv_tcp_t())
-        , _buffer_ptr(nullptr)
+        , _write_buf(new uv_buf_t()), _write_req(new uv_write_t()), _ptr_read_buffer(nullptr)
 {
     _incomming->data = static_cast<void*>(this);
+    rtmp_conn_state = UN_CONNECTED;
+    _ptr_write_buffer = new char[DEFAULT_BUFFER_LENGTH];
+    _ptr_read_buffer = new char[DEFAULT_BUFFER_LENGTH];
 }
 
 RsRtmpConn::~RsRtmpConn()
 {
+    dispose();
+    rs_freep(_write_buf->base);
+    rs_freep(_write_buf);
+    rs_freep(_write_req);
     rs_freep(_incomming);
-    rs_freep(_buffer_ptr);
+    rs_freep(_ptr_read_buffer);
+    rs_freep(_ptr_write_buffer);
 }
 
 int RsRtmpConn::initialzie(uv_stream_t *server)
@@ -85,23 +93,93 @@ void RsRtmpConn::conn_read_done(uv_stream_t *stream, ssize_t nread, const uv_buf
 
 void RsRtmpConn::do_conn_alloc(uv_handle_t *handle, size_t size, uv_buf_t *buf)
 {
-    if (_buffer_ptr != nullptr) {
-        _buffer_ptr = new char[DEFAULT_BUFFER_LENGTH];
-    }
-    buf->base = _buffer_ptr;
+    buf->base = _ptr_read_buffer;
     buf->len = DEFAULT_BUFFER_LENGTH;
 }
 
 void RsRtmpConn::do_conn_read_done(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
 {
+    cout << buf << endl;
+
     int ret = ERROR_SUCCESS;
-    if ((ret = uv_read_stop(stream)) != ERROR_SUCCESS) {
-        cout << "tcp socket stop read failed. ret=" << ret << endl;
+    if ((ret = handle(buf->base, nread)) != ERROR_SUCCESS) {
+        cout << "handle rtmp message failed. ret=" << endl;
         return;
     }
 
-    uv_close((uv_handle_t*)stream, [](uv_handle_t* handle) {
+    if (_write_buf->len > 0) {
+        ret = uv_write(_write_req, (uv_stream_t*)_incomming, _write_buf, 1, [](uv_write_t* req, int status){
+            cout << "write one message to client" << endl;
+        });
+        if (ret != ERROR_SUCCESS) {
+            cout << "rtmp write message failed. ret=" << ret << endl;
+        }
+    }
+}
+
+int RsRtmpConn::handshake(char *read, int read_nb)
+{
+    int ret = ERROR_SUCCESS;
+
+    if (rtmp_conn_state == UN_CONNECTED) {
+        if (read[0] != 0x03) {
+            cout << "version of rtmp failed." << endl;
+        }
+        rtmp_conn_state = DO_HANDSHANKE;
+    }
+
+    memcpy(_ptr_write_buffer, read, read_nb);
+
+    _write_buf->base = _ptr_write_buffer;
+    _write_buf->len = read_nb;
+    return ret;
+}
+
+int RsRtmpConn::handle(char *read, int read_nb)
+{
+    int ret = ERROR_SUCCESS;
+
+    if (read == nullptr || read_nb < 1) {
+        cout << "the message is empty" << endl;
+        return ret;
+    }
+
+    switch (rtmp_conn_state) {
+    case UN_CONNECTED:
+    case DO_HANDSHANKE:
+        if ((ret = handshake(read, read_nb)) != ERROR_SUCCESS) {
+            cout << "handshak failed. ret=" << endl;
+        }
+        break;
+    case DO_CONNECT_STREAM:
+        break;
+    case CONNECTED:
+        break;
+    default:
+        cout << "the state of rtmp connection is error" << endl;
+        break;
+    }
+
+    return ret;
+}
+
+int RsRtmpConn::dispose()
+{
+    int ret = ERROR_SUCCESS;
+
+    if (_incomming == nullptr) {
+        return ret;
+    }
+
+    if ((ret = uv_read_stop((uv_stream_t*)_incomming))) {
+        cout << "tcp socket stop read failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    uv_close((uv_handle_t*)_incomming, [](uv_handle_t* handle) {
         rs_freep(handle);
     });
+
+    return ret;
 }
 

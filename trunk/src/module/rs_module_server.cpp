@@ -61,6 +61,7 @@ RSRtmpServer::RSRtmpServer()
 
 RSRtmpServer::~RSRtmpServer()
 {
+    conns.clear();
 }
 
 int RSRtmpServer::initialize()
@@ -177,6 +178,7 @@ void RSRtmpServer::do_bind(uv_getaddrinfo_t *req, int status, struct addrinfo *a
 
         what = "uv_tcp_bind";
         err = uv_tcp_bind(&sx->tcp_handle, &s.addr, 0);
+        sx->tcp_handle.data = static_cast<void*>(this);
         if (err == 0) {
             what = "uv_listen";
             err = uv_listen((uv_stream_t *) &sx->tcp_handle, 128, connection_cb);
