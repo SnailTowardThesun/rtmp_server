@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #include "rs_module_rtmp.h"
+#include <string.h>
 using namespace std;
 
 #define DEFAULT_BUFFER_LENGTH 4096
