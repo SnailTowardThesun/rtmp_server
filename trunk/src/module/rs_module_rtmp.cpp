@@ -28,6 +28,64 @@ using namespace std;
 
 #define DEFAULT_BUFFER_LENGTH 4096
 
+RsRtmpConn::c0c1::c0c1()
+{
+
+}
+
+RsRtmpConn::c0c1::~c0c1()
+{
+
+}
+
+int RsRtmpConn::c0c1::initialzie(char *buffer, int size)
+{
+    int ret = ERROR_SUCCESS;
+
+    if (buffer[0] != 0x03) {
+        cout << "c0c1 should be started with 0x03" << endl;
+        ret = ERROR_RTMP_PROTOCOL_C0_ERROR;
+        return ret;
+    }
+
+    if (size != 1537) {
+        cout << "the length of c0c1 failed" << endl;
+        ret = ERROR_RTMP_PROTOCOL_C0C1_LENGTH_ERROR;
+        return ret;
+    }
+
+    return ret;
+}
+
+RsRtmpConn::s0s1s2::s0s1s2()
+{
+
+}
+
+RsRtmpConn::s0s1s2::~s0s1s2()
+{
+
+}
+
+int RsRtmpConn::s0s1s2::initialize(char *buffer, int size)
+{
+    int ret = ERROR_SUCCESS;
+
+    return ret;
+}
+
+int RsRtmpConn::s0s1s2::get_msg(uv_buf_t *buf)
+{
+    int ret = ERROR_SUCCESS;
+
+    assert(buf != nullptr);
+
+    buf->base = buff;
+    buf->len = 3073;
+
+    return ret;
+}
+
 RsRtmpConn::RsRtmpConn() : _incomming(new uv_tcp_t())
         , _write_buf(new uv_buf_t()), _write_req(new uv_write_t()), _ptr_read_buffer(nullptr)
 {
@@ -123,16 +181,32 @@ int RsRtmpConn::handshake(char *read, int read_nb)
     int ret = ERROR_SUCCESS;
 
     if (rtmp_conn_state == UN_CONNECTED) {
-        if (read[0] != 0x03) {
-            cout << "version of rtmp failed." << endl;
+        c0c1 pkt;
+        if ((ret = pkt.initialzie(read, read_nb)) != ERROR_SUCCESS) {
+            cout << "decode c0c1 failed. ret=" << ret << endl;
+            return ret;
+        }
+        if ((ret = handshake_s_packet.initialize(read, read_nb)) != ERROR_SUCCESS) {
+            cout << "create s0s1s2 packet failed. ret=" << ret << endl;
+            return ret;
+        }
+
+        if ((ret = handshake_s_packet.get_msg(_write_buf)) != ERROR_SUCCESS) {
+            cout << "get s0s1s2 message failed. ret=" << ret << endl;
+            return ret;
+        }
+
+        if ((ret = uv_write(_write_req, (uv_stream_t*)_incomming, _write_buf, 1, [](uv_write_t *req, int status) {
+            cout << "write message done" << endl;
+        })) != ERROR_SUCCESS) {
+            cout << "write s0s1s2 failed. ret = " << ret << endl;
+            return ret;
         }
         rtmp_conn_state = DO_HANDSHANKE;
     }
 
-    memcpy(_ptr_write_buffer, read, read_nb);
+    rtmp_conn_state = DO_CONNECT_STREAM;
 
-    _write_buf->base = _ptr_write_buffer;
-    _write_buf->len = read_nb;
     return ret;
 }
 
@@ -178,6 +252,7 @@ int RsRtmpConn::dispose()
     }
 
     uv_close((uv_handle_t*)_incomming, [](uv_handle_t* handle) {
+        cout << "close one connection" << endl;
         rs_freep(handle);
     });
 

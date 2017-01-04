@@ -22,25 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#pragma once
 #include "rs_common.h"
-#include "rs_module_server.h"
 
-// TODO:FIXME: need to implement signal system
-
-/**
- * Output the server info
- */
-void _server_info()
+class RsBuffer
 {
-    // TODO:FIXME: implement log system
-    std::cout << "version: " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_REVISION << std::endl;
-    std::cout << "Copyright (c) 2016 ME_Kun_Han hanvskun@hotmail.com" << std::endl;
-    std::cout << "author : " << AUTHOR << std::endl;
-}
-
-int main(int argc, char* argv[])
-{
-    _server_info();
-
-    return RSServer::getInstance()->run();
-}
+public:
+    RsBuffer();
+    virtual ~RsBuffer();
+};

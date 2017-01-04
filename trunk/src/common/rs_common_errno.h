@@ -36,4 +36,7 @@ SOFTWARE.
 // error number for signal
 #define ERROR_SIGNAL_INITIALIZE 1000
 
+// error number for protocol
+#define ERROR_RTMP_PROTOCOL_C0_ERROR 2000
+#define ERROR_RTMP_PROTOCOL_C0C1_LENGTH_ERROR 2001
 #endif

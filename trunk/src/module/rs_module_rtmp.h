@@ -29,6 +29,27 @@ SOFTWARE.
 class RsRtmpConn
 {
 private:
+    class c0c1
+    {
+    public:
+        c0c1();
+        virtual ~c0c1();
+    public:
+        int initialzie(char* buffer, int size);
+    };
+    class s0s1s2
+    {
+    private:
+        char buff[3073];
+    public:
+        s0s1s2();
+        virtual ~s0s1s2();
+
+    public:
+        int initialize(char* buffer, int size);
+        int get_msg(uv_buf_t *buff);
+    } handshake_s_packet;
+private:
     enum {
         UN_CONNECTED = 0,
         DO_HANDSHANKE,

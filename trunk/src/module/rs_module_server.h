@@ -32,36 +32,16 @@ public:
     virtual ~RSRtmpServer();
 public:
     virtual int initialize();
-    typedef struct {
-        const char *bind_host;
-        unsigned short bind_port;
-        unsigned int idle_timeout;
-    } server_config;
-
-    typedef struct {
-        unsigned int idle_timeout;  /* Connection idle timeout in ms. */
-        uv_tcp_t tcp_handle;
-        uv_loop_t *loop;
-    } server_ctx;
-
-    typedef struct {
-        uv_getaddrinfo_t getaddrinfo_req;
-        server_config config;
-        server_ctx *servers;
-        uv_loop_t *loop;
-    }server_state;
-
 private:
-    int _port;
-    struct addrinfo addr;
-    server_state state;
+    struct sockaddr_in addr;
+    uv_tcp_t* server;
     std::vector<std::shared_ptr<RsRtmpConn>> conns;
 private:
-    static void bind_socket(uv_getaddrinfo_t *req, int status, struct addrinfo *addrs);
     static void connection_cb(uv_stream_t *server, int status);
 public:
-    void do_bind(uv_getaddrinfo_t *req, int status, struct addrinfo *addrs);
     void on_connection(uv_stream_t *server, int status);
+public:
+    int dispose();
 };
 
 class RSServer
@@ -76,5 +56,5 @@ public:
     static RSServer* getInstance();
 public:
     virtual int run();
-    virtual void exit();
+    virtual int exit();
 };
