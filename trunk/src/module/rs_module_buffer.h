@@ -27,7 +27,21 @@ SOFTWARE.
 
 class RsBuffer
 {
+private:
+    char* buffer;
 public:
     RsBuffer();
     virtual ~RsBuffer();
+public:
+    int write_1_byte();
+    int write_2_byte();
+    int write_3_byte();
+    int write_4_byte();
+
+    int read_1_byte();
+    int read_2_byte();
+    int read_3_byte();
+    int read_4_byte();
+
+    char* dumps();
 };

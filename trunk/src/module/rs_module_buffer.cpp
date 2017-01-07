@@ -23,13 +23,72 @@ SOFTWARE.
 */
 
 #include "rs_module_buffer.h"
+using namespace std;
 
-RsBuffer::RsBuffer()
+RsBuffer::RsBuffer() : buffer(nullptr)
 {
 
 }
 
 RsBuffer::~RsBuffer()
 {
+    rs_freep(buffer);
+}
 
+int RsBuffer::write_1_byte()
+{
+    int ret = ERROR_SUCCESS;
+    return ret;
+}
+
+int RsBuffer::write_2_byte()
+{
+    int ret = ERROR_SUCCESS;
+    return ret;
+}
+
+int RsBuffer::write_3_byte()
+{
+    int ret = ERROR_SUCCESS;
+    return ret;
+}
+
+int RsBuffer::write_4_byte()
+{
+    int ret = ERROR_SUCCESS;
+    return ret;
+}
+
+int RsBuffer::read_1_byte()
+{
+    int ret = ERROR_SUCCESS;
+    return ret;
+}
+
+int RsBuffer::read_2_byte()
+{
+    int ret = ERROR_SUCCESS;
+    return ret;
+}
+
+int RsBuffer::read_3_byte()
+{
+    int ret = ERROR_SUCCESS;
+    return ret;
+}
+
+int RsBuffer::read_4_byte()
+{
+    int ret = ERROR_SUCCESS;
+    return ret;
+}
+
+char* RsBuffer::dumps()
+{
+    if (buffer != nullptr) {
+        return buffer;
+    }
+
+    cout << "the buffer is empty" << endl;
+    return nullptr;
 }
