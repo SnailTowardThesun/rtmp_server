@@ -25,68 +25,178 @@ SOFTWARE.
 #include "rs_module_buffer.h"
 using namespace std;
 
-RsBuffer::RsBuffer() : buffer(nullptr)
+RsBuffer::RsBuffer()
 {
 
 }
 
 RsBuffer::~RsBuffer()
 {
-    rs_freep(buffer);
 }
 
-int RsBuffer::write_1_byte()
+int RsBuffer::write_1_byte(uint8_t val)
 {
     int ret = ERROR_SUCCESS;
+
+    char *p = (char*)&val;
+
+    buffer += p[0];
+
     return ret;
 }
 
-int RsBuffer::write_2_byte()
+int RsBuffer::write_2_byte(uint16_t val)
 {
     int ret = ERROR_SUCCESS;
+
+    char *pVal = (char*)&val;
+
+    buffer += pVal[1];
+    buffer += pVal[0];
+
     return ret;
 }
 
-int RsBuffer::write_3_byte()
+int RsBuffer::write_3_byte(uint32_t val)
 {
     int ret = ERROR_SUCCESS;
+
+    char *pVal = (char*)&val;
+
+    buffer += pVal[2];
+    buffer += pVal[1];
+    buffer += pVal[0];
+
     return ret;
 }
 
-int RsBuffer::write_4_byte()
+int RsBuffer::write_4_byte(uint32_t val)
 {
     int ret = ERROR_SUCCESS;
+
+    char *pVal = (char*)&val;
+
+    buffer += pVal[3];
+    buffer += pVal[2];
+    buffer += pVal[1];
+    buffer += pVal[0];
+
     return ret;
 }
 
-int RsBuffer::read_1_byte()
+int RsBuffer::write_8_byte(uint64_t val)
 {
     int ret = ERROR_SUCCESS;
+
+    char *pVal = (char*)&val;
+
+    buffer += pVal[7];
+    buffer += pVal[6];
+    buffer += pVal[5];
+    buffer += pVal[4];
+    buffer += pVal[3];
+    buffer += pVal[2];
+    buffer += pVal[1];
+    buffer += pVal[0];
+
     return ret;
 }
 
-int RsBuffer::read_2_byte()
+int RsBuffer::write_bytes(char *buf, int size)
 {
     int ret = ERROR_SUCCESS;
+
+    buffer += string((const char*)buf, (unsigned long) size);
+
     return ret;
 }
 
-int RsBuffer::read_3_byte()
+uint8_t RsBuffer::read_1_byte()
+{
+    uint8_t val = 0;
+
+    val = static_cast<uint8_t>(buffer[0]);
+
+    buffer.erase(buffer.begin());
+
+    return val;
+}
+
+uint16_t RsBuffer::read_2_byte()
+{
+    uint16_t val = 0;
+
+    char *pVal = (char*)&val;
+
+    for (int i = 1; i >= 0; --i) {
+        pVal[i] = buffer.at(0);
+        buffer.erase(buffer.begin());
+    }
+
+    return val;
+}
+
+uint32_t RsBuffer::read_3_byte()
+{
+    uint32_t val = 0;
+
+    char *pVal = (char*)&val;
+
+    for (int i = 2; i >= 0; --i) {
+        pVal[i] = buffer.at(0);
+        buffer.erase(buffer.begin());
+    }
+
+    return val;
+}
+
+uint32_t RsBuffer::read_4_byte()
+{
+    uint32_t val = 0;
+
+    char *pVal = (char*)&val;
+
+    for (int i = 3; i >= 0; --i) {
+        pVal[i] = buffer.at(0);
+        buffer.erase(buffer.begin());
+    }
+
+    return  val;
+}
+
+uint64_t RsBuffer::read_8_byte()
+{
+    uint64_t val = 0;
+
+    char *pVal = (char*)&val;
+
+    for (int i = 7; i >= 0; --i) {
+        pVal[i] = buffer.at(0);
+        buffer.erase(buffer.begin());
+    }
+
+    return val;
+}
+
+int RsBuffer::read_bytes(char *buf, int size)
 {
     int ret = ERROR_SUCCESS;
+
+    assert(buf != nullptr);
+    assert(buffer.size() >= size);
+
+    for (int i = 0; i < size; ++i) {
+        buf[i] = buffer.at(0);
+        buffer.erase(buffer.begin());
+    }
+
     return ret;
 }
 
-int RsBuffer::read_4_byte()
+const char* RsBuffer::dumps()
 {
-    int ret = ERROR_SUCCESS;
-    return ret;
-}
-
-char* RsBuffer::dumps()
-{
-    if (buffer != nullptr) {
-        return buffer;
+    if (!buffer.empty()) {
+        return buffer.c_str();
     }
 
     cout << "the buffer is empty" << endl;

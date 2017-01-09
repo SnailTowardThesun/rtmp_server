@@ -16,5 +16,18 @@ set(UTEST_SRC_FILE ${CMAKE_CURRENT_SOURCE_DIR}/rs_utest_main.cpp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR} UTEST_SRC_FILE)
 
+# common part
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../common)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/../common UTEST_SRC_FILE)
+
+# module part
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../module)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/../module UTEST_SRC_FILE)
+
+# 3rdparty
+# libuv
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../3rdlibrary/libuv-v1.9.1/include)
+
 add_executable(utest_rs_server ${UTEST_SRC_FILE})
 target_link_libraries(utest_rs_server gtest_main)
+target_link_libraries(utest_rs_server ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdlibrary/libuv-v1.9.1/.libs/libuv.a)
