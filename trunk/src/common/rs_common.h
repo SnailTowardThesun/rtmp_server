@@ -44,6 +44,6 @@ The common value for rtmp server
 #include "rs_common_errno.h"
 #include "rs_common_utility.h"
 
-#define RTMP_DEFAULTPORT 1935
+#define RTMP_DEFAULT_PORT 1935
 
 #endif

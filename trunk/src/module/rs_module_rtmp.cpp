@@ -38,7 +38,7 @@ RsRtmpConn::c0c1::~c0c1()
 
 }
 
-int RsRtmpConn::c0c1::initialzie(char *buffer, int size)
+int RsRtmpConn::c0c1::initialize(char *buffer, int size)
 {
     int ret = ERROR_SUCCESS;
 
@@ -98,15 +98,15 @@ RsRtmpConn::RsRtmpConn() : _incomming(new uv_tcp_t())
 RsRtmpConn::~RsRtmpConn()
 {
     dispose();
-    rs_freep(_write_buf->base);
-    rs_freep(_write_buf);
-    rs_freep(_write_req);
-    rs_freep(_incomming);
-    rs_freep(_ptr_read_buffer);
-    rs_freep(_ptr_write_buffer);
+    rs_free_p(_write_buf->base);
+    rs_free_p(_write_buf);
+    rs_free_p(_write_req);
+    rs_free_p(_incomming);
+    rs_free_p(_ptr_read_buffer);
+    rs_free_p(_ptr_write_buffer);
 }
 
-int RsRtmpConn::initialzie(uv_stream_t *server)
+int RsRtmpConn::initialize(uv_stream_t *server)
 {
     int ret = ERROR_SUCCESS;
 
@@ -162,7 +162,7 @@ void RsRtmpConn::do_conn_read_done(uv_stream_t *stream, ssize_t nread, const uv_
 
     int ret = ERROR_SUCCESS;
     if ((ret = handle(buf->base, nread)) != ERROR_SUCCESS) {
-        cout << "handle rtmp message failed. ret=" << endl;
+        cout << "handle rtmp message failed. ret=" << ret << endl;
         return;
     }
 
@@ -182,7 +182,7 @@ int RsRtmpConn::handshake(char *read, int read_nb)
 
     if (rtmp_conn_state == UN_CONNECTED) {
         c0c1 pkt;
-        if ((ret = pkt.initialzie(read, read_nb)) != ERROR_SUCCESS) {
+        if ((ret = pkt.initialize(read, read_nb)) != ERROR_SUCCESS) {
             cout << "decode c0c1 failed. ret=" << ret << endl;
             return ret;
         }
@@ -202,7 +202,7 @@ int RsRtmpConn::handshake(char *read, int read_nb)
             cout << "write s0s1s2 failed. ret = " << ret << endl;
             return ret;
         }
-        rtmp_conn_state = DO_HANDSHANKE;
+        rtmp_conn_state = DO_HANDSHAKE;
     }
 
     rtmp_conn_state = DO_CONNECT_STREAM;
@@ -221,9 +221,9 @@ int RsRtmpConn::handle(char *read, int read_nb)
 
     switch (rtmp_conn_state) {
     case UN_CONNECTED:
-    case DO_HANDSHANKE:
+    case DO_HANDSHAKE:
         if ((ret = handshake(read, read_nb)) != ERROR_SUCCESS) {
-            cout << "handshak failed. ret=" << endl;
+            cout << "handshake failed. ret=" << endl;
         }
         break;
     case DO_CONNECT_STREAM:
@@ -253,7 +253,7 @@ int RsRtmpConn::dispose()
 
     uv_close((uv_handle_t*)_incomming, [](uv_handle_t* handle) {
         cout << "close one connection" << endl;
-        rs_freep(handle);
+        rs_free_p(handle);
     });
 
     return ret;

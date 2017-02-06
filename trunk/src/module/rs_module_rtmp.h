@@ -35,7 +35,7 @@ private:
         c0c1();
         virtual ~c0c1();
     public:
-        int initialzie(char* buffer, int size);
+        int initialize(char *buffer, int size);
     };
     class s0s1s2
     {
@@ -52,7 +52,7 @@ private:
 private:
     enum {
         UN_CONNECTED = 0,
-        DO_HANDSHANKE,
+        DO_HANDSHAKE,
         DO_CONNECT_STREAM,
         CONNECTED
     } rtmp_conn_state;
@@ -69,7 +69,7 @@ private:
     static void conn_alloc(uv_handle_t *handle, size_t size, uv_buf_t *buf);
     static void conn_read_done(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf);
 public:
-    int initialzie(uv_stream_t *server);
+    int initialize(uv_stream_t *server);
     void do_conn_alloc(uv_handle_t *handle, size_t size, uv_buf_t *buf);
     void do_conn_read_done(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf);
 private:

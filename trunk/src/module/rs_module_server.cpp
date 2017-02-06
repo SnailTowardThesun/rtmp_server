@@ -34,7 +34,7 @@ RSRtmpServer::RSRtmpServer()
 
 RSRtmpServer::~RSRtmpServer()
 {
-    rs_freep(server);
+    rs_free_p(server);
     conns.clear();
 }
 
@@ -44,7 +44,7 @@ int RSRtmpServer::initialize()
 
     uv_tcp_init(uv_default_loop(), server);
 
-    uv_ip4_addr("0.0.0.0", RTMP_DEFAULTPORT, &addr);
+    uv_ip4_addr("0.0.0.0", RTMP_DEFAULT_PORT, &addr);
 
     uv_tcp_bind(server, (const struct sockaddr*)&addr, 0);
     if ((ret = uv_listen((uv_stream_t*) server, 1024, connection_cb)) != ERROR_SUCCESS) {
@@ -70,9 +70,9 @@ void RSRtmpServer::on_connection(uv_stream_t *server, int status)
     int ret = ERROR_SUCCESS;
 
     RsRtmpConn* conn = new RsRtmpConn();
-    if ((ret = conn->initialzie(server)) != ERROR_SUCCESS) {
+    if ((ret = conn->initialize(server)) != ERROR_SUCCESS) {
         cout << "initialize rtmp connection failed. ret=" << ret << endl;
-        rs_freep(conn);
+        rs_free_p(conn);
         return;
     }
 

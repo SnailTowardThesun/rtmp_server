@@ -34,7 +34,7 @@ RSLocker::RSLocker() : _locker(nullptr)
         uv_mutex_lock(_locker);
     } else {
         uv_mutex_destroy(_locker);
-        rs_freep(_locker);
+        rs_free_p(_locker);
     }
 }
 
@@ -44,7 +44,7 @@ RSLocker::~RSLocker()
         uv_mutex_unlock(_locker);
     }
     uv_mutex_destroy(_locker);
-    rs_freep(_locker);
+    rs_free_p(_locker);
 }
 
 RSBaseThread::RSBaseThread() : _thread(nullptr), 
@@ -56,7 +56,7 @@ RSBaseThread::RSBaseThread() : _thread(nullptr),
 RSBaseThread::~RSBaseThread()
 {
     stop();
-    rs_freep(_thread);
+    rs_free_p(_thread);
 }
 
 void RSBaseThread::cycle(void *param)
@@ -104,7 +104,7 @@ int RSBaseThread::stop()
         cout << "join uv thread failed. ret=" << ret << endl;
         return ret;
     }
-    rs_freep(_thread);
+    rs_free_p(_thread);
     cout << "stop thread successfully" << endl;
 
     return ret;

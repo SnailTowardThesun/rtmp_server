@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#define rs_freep(p) \
+#define rs_free_p(p) \
 if (p != nullptr) { \
     delete p;\
     p = nullptr;\
