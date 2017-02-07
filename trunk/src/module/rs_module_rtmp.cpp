@@ -30,7 +30,6 @@ using namespace std;
 
 RsRtmpConn::c0c1::c0c1()
 {
-
 }
 
 RsRtmpConn::c0c1::~c0c1()
