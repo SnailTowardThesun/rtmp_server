@@ -102,7 +102,13 @@ int RsBuffer::write_8_byte(uint64_t val)
     return ret;
 }
 
-int RsBuffer::write_bytes(char *buf, int size)
+int RsBuffer::write_bytes(string buf)
+{
+    buffer.append(buf);
+    return ERROR_SUCCESS;
+}
+
+int RsBuffer::write_bytes(const char *buf, int size)
 {
     int ret = ERROR_SUCCESS;
 
@@ -178,19 +184,12 @@ uint64_t RsBuffer::read_8_byte()
     return val;
 }
 
-int RsBuffer::read_bytes(char *buf, int size)
+string RsBuffer::read_bytes(int size)
 {
-    int ret = ERROR_SUCCESS;
-
-    assert(buf != nullptr);
-    assert(buffer.size() >= size);
-
-    for (int i = 0; i < size; ++i) {
-        buf[i] = buffer.at(0);
-        buffer.erase(buffer.begin());
-    }
-
-    return ret;
+    string buf;
+    buf = buffer.substr(0, size);
+    buffer.erase(0, size);
+    return buf;
 }
 
 const char* RsBuffer::dumps()

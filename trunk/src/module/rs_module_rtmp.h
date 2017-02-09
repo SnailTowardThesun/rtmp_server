@@ -32,23 +32,45 @@ private:
     class c0c1
     {
     public:
+        uint8_t version;
+        uint32_t timestamp;
+        uint32_t zero;
+        std::string random_data;
+    public:
         c0c1();
         virtual ~c0c1();
     public:
-        int initialize(char *buffer, int size);
+        int initialize();
+        int initialize(std::string buf);
+        std::string dumps();
     };
-    class s0s1s2
+    class c2
     {
-    private:
-        char buff[3073];
     public:
-        s0s1s2();
-        virtual ~s0s1s2();
+        uint32_t timestamp;
+        uint32_t timestamp2;
+        std::string random_data;
+    public:
+        c2();
+        virtual ~c2();
+    public:
+        int initialize();
+        int initialize(uint32_t ts, std::string rd);
+        std::string dumps();
 
+    };
+    class s0s1 : public c0c1
+    {
     public:
-        int initialize(char* buffer, int size);
-        int get_msg(uv_buf_t *buff);
-    } handshake_s_packet;
+        s0s1(){};
+        virtual ~s0s1(){};
+    };
+    class s2 : public c2
+    {
+    public:
+        s2(){};
+        virtual ~s2(){};
+    };
 private:
     enum {
         UN_CONNECTED = 0,

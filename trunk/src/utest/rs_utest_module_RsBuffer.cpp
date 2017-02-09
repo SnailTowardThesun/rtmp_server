@@ -99,12 +99,8 @@ TEST(RsBuffer, read_write)
     {
         std::string strTest = "hello rtmp server utest";
         ASSERT_EQ(buffer.write_bytes((char*)strTest.c_str(), strTest.size()), ERROR_SUCCESS);
-
-        char *pStr = new char[strTest.size()];
-        ASSERT_EQ(buffer.read_bytes(pStr, strTest.size()), ERROR_SUCCESS);
-        ASSERT_EQ(strTest, std::string(pStr, strTest.size()));
-
-        delete[] pStr;
+        std::string strRead = buffer.read_bytes(strTest.size());
+        ASSERT_TRUE(strTest == strRead);
     }
 
 }

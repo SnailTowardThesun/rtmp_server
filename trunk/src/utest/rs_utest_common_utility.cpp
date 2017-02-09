@@ -22,15 +22,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-#include "rs_common.h"
+#include "gtest/gtest.h"
+#include "rs_common_utility.h"
 
-#define rs_free_p(p) \
-if (p != nullptr) { \
-    delete p;\
-    p = nullptr;\
+TEST(CommonUtility, rs_get_random)
+{
+    {
+        int size = 0;
+        std::string rd = rs_get_random(size);
+        for (auto i : rd) {
+            ASSERT_TRUE((uint8_t(i) > 32 && uint8_t(i) < 128 + 32));
+        }
+        ASSERT_TRUE(rd.empty());
+    }
+    {
+        int size = 100;
+        std::string rd = rs_get_random(size);
+        for (auto i : rd) {
+            ASSERT_TRUE((uint8_t(i) > 32 && uint8_t(i) < 128 + 32));
+        }
+    }
 }
 
-extern std::string rs_get_random(int size);
-
-extern int64_t rs_get_system_time_ms();
+TEST(CommonUtility, rs_get_system_time_ms)
+{
+    int64_t now = rs_get_system_time_ms();
+    ASSERT_TRUE(now > 0);
+}

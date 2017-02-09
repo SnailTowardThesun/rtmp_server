@@ -38,14 +38,15 @@ public:
     int write_3_byte(uint32_t val);
     int write_4_byte(uint32_t val);
     int write_8_byte(uint64_t val);
-    int write_bytes(char* buf, int size);
+    int write_bytes(std::string buf);
+    int write_bytes(const char* buf, int size);
 
     uint8_t read_1_byte();
     uint16_t read_2_byte();
     uint32_t read_3_byte();
     uint32_t read_4_byte();
     uint64_t read_8_byte();
-    int read_bytes(char* buf, int size);
+    std::string read_bytes(int size);
 
     const char* dumps();
 };

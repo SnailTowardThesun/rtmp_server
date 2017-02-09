@@ -23,13 +23,15 @@ SOFTWARE.
 */
 
 #include "rs_module_rtmp.h"
-#include <string.h>
+#include "rs_module_buffer.h"
+
 using namespace std;
 
 #define DEFAULT_BUFFER_LENGTH 4096
 
 RsRtmpConn::c0c1::c0c1()
 {
+
 }
 
 RsRtmpConn::c0c1::~c0c1()
@@ -37,52 +39,97 @@ RsRtmpConn::c0c1::~c0c1()
 
 }
 
-int RsRtmpConn::c0c1::initialize(char *buffer, int size)
+int RsRtmpConn::c0c1::initialize()
+{
+    int ret =ERROR_SUCCESS;
+
+    version = 0x03;
+    timestamp = (uint32_t)rs_get_system_time_ms();
+    zero = 0;
+    random_data = rs_get_random(1528);
+    return ret;
+}
+
+int RsRtmpConn::c0c1::initialize(std::string buf)
 {
     int ret = ERROR_SUCCESS;
 
-    if (buffer[0] != 0x03) {
-        cout << "c0c1 should be started with 0x03" << endl;
-        ret = ERROR_RTMP_PROTOCOL_C0_ERROR;
-        return ret;
-    }
-
-    if (size != 1537) {
-        cout << "the length of c0c1 failed" << endl;
+    if (buf.size() < 1537) {
         ret = ERROR_RTMP_PROTOCOL_C0C1_LENGTH_ERROR;
         return ret;
     }
 
+    RsBuffer buffer;
+    buffer.write_bytes(buf.c_str(), (int)buf.size());
+
+    if (buffer.read_1_byte() != 0x03) {
+        ret = ERROR_RTMP_PROTOCOL_VERSION_ERROR;
+        return ret;
+    }
+
+    timestamp = buffer.read_4_byte();
+    zero = buffer.read_4_byte();
+    if (zero != 0) {
+        ret = ERROR_RTMP_PROTOCOL_C0C1_ZERO_NOT_ZERO;
+        return ret;
+    }
+
+    random_data = buffer.read_bytes(1528);
+
     return ret;
 }
 
-RsRtmpConn::s0s1s2::s0s1s2()
+string RsRtmpConn::c0c1::dumps()
+{
+    RsBuffer buf;
+
+    buf.write_1_byte(version);
+    buf.write_4_byte(timestamp);
+    buf.write_4_byte(zero);
+    buf.write_bytes(random_data);
+
+    return string(buf.dumps());
+}
+
+RsRtmpConn::c2::c2()
 {
 
 }
 
-RsRtmpConn::s0s1s2::~s0s1s2()
+RsRtmpConn::c2::~c2()
 {
 
 }
 
-int RsRtmpConn::s0s1s2::initialize(char *buffer, int size)
+int RsRtmpConn::c2::initialize()
+{
+    int ret = ERROR_SUCCESS;
+    timestamp = (uint32_t)rs_get_system_time_ms();
+    timestamp2 = 0;
+    random_data = rs_get_random(1528);
+    return ret;
+}
+
+int RsRtmpConn::c2::initialize(uint32_t ts, string rd)
 {
     int ret = ERROR_SUCCESS;
 
+    timestamp = (uint32_t)rs_get_system_time_ms();
+    timestamp2 = ts;
+    random_data = rd;
+
     return ret;
 }
 
-int RsRtmpConn::s0s1s2::get_msg(uv_buf_t *buf)
+string RsRtmpConn::c2::dumps()
 {
-    int ret = ERROR_SUCCESS;
+    RsBuffer buf;
 
-    assert(buf != nullptr);
+    buf.write_4_byte(timestamp);
+    buf.write_4_byte(timestamp2);
+    buf.write_bytes(random_data);
 
-    buf->base = buff;
-    buf->len = 3073;
-
-    return ret;
+    return string(buf.dumps());
 }
 
 RsRtmpConn::RsRtmpConn() : _incomming(new uv_tcp_t())
@@ -160,7 +207,7 @@ void RsRtmpConn::do_conn_read_done(uv_stream_t *stream, ssize_t nread, const uv_
     cout << buf << endl;
 
     int ret = ERROR_SUCCESS;
-    if ((ret = handle(buf->base, nread)) != ERROR_SUCCESS) {
+    if ((ret = handle(buf->base, (int)nread)) != ERROR_SUCCESS) {
         cout << "handle rtmp message failed. ret=" << ret << endl;
         return;
     }
@@ -179,33 +226,6 @@ int RsRtmpConn::handshake(char *read, int read_nb)
 {
     int ret = ERROR_SUCCESS;
 
-    if (rtmp_conn_state == UN_CONNECTED) {
-        c0c1 pkt;
-        if ((ret = pkt.initialize(read, read_nb)) != ERROR_SUCCESS) {
-            cout << "decode c0c1 failed. ret=" << ret << endl;
-            return ret;
-        }
-        if ((ret = handshake_s_packet.initialize(read, read_nb)) != ERROR_SUCCESS) {
-            cout << "create s0s1s2 packet failed. ret=" << ret << endl;
-            return ret;
-        }
-
-        if ((ret = handshake_s_packet.get_msg(_write_buf)) != ERROR_SUCCESS) {
-            cout << "get s0s1s2 message failed. ret=" << ret << endl;
-            return ret;
-        }
-
-        if ((ret = uv_write(_write_req, (uv_stream_t*)_incomming, _write_buf, 1, [](uv_write_t *req, int status) {
-            cout << "write message done" << endl;
-        })) != ERROR_SUCCESS) {
-            cout << "write s0s1s2 failed. ret = " << ret << endl;
-            return ret;
-        }
-        rtmp_conn_state = DO_HANDSHAKE;
-    }
-
-    rtmp_conn_state = DO_CONNECT_STREAM;
-
     return ret;
 }
 
@@ -216,22 +236,6 @@ int RsRtmpConn::handle(char *read, int read_nb)
     if (read == nullptr || read_nb < 1) {
         cout << "the message is empty" << endl;
         return ret;
-    }
-
-    switch (rtmp_conn_state) {
-    case UN_CONNECTED:
-    case DO_HANDSHAKE:
-        if ((ret = handshake(read, read_nb)) != ERROR_SUCCESS) {
-            cout << "handshake failed. ret=" << endl;
-        }
-        break;
-    case DO_CONNECT_STREAM:
-        break;
-    case CONNECTED:
-        break;
-    default:
-        cout << "the state of rtmp connection is error" << endl;
-        break;
     }
 
     return ret;
