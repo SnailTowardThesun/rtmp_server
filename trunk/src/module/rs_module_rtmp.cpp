@@ -29,17 +29,17 @@ using namespace std;
 
 #define DEFAULT_BUFFER_LENGTH 4096
 
-RsRtmpConn::c0c1::c0c1()
+c0c1::c0c1()
 {
 
 }
 
-RsRtmpConn::c0c1::~c0c1()
+c0c1::~c0c1()
 {
 
 }
 
-int RsRtmpConn::c0c1::initialize()
+int c0c1::initialize()
 {
     int ret =ERROR_SUCCESS;
 
@@ -50,7 +50,7 @@ int RsRtmpConn::c0c1::initialize()
     return ret;
 }
 
-int RsRtmpConn::c0c1::initialize(std::string buf)
+int c0c1::initialize(std::string buf)
 {
     int ret = ERROR_SUCCESS;
 
@@ -79,7 +79,7 @@ int RsRtmpConn::c0c1::initialize(std::string buf)
     return ret;
 }
 
-string RsRtmpConn::c0c1::dumps()
+string c0c1::dumps()
 {
     RsBuffer buf;
 
@@ -91,17 +91,17 @@ string RsRtmpConn::c0c1::dumps()
     return string(buf.dumps());
 }
 
-RsRtmpConn::c2::c2()
+c2::c2()
 {
 
 }
 
-RsRtmpConn::c2::~c2()
+c2::~c2()
 {
 
 }
 
-int RsRtmpConn::c2::initialize()
+int c2::initialize()
 {
     int ret = ERROR_SUCCESS;
     timestamp = (uint32_t)rs_get_system_time_ms();
@@ -110,7 +110,7 @@ int RsRtmpConn::c2::initialize()
     return ret;
 }
 
-int RsRtmpConn::c2::initialize(uint32_t ts, string rd)
+int c2::initialize(uint32_t ts, string rd)
 {
     int ret = ERROR_SUCCESS;
 
@@ -121,7 +121,7 @@ int RsRtmpConn::c2::initialize(uint32_t ts, string rd)
     return ret;
 }
 
-string RsRtmpConn::c2::dumps()
+string c2::dumps()
 {
     RsBuffer buf;
 
