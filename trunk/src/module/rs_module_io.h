@@ -24,3 +24,23 @@ SOFTWARE.
 
 #pragma once
 #include "rs_common.h"
+
+class IRsReaderWriter
+{
+public:
+    IRsReaderWriter(){};
+    virtual ~IRsReaderWriter(){};
+public:
+    virtual int write(std::string buf, int size) {return ERROR_SUCCESS;};
+    virtual int read(std::string buf, int size) {return ERROR_SUCCESS;};
+};
+
+class RsSocketIO : public IRsReaderWriter
+{
+public:
+    RsSocketIO();
+    virtual ~RsSocketIO();
+public:
+    int write(std::string buf, int size);
+    int read(std::string buf, int size);
+};

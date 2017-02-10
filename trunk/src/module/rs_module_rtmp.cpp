@@ -132,6 +132,49 @@ string c2::dumps()
     return string(buf.dumps());
 }
 
+RsRtmpChunkMessage::RsRtmpChunkMessage()
+{
+}
+
+RsRtmpChunkMessage::~RsRtmpChunkMessage()
+{
+}
+
+int RsRtmpChunkMessage::initialize(IRsReaderWriter reader)
+{
+    int ret = ERROR_SUCCESS;
+
+    // read basic header
+    {
+        string buf;
+        if ((ret = reader.read(buf, 1) != 1)) {
+            cout << "read fmt failed. ret=" << ret << endl;
+            return ret;
+        }
+        fmt = uint8_t(buf.c_str()[0] & 0xc0);
+        int tmp = buf.c_str()[0] & 0x3f;
+        if (tmp > 1) {
+            cs_id = uint8_t(tmp);
+        }
+    }
+
+    return ret;
+}
+
+string RsRtmpChunkMessage::dumps()
+{
+    RsBuffer msg;
+
+    return string(msg.dumps());
+}
+
+vector<RsRtmpChunkMessage*> RsRtmpChunkMessage::create_chunk_messages(uint8_t fmt, string msg, uint8_t msg_type, uint32_t msg_stream_id)
+{
+    vector<RsRtmpChunkMessage*> msgs;
+
+    return msgs;
+}
+
 RsRtmpConn::RsRtmpConn() : _incomming(new uv_tcp_t())
         , _write_buf(new uv_buf_t()), _write_req(new uv_write_t()), _ptr_read_buffer(nullptr)
 {

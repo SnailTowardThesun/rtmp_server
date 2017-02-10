@@ -24,6 +24,7 @@ SOFTWARE.
 
 #pragma once
 #include "rs_common.h"
+#include "rs_module_io.h"
 #include "uv.h"
 
 class c0c1
@@ -70,6 +71,34 @@ class s2 : public c2
 public:
     s2(){};
     virtual ~s2(){};
+};
+
+class RsRtmpChunkMessage
+{
+public:
+    // basic header
+    uint8_t fmt;
+    uint32_t cs_id;
+    // message header
+    // type 0
+    uint32_t timestamp;
+    uint32_t message_length;
+    uint8_t message_type;
+    uint32_t message_stream_id;
+    // type 1, 2
+    uint32_t timestamp_delta;
+    // extened timestamp
+    uint32_t extended_timestamp;
+    // chunk data
+    std::string chunk_data;
+public:
+    RsRtmpChunkMessage();
+    virtual ~RsRtmpChunkMessage();
+public:
+    int initialize(IRsReaderWriter reader);
+    std::string dumps();
+public:
+    static std::vector<RsRtmpChunkMessage*> create_chunk_messages(uint8_t fmt, std::string msg, uint8_t msg_type, uint32_t msg_stream_id);
 };
 
 class RsRtmpConn

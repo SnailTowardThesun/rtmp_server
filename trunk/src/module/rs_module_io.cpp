@@ -23,4 +23,25 @@ SOFTWARE.
 */
 
 #include "rs_module_io.h"
+using namespace std;
+RsSocketIO::RsSocketIO()
+{
+}
 
+RsSocketIO::~RsSocketIO()
+{
+}
+
+int RsSocketIO::write(string buf, int size)
+{
+    // TODO:FIXME: implement this function
+    int ret = ERROR_SUCCESS;
+    return ret;
+}
+
+int RsSocketIO::read(string buf, int size)
+{
+    // TODO:FIXME: implement this function
+    int ret = ERROR_SUCCESS;
+    return ret;
+}
