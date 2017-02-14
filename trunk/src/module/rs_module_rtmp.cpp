@@ -140,21 +140,132 @@ RsRtmpChunkMessage::~RsRtmpChunkMessage()
 {
 }
 
-int RsRtmpChunkMessage::initialize(IRsReaderWriter reader)
+int RsRtmpChunkMessage::initialize(IRsReaderWriter reader, uint32_t cs, uint32_t payload_length)
 {
     int ret = ERROR_SUCCESS;
+    chunk_size = cs;
 
     // read basic header
     {
         string buf;
-        if ((ret = reader.read(buf, 1) != 1)) {
+        if ((ret = reader.read(buf, 1) != ERROR_SUCCESS)) {
             cout << "read fmt failed. ret=" << ret << endl;
             return ret;
         }
         fmt = uint8_t(buf.c_str()[0] & 0xc0);
+
         int tmp = buf.c_str()[0] & 0x3f;
         if (tmp > 1) {
             cs_id = uint8_t(tmp);
+        }
+
+        if (tmp == 0) {
+            buf.clear();
+            if ((ret = reader.read(buf, 1)) != ERROR_SUCCESS) {
+                cout << "read 1 byte failed. ret=" << ret << endl;
+                return ret;
+            }
+            cs_id = 64 + uint8_t(buf.c_str()[0]);
+        }
+
+        if (tmp == 1) {
+            buf.clear();
+            if ((ret = reader.read(buf, 2)) != ERROR_SUCCESS) {
+                cout << "read 2 bytes failed. ret=" << ret << endl;
+                return ret;
+            }
+
+            cs_id = 64 + uint8_t(buf.c_str()[0]) + 256 * uint8_t(buf.c_str()[1]);
+        }
+    }
+
+    // read message header
+    bool has_extended_timestamp = false;
+
+    auto convert3bytesIntoUint32 = [](string buf) {
+        RsBuffer rs_buf;
+        rs_buf.write_bytes(buf.c_str(), 3);
+        return rs_buf.read_3_byte();
+    };
+
+    auto convert4bytesIntoUint32 = [](string buf) {
+        RsBuffer rs_buf;
+        rs_buf.write_bytes(buf.c_str(), 4);
+        return rs_buf.read_4_byte();
+    };
+
+    {
+        if (fmt != 0 || fmt != 3) {
+            // TODO:FIXME: only support type0 and type3
+            assert(false);
+        }
+
+        string buf;
+        if (fmt == 0) {
+            // read timestamp
+            if ((ret = reader.read(buf, 3)) != ERROR_SUCCESS) {
+                cout << "read timestamp failed. ret=" << ret << endl;
+                return ret;
+            }
+            timestamp = convert3bytesIntoUint32(buf);
+            buf.clear();
+
+            if (timestamp > 16777215) {
+                has_extended_timestamp = true;
+            }
+
+            // read message length
+            if ((ret = reader.read(buf, 3)) != ERROR_SUCCESS) {
+                cout << "read message length failed. ret=" << ret << endl;
+                return ret;
+            }
+
+            message_length = convert3bytesIntoUint32(buf);
+            buf.clear();
+
+            // read message type
+            if ((ret = reader.read(buf, 1)) != ERROR_SUCCESS) {
+                cout << "read message type failed. ret=" << ret << endl;
+                return ret;
+            }
+
+            message_type = buf.c_str()[0];
+            buf.clear();
+
+            // read message stream id
+            if ((ret = reader.read(buf, 4)) != ERROR_SUCCESS) {
+                cout << "read message stream id failed. ret=" << ret << endl;
+                return ret;
+            }
+
+            message_stream_id = convert4bytesIntoUint32(buf);
+            buf.clear();
+
+            // read extened timestamp if there it is
+            if (has_extended_timestamp) {
+                if ((ret = reader.read(buf, 4)) != ERROR_SUCCESS) {
+                    cout << "read extended timestamp failed. ret=" << ret << endl;
+                    return ret;
+                }
+
+                extended_timestamp = convert4bytesIntoUint32(buf);
+                buf.clear();
+            }
+
+            // read payload
+            int payload_length = message_length > chunk_size ? chunk_size : message_length;
+            if ((ret = reader.read(buf, payload_length)) != ERROR_SUCCESS) {
+                cout << "read message payload failed. ret=" << ret << endl;
+                return ret;
+            }
+            chunk_data = buf;
+            buf.clear();
+        }
+        if (fmt == 3) {
+            if ((ret = reader.read(chunk_data, payload_length)) != ERROR_SUCCESS) {
+                cout << "read message payload failed. ret=" << ret << endl;
+                return ret;
+            }
         }
     }
 

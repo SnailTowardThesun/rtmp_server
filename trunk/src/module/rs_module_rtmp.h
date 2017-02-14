@@ -76,6 +76,8 @@ public:
 class RsRtmpChunkMessage
 {
 public:
+    // chunk size
+    uint32_t chunk_size;
     // basic header
     uint8_t fmt;
     uint32_t cs_id;
@@ -95,7 +97,7 @@ public:
     RsRtmpChunkMessage();
     virtual ~RsRtmpChunkMessage();
 public:
-    int initialize(IRsReaderWriter reader);
+    int initialize(IRsReaderWriter reader, uint32_t cs, uint32_t payload_length);
     std::string dumps();
 public:
     static std::vector<RsRtmpChunkMessage*> create_chunk_messages(uint8_t fmt, std::string msg, uint8_t msg_type, uint32_t msg_stream_id);
