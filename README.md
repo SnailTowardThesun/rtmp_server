@@ -4,7 +4,6 @@
 
 ## compile
 
-
 ```
 cd trunk
 cmake . && make
