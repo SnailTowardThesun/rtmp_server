@@ -21,40 +21,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#pragma once
 
 #include "rs_module_rtmp_conn.h"
 
-class RSRtmpServer
+RsRtmpConn::RsRtmpConn()
 {
-public:
-    RSRtmpServer();
-    virtual ~RSRtmpServer();
-public:
-    virtual int initialize();
-private:
-    struct sockaddr_in addr;
-    uv_tcp_t* server;
-    std::vector<std::shared_ptr<RsRtmpConn>> conns;
-private:
-    static void connection_cb(uv_stream_t *server, int status);
-public:
-    void on_connection(uv_stream_t *server, int status);
-public:
-    int dispose();
-};
 
-class RSServer
+}
+
+RsRtmpConn::~RsRtmpConn()
 {
-private:
-    RSRtmpServer _rtmp_server;
-public:
-    RSServer();
-    virtual ~RSServer();
-public:
-    // the server is unique.
-    static RSServer* getInstance();
-public:
-    virtual int run();
-    virtual int exit();
-};
+
+}
+
+int RsRtmpConn::initialize(uv_stream_t *server)
+{
+    return ERROR_SUCCESS;
+}

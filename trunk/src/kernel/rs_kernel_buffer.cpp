@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "rs_module_buffer.h"
+#include "rs_kernel_buffer.h"
 using namespace std;
 
 RsBuffer::RsBuffer()

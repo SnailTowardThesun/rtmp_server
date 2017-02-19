@@ -24,7 +24,7 @@ SOFTWARE.
 
 #pragma once
 #include "rs_common.h"
-#include "rs_module_io.h"
+#include "rs_kernel_io.h"
 #include "uv.h"
 
 class c0c1
@@ -101,38 +101,4 @@ public:
     std::string dumps();
 public:
     static std::vector<RsRtmpChunkMessage*> create_chunk_messages(uint8_t fmt, std::string msg, uint8_t msg_type, uint32_t msg_stream_id);
-};
-
-class RsRtmpConn
-{
-private:
-
-private:
-    enum {
-        UN_CONNECTED = 0,
-        DO_HANDSHAKE,
-        DO_CONNECT_STREAM,
-        CONNECTED
-    } rtmp_conn_state;
-private:
-    uv_tcp_t *_incomming;
-    uv_buf_t *_write_buf;
-    uv_write_t *_write_req;
-    char* _ptr_read_buffer;
-    char* _ptr_write_buffer;
-public:
-    RsRtmpConn();
-    virtual ~RsRtmpConn();
-private:
-    static void conn_alloc(uv_handle_t *handle, size_t size, uv_buf_t *buf);
-    static void conn_read_done(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf);
-public:
-    int initialize(uv_stream_t *server);
-    void do_conn_alloc(uv_handle_t *handle, size_t size, uv_buf_t *buf);
-    void do_conn_read_done(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf);
-private:
-    int handshake(char *read, int read_nb);
-public:
-    int handle(char* read, int read_nb);
-    int dispose();
 };

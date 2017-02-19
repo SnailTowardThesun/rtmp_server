@@ -22,26 +22,4 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "rs_module_io.h"
-using namespace std;
-RsSocketIO::RsSocketIO()
-{
-}
-
-RsSocketIO::~RsSocketIO()
-{
-}
-
-int RsSocketIO::write(string buf, int size)
-{
-    // TODO:FIXME: implement this function
-    int ret = ERROR_SUCCESS;
-    return ret;
-}
-
-int RsSocketIO::read(string buf, int size)
-{
-    // TODO:FIXME: implement this function
-    int ret = ERROR_SUCCESS;
-    return ret;
-}
+#include "rs_protocol_amf3.h"

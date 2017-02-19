@@ -40,6 +40,14 @@ endif (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1)
 include_directories(${SRC_DIR}/common)
 aux_source_directory(${SRC_DIR}/common SRC_FILE_LISTS)
 
+# kernel part
+include_directories(${SRC_DIR}/kernel)
+aux_source_directory(${SRC_DIR}/kernel SRC_FILE_LISTS)
+
+# protocol part
+include_directories(${SRC_DIR}/protocol)
+aux_source_directory(${SRC_DIR}/protocol SRC_FILE_LISTS)
+
 # module part
 include_directories(${SRC_DIR}/module)
 aux_source_directory(${SRC_DIR}/module SRC_FILE_LISTS)

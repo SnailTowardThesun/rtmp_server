@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 #include <cstdlib>
-#include "rs_module_thread.h"
+#include "rs_kernel_thread.h"
 #include "rs_common.h"
 using namespace std;
 

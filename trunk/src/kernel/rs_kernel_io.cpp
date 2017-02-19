@@ -21,40 +21,27 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#pragma once
 
-#include "rs_module_rtmp_conn.h"
-
-class RSRtmpServer
+#include "rs_kernel_io.h"
+using namespace std;
+RsSocketIO::RsSocketIO()
 {
-public:
-    RSRtmpServer();
-    virtual ~RSRtmpServer();
-public:
-    virtual int initialize();
-private:
-    struct sockaddr_in addr;
-    uv_tcp_t* server;
-    std::vector<std::shared_ptr<RsRtmpConn>> conns;
-private:
-    static void connection_cb(uv_stream_t *server, int status);
-public:
-    void on_connection(uv_stream_t *server, int status);
-public:
-    int dispose();
-};
+}
 
-class RSServer
+RsSocketIO::~RsSocketIO()
 {
-private:
-    RSRtmpServer _rtmp_server;
-public:
-    RSServer();
-    virtual ~RSServer();
-public:
-    // the server is unique.
-    static RSServer* getInstance();
-public:
-    virtual int run();
-    virtual int exit();
-};
+}
+
+int RsSocketIO::write(string buf, int size)
+{
+    // TODO:FIXME: implement this function
+    int ret = ERROR_SUCCESS;
+    return ret;
+}
+
+int RsSocketIO::read(string buf, int size)
+{
+    // TODO:FIXME: implement this function
+    int ret = ERROR_SUCCESS;
+    return ret;
+}

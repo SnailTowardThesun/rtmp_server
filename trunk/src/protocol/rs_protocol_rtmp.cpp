@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "rs_module_rtmp.h"
-#include "rs_module_buffer.h"
+#include "rs_kernel_buffer.h"
+#include "rs_protocol_rtmp.h"
 
 using namespace std;
 
@@ -263,7 +263,7 @@ int RsRtmpChunkMessage::initialize(IRsReaderWriter reader, uint32_t cs, uint32_t
         }
         if (fmt == 3) {
             if ((ret = reader.read(chunk_data, payload_length)) != ERROR_SUCCESS) {
-                cout << "read message payload failed. ret=" << ret << endl;
+                cout << "read chunk data failed. ret=" << ret << endl;
                 return ret;
             }
         }
@@ -285,134 +285,3 @@ vector<RsRtmpChunkMessage*> RsRtmpChunkMessage::create_chunk_messages(uint8_t fm
 
     return msgs;
 }
-
-RsRtmpConn::RsRtmpConn() : _incomming(new uv_tcp_t())
-        , _write_buf(new uv_buf_t()), _write_req(new uv_write_t()), _ptr_read_buffer(nullptr)
-{
-    _incomming->data = static_cast<void*>(this);
-    rtmp_conn_state = UN_CONNECTED;
-    _ptr_write_buffer = new char[DEFAULT_BUFFER_LENGTH];
-    _ptr_read_buffer = new char[DEFAULT_BUFFER_LENGTH];
-}
-
-RsRtmpConn::~RsRtmpConn()
-{
-    dispose();
-    rs_free_p(_write_buf->base);
-    rs_free_p(_write_buf);
-    rs_free_p(_write_req);
-    rs_free_p(_incomming);
-    rs_free_p(_ptr_read_buffer);
-    rs_free_p(_ptr_write_buffer);
-}
-
-int RsRtmpConn::initialize(uv_stream_t *server)
-{
-    int ret = ERROR_SUCCESS;
-
-    if ((ret = uv_tcp_init(server->loop, _incomming)) != ERROR_SUCCESS) {
-        cout << "init tcp failed. ret=" << ret << endl;
-        return ret;
-    }
-
-    if ((ret = uv_accept(server, (uv_stream_t*)_incomming)) != ERROR_SUCCESS) {
-        cout << "accept tcp socket failed. ret=" << ret;
-        return ret;
-    }
-
-    if ((ret = uv_read_start((uv_stream_t*)_incomming, conn_alloc, conn_read_done)) != ERROR_SUCCESS) {
-        cout << "read message failed. ret=" << ret;
-        return ret;
-    }
-
-    return ret;
-}
-
-void RsRtmpConn::conn_alloc(uv_handle_t *handle, size_t size, uv_buf_t *buf)
-{
-    cout << "step into alloc function" << endl;
-
-    RsRtmpConn* con = static_cast<RsRtmpConn*>(handle->data);
-    if (con) {
-        return con->do_conn_alloc(handle, size, buf);
-    }
-    cout << "get class object failed." << endl;
-}
-
-void RsRtmpConn::conn_read_done(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
-{
-    cout << "step into read done function" << endl;
-
-    RsRtmpConn* con = static_cast<RsRtmpConn*>(stream->data);
-    if (con) {
-        return con->do_conn_read_done(stream, nread, buf);
-    }
-    cout << "get class object failed." << endl;
-}
-
-void RsRtmpConn::do_conn_alloc(uv_handle_t *handle, size_t size, uv_buf_t *buf)
-{
-    buf->base = _ptr_read_buffer;
-    buf->len = DEFAULT_BUFFER_LENGTH;
-}
-
-void RsRtmpConn::do_conn_read_done(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
-{
-    cout << buf << endl;
-
-    int ret = ERROR_SUCCESS;
-    if ((ret = handle(buf->base, (int)nread)) != ERROR_SUCCESS) {
-        cout << "handle rtmp message failed. ret=" << ret << endl;
-        return;
-    }
-
-    if (_write_buf->len > 0) {
-        ret = uv_write(_write_req, (uv_stream_t*)_incomming, _write_buf, 1, [](uv_write_t* req, int status){
-            cout << "write one message to client" << endl;
-        });
-        if (ret != ERROR_SUCCESS) {
-            cout << "rtmp write message failed. ret=" << ret << endl;
-        }
-    }
-}
-
-int RsRtmpConn::handshake(char *read, int read_nb)
-{
-    int ret = ERROR_SUCCESS;
-
-    return ret;
-}
-
-int RsRtmpConn::handle(char *read, int read_nb)
-{
-    int ret = ERROR_SUCCESS;
-
-    if (read == nullptr || read_nb < 1) {
-        cout << "the message is empty" << endl;
-        return ret;
-    }
-
-    return ret;
-}
-
-int RsRtmpConn::dispose()
-{
-    int ret = ERROR_SUCCESS;
-
-    if (_incomming == nullptr) {
-        return ret;
-    }
-
-    if ((ret = uv_read_stop((uv_stream_t*)_incomming))) {
-        cout << "tcp socket stop read failed. ret=" << ret << endl;
-        return ret;
-    }
-
-    uv_close((uv_handle_t*)_incomming, [](uv_handle_t* handle) {
-        cout << "close one connection" << endl;
-        rs_free_p(handle);
-    });
-
-    return ret;
-}
-

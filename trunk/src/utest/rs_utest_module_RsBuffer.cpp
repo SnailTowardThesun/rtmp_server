@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 #include "gtest/gtest.h"
-#include "rs_module_buffer.h"
+#include "rs_kernel_buffer.h"
 
 TEST(RsBuffer, read_write)
 {

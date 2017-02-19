@@ -20,6 +20,14 @@ aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR} UTEST_SRC_FILE)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../common)
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/../common UTEST_SRC_FILE)
 
+# kernel part
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../kernel)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/../kernel UTEST_SRC_FILE)
+
+# protocol part
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../protocol)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/../protocol UTEST_SRC_FILE)
+
 # module part
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../module)
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/../module UTEST_SRC_FILE)
