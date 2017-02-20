@@ -23,18 +23,144 @@ SOFTWARE.
 */
 
 #include "rs_module_rtmp_conn.h"
+#include "rs_protocol_rtmp.h"
+using namespace std;
 
-RsRtmpConn::RsRtmpConn()
+RsRtmpConn::RsRtmpConn() : io(nullptr)
 {
 
 }
 
 RsRtmpConn::~RsRtmpConn()
 {
-
+    rs_free_p(io);
 }
 
 int RsRtmpConn::initialize(uv_stream_t *server)
 {
+    return ERROR_SUCCESS;
+}
+
+int RsRtmpConn::simple_handshake_with_server()
+{
+    assert(io != nullptr);
+
+    int ret = ERROR_SUCCESS;
+
+    // create c0c1
+    c0c1 c;
+    if ((ret = c.initialize()) != ERROR_SUCCESS) {
+        cout << "create c0c1 failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    // send c0c1
+    string str = c.dumps();
+    if ((ret = io->write(str, (int)str.length())) != ERROR_SUCCESS) {
+        cout << "send c0c1 failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    // read s0s1s2
+    string s0s1s2;
+    if ((ret = io->read(s0s1s2, 3073)) != ERROR_SUCCESS) {
+        cout << "read s0s1s2 package failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    s0s1 s0s11;
+    if ((ret = s0s11.initialize(s0s1s2)) != ERROR_SUCCESS) {
+        cout << "convert s0s1s2 into s0s1 failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    c2 c211;
+    if ((ret = c211.initialize(s0s11.timestamp, s0s1s2.substr(1538))) != ERROR_SUCCESS) {
+        return ret;
+    }
+
+    str = c211.dumps();
+    if ((ret = io->write(str, (int)str.length())) != ERROR_SUCCESS) {
+        cout << "send c2 failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    return ret;
+}
+
+int RsRtmpConn::simple_handshake_with_client()
+{
+    assert(io != nullptr);
+
+    int ret = ERROR_SUCCESS;
+
+    // read c0c1
+    string str;
+    if ((ret = io->read(str, 1538)) != ERROR_SUCCESS) {
+        cout << "get c0c1 failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    c0c1 c;
+    if ((ret = c.initialize(str)) != ERROR_SUCCESS) {
+        cout << "convert buffer into c0c1 failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    // send s0s1s2
+    s0s1 s0s11;
+    if ((ret = s0s11.initialize()) != ERROR_SUCCESS) {
+        cout << "create s0s1 failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    s2 s21;
+    if ((ret = s21.initialize(c.timestamp, c.random_data)) != ERROR_SUCCESS) {
+        cout << "create c2 failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    str = s0s11.dumps() + s21.dumps();
+    if ((ret = io->write(str, (int)str.length())) != ERROR_SUCCESS) {
+        cout << "send s0s1s2 failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    // get s2
+    if ((ret = io->read(str, 1536)) != ERROR_SUCCESS) {
+        cout << "get s2 failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    return ret;
+}
+
+int RsRtmpConn::complex_handshake_with_server()
+{
+    // TODO:FIXME:implement this method
+    return ERROR_SUCCESS;
+}
+
+int RsRtmpConn::complex_handshake_witout_client()
+{
+    // TODO:FIXME:implement this method
+    return ERROR_SUCCESS;
+}
+
+int RsRtmpConn::connect()
+{
+    // TODO:FIXME:implement this method
+    return ERROR_SUCCESS;
+}
+
+int RsRtmpConn::play_stream()
+{
+    // TODO:FIXME:implement this method
+    return ERROR_SUCCESS;
+}
+
+int RsRtmpConn::publish_stream()
+{
+    // TODO:FIXME:implement this method
     return ERROR_SUCCESS;
 }
