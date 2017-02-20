@@ -25,13 +25,14 @@ SOFTWARE.
 #pragma once
 #include "rs_common.h"
 
-class RsBuffer
+// little endian
+class RsBufferLittleEndian
 {
 private:
     std::string buffer;
 public:
-    RsBuffer();
-    virtual ~RsBuffer();
+    RsBufferLittleEndian();
+    virtual ~RsBufferLittleEndian();
 public:
     int write_1_byte(uint8_t val);
     int write_2_byte(uint16_t val);

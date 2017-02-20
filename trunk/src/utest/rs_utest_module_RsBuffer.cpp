@@ -27,7 +27,7 @@ SOFTWARE.
 
 TEST(RsBuffer, read_write)
 {
-    RsBuffer buffer;
+    RsBufferLittleEndian buffer;
 
     {
         uint8_t val = 0;

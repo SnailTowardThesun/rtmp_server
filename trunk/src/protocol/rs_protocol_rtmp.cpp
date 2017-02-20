@@ -27,8 +27,6 @@ SOFTWARE.
 
 using namespace std;
 
-#define DEFAULT_BUFFER_LENGTH 4096
-
 c0c1::c0c1()
 {
 
@@ -59,7 +57,7 @@ int c0c1::initialize(std::string buf)
         return ret;
     }
 
-    RsBuffer buffer;
+    RsBufferLittleEndian buffer;
     buffer.write_bytes(buf.c_str(), (int)buf.size());
 
     if (buffer.read_1_byte() != 0x03) {
@@ -81,7 +79,7 @@ int c0c1::initialize(std::string buf)
 
 string c0c1::dumps()
 {
-    RsBuffer buf;
+    RsBufferLittleEndian buf;
 
     buf.write_1_byte(version);
     buf.write_4_byte(timestamp);
@@ -123,7 +121,7 @@ int c2::initialize(uint32_t ts, string rd)
 
 string c2::dumps()
 {
-    RsBuffer buf;
+    RsBufferLittleEndian buf;
 
     buf.write_4_byte(timestamp);
     buf.write_4_byte(timestamp2);
@@ -175,7 +173,7 @@ int RsRtmpChunkMessage::initialize(IRsReaderWriter reader, uint32_t cs, uint32_t
                 return ret;
             }
 
-            cs_id = 64 + uint8_t(buf.c_str()[0]) + 256 * uint8_t(buf.c_str()[1]);
+            cs_id = (uint32_t) (64 + uint8_t(buf.c_str()[0]) + 256 * uint8_t(buf.c_str()[1]));
         }
     }
 
@@ -183,13 +181,13 @@ int RsRtmpChunkMessage::initialize(IRsReaderWriter reader, uint32_t cs, uint32_t
     bool has_extended_timestamp = false;
 
     auto convert3bytesIntoUint32 = [](string buf) {
-        RsBuffer rs_buf;
+        RsBufferLittleEndian rs_buf;
         rs_buf.write_bytes(buf.c_str(), 3);
         return rs_buf.read_3_byte();
     };
 
     auto convert4bytesIntoUint32 = [](string buf) {
-        RsBuffer rs_buf;
+        RsBufferLittleEndian rs_buf;
         rs_buf.write_bytes(buf.c_str(), 4);
         return rs_buf.read_4_byte();
     };
@@ -229,7 +227,7 @@ int RsRtmpChunkMessage::initialize(IRsReaderWriter reader, uint32_t cs, uint32_t
                 return ret;
             }
 
-            message_type = buf.c_str()[0];
+            message_type = (uint8_t) buf.c_str()[0];
             buf.clear();
 
             // read message stream id
@@ -253,8 +251,8 @@ int RsRtmpChunkMessage::initialize(IRsReaderWriter reader, uint32_t cs, uint32_t
             }
 
             // read payload
-            int payload_length = message_length > chunk_size ? chunk_size : message_length;
-            if ((ret = reader.read(buf, payload_length)) != ERROR_SUCCESS) {
+            int length = message_length > chunk_size ? chunk_size : message_length;
+            if ((ret = reader.read(buf, length)) != ERROR_SUCCESS) {
                 cout << "read message payload failed. ret=" << ret << endl;
                 return ret;
             }
@@ -274,7 +272,7 @@ int RsRtmpChunkMessage::initialize(IRsReaderWriter reader, uint32_t cs, uint32_t
 
 string RsRtmpChunkMessage::dumps()
 {
-    RsBuffer msg;
+    RsBufferLittleEndian msg;
 
     return string(msg.dumps());
 }
