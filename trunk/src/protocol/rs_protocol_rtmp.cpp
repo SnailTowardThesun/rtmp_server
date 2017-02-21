@@ -26,6 +26,7 @@ SOFTWARE.
 #include "rs_protocol_rtmp.h"
 
 using namespace std;
+#define CHUNK_MESSAGE_TIMESTAMP_MAX 16777215
 
 c0c1::c0c1()
 {
@@ -153,7 +154,7 @@ int RsRtmpChunkMessage::type_0_decode(IRsReaderWriter reader, uint32_t cs)
     timestamp = RsBufferLittleEndian::convert_3bytes_into_uint32(buf);
     buf.clear();
 
-    if (timestamp > 16777215) {
+    if (timestamp > CHUNK_MESSAGE_TIMESTAMP_MAX) {
         has_extended_timestamp = true;
     }
 
