@@ -201,3 +201,17 @@ const char* RsBufferLittleEndian::dumps()
     cout << "the buffer is empty" << endl;
     return nullptr;
 }
+
+uint32_t RsBufferLittleEndian::convert_3bytes_into_uint32(std::string buf)
+{
+    RsBufferLittleEndian rs_buf;
+    rs_buf.write_bytes(buf.c_str(), 3);
+    return rs_buf.read_3_byte();
+}
+
+uint32_t RsBufferLittleEndian::convert_4bytes_into_uint32(std::string buf)
+{
+    RsBufferLittleEndian rs_buf;
+    rs_buf.write_bytes(buf.c_str(), 4);
+    return rs_buf.read_4_byte();
+}

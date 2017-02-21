@@ -138,136 +138,146 @@ RsRtmpChunkMessage::~RsRtmpChunkMessage()
 {
 }
 
-int RsRtmpChunkMessage::initialize(IRsReaderWriter reader, uint32_t cs, uint32_t payload_length)
+int RsRtmpChunkMessage::type_0_decode(IRsReaderWriter reader, uint32_t cs)
+{
+    int ret = ERROR_SUCCESS;
+    bool has_extended_timestamp = false;
+    string buf;
+
+    assert(fmt == 0);
+    // read timestamp
+    if ((ret = reader.read(buf, 3)) != ERROR_SUCCESS) {
+        cout << "read timestamp failed. ret=" << ret << endl;
+        return ret;
+    }
+    timestamp = RsBufferLittleEndian::convert_3bytes_into_uint32(buf);
+    buf.clear();
+
+    if (timestamp > 16777215) {
+        has_extended_timestamp = true;
+    }
+
+    // read message length
+    if ((ret = reader.read(buf, 3)) != ERROR_SUCCESS) {
+        cout << "read message length failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    message_length = RsBufferLittleEndian::convert_3bytes_into_uint32(buf);
+    buf.clear();
+
+    // read message type
+    if ((ret = reader.read(buf, 1)) != ERROR_SUCCESS) {
+        cout << "read message type failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    message_type = (uint8_t) buf.c_str()[0];
+    buf.clear();
+
+    // read message stream id
+    if ((ret = reader.read(buf, 4)) != ERROR_SUCCESS) {
+        cout << "read message stream id failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    message_stream_id = RsBufferLittleEndian::convert_4bytes_into_uint32(buf);
+    buf.clear();
+
+    // read extened timestamp if there it is
+    if (has_extended_timestamp) {
+        if ((ret = reader.read(buf, 4)) != ERROR_SUCCESS) {
+            cout << "read extended timestamp failed. ret=" << ret << endl;
+            return ret;
+        }
+
+        extended_timestamp = RsBufferLittleEndian::convert_4bytes_into_uint32(buf);
+        buf.clear();
+    }
+
+    // read payload
+    int length = message_length > chunk_size ? chunk_size : message_length;
+    if ((ret = reader.read(buf, length)) != ERROR_SUCCESS) {
+        cout << "read message payload failed. ret=" << ret << endl;
+        return ret;
+    }
+    chunk_data = buf;
+
+    return ERROR_SUCCESS;
+}
+
+int RsRtmpChunkMessage::type_1_decode()
+{
+    return ERROR_SUCCESS;
+}
+
+int RsRtmpChunkMessage::type_2_decode()
+{
+    return ERROR_SUCCESS;
+}
+
+int RsRtmpChunkMessage::type_3_decode(IRsReaderWriter reader, uint32_t size)
+{
+    int ret = ERROR_SUCCESS;
+
+    if ((ret = reader.read(chunk_data, size)) != ERROR_SUCCESS) {
+        cout << "read chunk data from reader failed. ret=" << ret << endl;
+    }
+
+    return ret;
+}
+
+int RsRtmpChunkMessage::initialize(IRsReaderWriter reader, uint32_t cs, uint32_t payload_length, uint64_t pre_timestamp)
 {
     int ret = ERROR_SUCCESS;
     chunk_size = cs;
 
     // read basic header
-    {
-        string buf;
-        if ((ret = reader.read(buf, 1) != ERROR_SUCCESS)) {
-            cout << "read fmt failed. ret=" << ret << endl;
+    string buf;
+    if ((ret = reader.read(buf, 1) != ERROR_SUCCESS)) {
+        cout << "read fmt failed. ret=" << ret << endl;
+        return ret;
+    }
+    fmt = uint8_t(buf.c_str()[0] & 0xc0);
+
+    int tmp = buf.c_str()[0] & 0x3f;
+    if (tmp > 1) {
+        cs_id = uint8_t(tmp);
+    }
+
+    if (tmp == 0) {
+        buf.clear();
+        if ((ret = reader.read(buf, 1)) != ERROR_SUCCESS) {
+            cout << "read 1 byte failed. ret=" << ret << endl;
             return ret;
         }
-        fmt = uint8_t(buf.c_str()[0] & 0xc0);
-
-        int tmp = buf.c_str()[0] & 0x3f;
-        if (tmp > 1) {
-            cs_id = uint8_t(tmp);
-        }
-
-        if (tmp == 0) {
-            buf.clear();
-            if ((ret = reader.read(buf, 1)) != ERROR_SUCCESS) {
-                cout << "read 1 byte failed. ret=" << ret << endl;
-                return ret;
-            }
-            cs_id = 64 + uint8_t(buf.c_str()[0]);
-        }
-
-        if (tmp == 1) {
-            buf.clear();
-            if ((ret = reader.read(buf, 2)) != ERROR_SUCCESS) {
-                cout << "read 2 bytes failed. ret=" << ret << endl;
-                return ret;
-            }
-
-            cs_id = (uint32_t) (64 + uint8_t(buf.c_str()[0]) + 256 * uint8_t(buf.c_str()[1]));
-        }
+        cs_id = 64 + uint8_t(buf.c_str()[0]);
     }
 
+    if (tmp == 1) {
+        buf.clear();
+        if ((ret = reader.read(buf, 2)) != ERROR_SUCCESS) {
+            cout << "read 2 bytes failed. ret=" << ret << endl;
+            return ret;
+        }
+
+        cs_id = (uint32_t) (64 + uint8_t(buf.c_str()[0]) + 256 * uint8_t(buf.c_str()[1]));
+    }
     // read message header
-    bool has_extended_timestamp = false;
-
-    auto convert3bytesIntoUint32 = [](string buf) {
-        RsBufferLittleEndian rs_buf;
-        rs_buf.write_bytes(buf.c_str(), 3);
-        return rs_buf.read_3_byte();
-    };
-
-    auto convert4bytesIntoUint32 = [](string buf) {
-        RsBufferLittleEndian rs_buf;
-        rs_buf.write_bytes(buf.c_str(), 4);
-        return rs_buf.read_4_byte();
-    };
-
-    {
-        if (fmt != 0 || fmt != 3) {
-            // TODO:FIXME: only support type0 and type3
-            assert(false);
-        }
-
-        string buf;
-        if (fmt == 0) {
-            // read timestamp
-            if ((ret = reader.read(buf, 3)) != ERROR_SUCCESS) {
-                cout << "read timestamp failed. ret=" << ret << endl;
-                return ret;
-            }
-            timestamp = convert3bytesIntoUint32(buf);
-            buf.clear();
-
-            if (timestamp > 16777215) {
-                has_extended_timestamp = true;
-            }
-
-            // read message length
-            if ((ret = reader.read(buf, 3)) != ERROR_SUCCESS) {
-                cout << "read message length failed. ret=" << ret << endl;
-                return ret;
-            }
-
-            message_length = convert3bytesIntoUint32(buf);
-            buf.clear();
-
-            // read message type
-            if ((ret = reader.read(buf, 1)) != ERROR_SUCCESS) {
-                cout << "read message type failed. ret=" << ret << endl;
-                return ret;
-            }
-
-            message_type = (uint8_t) buf.c_str()[0];
-            buf.clear();
-
-            // read message stream id
-            if ((ret = reader.read(buf, 4)) != ERROR_SUCCESS) {
-                cout << "read message stream id failed. ret=" << ret << endl;
-                return ret;
-            }
-
-            message_stream_id = convert4bytesIntoUint32(buf);
-            buf.clear();
-
-            // read extened timestamp if there it is
-            if (has_extended_timestamp) {
-                if ((ret = reader.read(buf, 4)) != ERROR_SUCCESS) {
-                    cout << "read extended timestamp failed. ret=" << ret << endl;
-                    return ret;
-                }
-
-                extended_timestamp = convert4bytesIntoUint32(buf);
-                buf.clear();
-            }
-
-            // read payload
-            int length = message_length > chunk_size ? chunk_size : message_length;
-            if ((ret = reader.read(buf, length)) != ERROR_SUCCESS) {
-                cout << "read message payload failed. ret=" << ret << endl;
-                return ret;
-            }
-            chunk_data = buf;
-            buf.clear();
-        }
-        if (fmt == 3) {
-            if ((ret = reader.read(chunk_data, payload_length)) != ERROR_SUCCESS) {
-                cout << "read chunk data failed. ret=" << ret << endl;
-                return ret;
-            }
-        }
+    switch (fmt) {
+        case 0:
+            return type_0_decode(reader, cs);
+        case 1:
+            return type_1_decode();
+        case 2:
+            return type_2_decode();
+        case 3:
+            return type_3_decode(reader, cs < payload_length ? cs : payload_length);
+        default:
+            cout << "the fmt should be 0, 1, 2, 3, now is " << fmt << endl;
+            ret = ERROR_RTMP_PROTOCOL_CHUNK_MESSAGE_FMT_ERROR;
+            return ret;
     }
-
-    return ret;
 }
 
 string RsRtmpChunkMessage::dumps()

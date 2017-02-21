@@ -96,8 +96,13 @@ public:
 public:
     RsRtmpChunkMessage();
     virtual ~RsRtmpChunkMessage();
+private:
+    int type_0_decode(IRsReaderWriter reader, uint32_t cs);
+    int type_1_decode();
+    int type_2_decode();
+    int type_3_decode(IRsReaderWriter reader, uint32_t size);
 public:
-    int initialize(IRsReaderWriter reader, uint32_t cs, uint32_t payload_length);
+    int initialize(IRsReaderWriter reader, uint32_t cs, uint32_t payload_length = 0, uint64_t pre_timestamp = 0);
     std::string dumps();
 public:
     static std::vector<RsRtmpChunkMessage*> create_chunk_messages(uint8_t fmt, std::string msg, uint8_t msg_type, uint32_t msg_stream_id);

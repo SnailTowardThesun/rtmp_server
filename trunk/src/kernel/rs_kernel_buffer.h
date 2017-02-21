@@ -50,4 +50,7 @@ public:
     std::string read_bytes(int size);
 
     const char* dumps();
+public:
+    static uint32_t convert_3bytes_into_uint32(std::string buf);
+    static uint32_t convert_4bytes_into_uint32(std::string buf);
 };
