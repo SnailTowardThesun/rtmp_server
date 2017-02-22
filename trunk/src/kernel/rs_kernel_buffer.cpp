@@ -192,14 +192,14 @@ string RsBufferLittleEndian::read_bytes(int size)
     return buf;
 }
 
-const char* RsBufferLittleEndian::dumps()
+string RsBufferLittleEndian::dumps()
 {
     if (!buffer.empty()) {
-        return buffer.c_str();
+        return buffer;
     }
 
     cout << "the buffer is empty" << endl;
-    return nullptr;
+    return "";
 }
 
 uint32_t RsBufferLittleEndian::convert_3bytes_into_uint32(std::string buf)

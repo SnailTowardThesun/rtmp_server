@@ -50,9 +50,9 @@ public:
     uint32_t read_4_byte();
     uint64_t read_8_byte();
     std::string read_bytes(int size);
-    int read(std::string buf, int size) {buf = read_bytes(size); return ERROR_SUCCESS;}
+    int read(std::string& buf, int size) {buf = read_bytes(size); return ERROR_SUCCESS;}
 
-    const char* dumps();
+    std::string dumps();
 public:
     static uint32_t convert_3bytes_into_uint32(std::string buf);
     static uint32_t convert_4bytes_into_uint32(std::string buf);

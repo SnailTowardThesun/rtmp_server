@@ -139,7 +139,7 @@ RsRtmpChunkMessage::~RsRtmpChunkMessage()
 {
 }
 
-int RsRtmpChunkMessage::type_0_decode(IRsReaderWriter reader)
+int RsRtmpChunkMessage::type_0_decode(IRsReaderWriter* reader)
 {
     int ret = ERROR_SUCCESS;
     bool has_extended_timestamp = false;
@@ -147,7 +147,7 @@ int RsRtmpChunkMessage::type_0_decode(IRsReaderWriter reader)
 
     assert(fmt == 0);
     // read timestamp
-    if ((ret = reader.read(buf, 3)) != ERROR_SUCCESS) {
+    if ((ret = reader->read(buf, 3)) != ERROR_SUCCESS) {
         cout << "read timestamp failed. ret=" << ret << endl;
         return ret;
     }
@@ -159,7 +159,7 @@ int RsRtmpChunkMessage::type_0_decode(IRsReaderWriter reader)
     }
 
     // read message length
-    if ((ret = reader.read(buf, 3)) != ERROR_SUCCESS) {
+    if ((ret = reader->read(buf, 3)) != ERROR_SUCCESS) {
         cout << "read message length failed. ret=" << ret << endl;
         return ret;
     }
@@ -168,7 +168,7 @@ int RsRtmpChunkMessage::type_0_decode(IRsReaderWriter reader)
     buf.clear();
 
     // read message type
-    if ((ret = reader.read(buf, 1)) != ERROR_SUCCESS) {
+    if ((ret = reader->read(buf, 1)) != ERROR_SUCCESS) {
         cout << "read message type failed. ret=" << ret << endl;
         return ret;
     }
@@ -177,7 +177,7 @@ int RsRtmpChunkMessage::type_0_decode(IRsReaderWriter reader)
     buf.clear();
 
     // read message stream id
-    if ((ret = reader.read(buf, 4)) != ERROR_SUCCESS) {
+    if ((ret = reader->read(buf, 4)) != ERROR_SUCCESS) {
         cout << "read message stream id failed. ret=" << ret << endl;
         return ret;
     }
@@ -187,7 +187,7 @@ int RsRtmpChunkMessage::type_0_decode(IRsReaderWriter reader)
 
     // read extened timestamp if there it is
     if (has_extended_timestamp) {
-        if ((ret = reader.read(buf, 4)) != ERROR_SUCCESS) {
+        if ((ret = reader->read(buf, 4)) != ERROR_SUCCESS) {
             cout << "read extended timestamp failed. ret=" << ret << endl;
             return ret;
         }
@@ -198,7 +198,7 @@ int RsRtmpChunkMessage::type_0_decode(IRsReaderWriter reader)
 
     // read payload
     int length = message_length > chunk_size ? chunk_size : message_length;
-    if ((ret = reader.read(chunk_data, length)) != ERROR_SUCCESS) {
+    if ((ret = reader->read(chunk_data, length)) != ERROR_SUCCESS) {
         cout << "read message payload failed. ret=" << ret << endl;
         return ret;
     }
@@ -206,13 +206,13 @@ int RsRtmpChunkMessage::type_0_decode(IRsReaderWriter reader)
     return ERROR_SUCCESS;
 }
 
-int RsRtmpChunkMessage::type_1_decode(IRsReaderWriter reader)
+int RsRtmpChunkMessage::type_1_decode(IRsReaderWriter *reader)
 {
     int ret = ERROR_SUCCESS;
     string buf;
 
     // timestamp delta
-    if ((ret = reader.read(buf, 3)) != ERROR_SUCCESS) {
+    if ((ret = reader->read(buf, 3)) != ERROR_SUCCESS) {
         cout << "read timestamp delta failed. ret=" << ret << endl;
         return ret;
     }
@@ -220,7 +220,7 @@ int RsRtmpChunkMessage::type_1_decode(IRsReaderWriter reader)
     buf.clear();
 
     // message length
-    if ((ret = reader.read(buf, 3)) != ERROR_SUCCESS) {
+    if ((ret = reader->read(buf, 3)) != ERROR_SUCCESS) {
         cout << "read message length failed. ret=" << ret << endl;
         return ret;
     }
@@ -228,7 +228,7 @@ int RsRtmpChunkMessage::type_1_decode(IRsReaderWriter reader)
     buf.clear();
 
     // message type id
-    if ((ret = reader.read(buf, 1)) != ERROR_SUCCESS) {
+    if ((ret = reader->read(buf, 1)) != ERROR_SUCCESS) {
         cout << "read message type id failed. ret=" << ret << endl;
         return ret;
     }
@@ -237,7 +237,7 @@ int RsRtmpChunkMessage::type_1_decode(IRsReaderWriter reader)
 
     // chunk data
     int length = message_length > chunk_size ? chunk_size : message_length;
-    if ((ret = reader.read(chunk_data, length)) != ERROR_SUCCESS) {
+    if ((ret = reader->read(chunk_data, length)) != ERROR_SUCCESS) {
         cout << "read chunk data failed. ret=" << ret << endl;
         return ret;
     }
@@ -245,13 +245,13 @@ int RsRtmpChunkMessage::type_1_decode(IRsReaderWriter reader)
     return ret;
 }
 
-int RsRtmpChunkMessage::type_2_decode(IRsReaderWriter reader, uint32_t size)
+int RsRtmpChunkMessage::type_2_decode(IRsReaderWriter* reader, uint32_t size)
 {
     int ret = ERROR_SUCCESS;
     string buf;
 
     // timestamp delta
-    if ((ret = reader.read(buf, 3)) != ERROR_SUCCESS) {
+    if ((ret = reader->read(buf, 3)) != ERROR_SUCCESS) {
         cout << "read timestamp delta failed. ret=" << ret << endl;
         return ret;
     }
@@ -259,7 +259,7 @@ int RsRtmpChunkMessage::type_2_decode(IRsReaderWriter reader, uint32_t size)
     buf.clear();
 
     // chunk data
-    if ((ret = reader.read(chunk_data, size)) != ERROR_SUCCESS) {
+    if ((ret = reader->read(chunk_data, size)) != ERROR_SUCCESS) {
         cout << "read chunk data failed. ret=" << ret << endl;
         return ret;
     }
@@ -267,11 +267,11 @@ int RsRtmpChunkMessage::type_2_decode(IRsReaderWriter reader, uint32_t size)
     return ret;
 }
 
-int RsRtmpChunkMessage::type_3_decode(IRsReaderWriter reader, uint32_t size)
+int RsRtmpChunkMessage::type_3_decode(IRsReaderWriter* reader, uint32_t size)
 {
     int ret = ERROR_SUCCESS;
 
-    if ((ret = reader.read(chunk_data, size)) != ERROR_SUCCESS) {
+    if ((ret = reader->read(chunk_data, size)) != ERROR_SUCCESS) {
         cout << "read chunk data from reader failed. ret=" << ret << endl;
     }
 
@@ -280,29 +280,27 @@ int RsRtmpChunkMessage::type_3_decode(IRsReaderWriter reader, uint32_t size)
 
 string RsRtmpChunkMessage::basic_header_dump()
 {
+    RsBufferLittleEndian buf;
     if (cs_id < 64) {
         uint8_t cid = (uint8_t) cs_id;
-        char c = (char) ((fmt << 6) & 0xc0 + cid & 0x3f);
-        return string(&c);
+        buf.write_1_byte((uint8_t) (((fmt << 6) & 0xc0) | (cid & 0x3f)));
+        return buf.dumps();
     } else if (cs_id < 320) {
-        uint8_t cid = (uint8_t) cs_id;
-        char c[2] = {0};
-        c[0] = (char) ((fmt << 6) & 0xc0);
-        c[1] = (char) (cid - 64);
-        return string(c);
+        uint8_t cid = (uint8_t) (cs_id - 64);
+        buf.write_1_byte((uint8_t) ((fmt << 6) & 0xc0));
+        buf.write_1_byte(cid);
+        return buf.dumps();
     } else if (cs_id < 65599) {
-        char c[3] = {0};
-        c[0] = (char) ((fmt << 6) & 0xc0 + 1);
+        buf.write_1_byte((uint8_t) ((fmt << 6) & 0xc0 + 1));
 
         uint16_t cid = uint16_t(cs_id - 64);
-
-        c[1] = (char) (uint8_t) cid;
-        c[2] = (char) (uint8_t) (cid >> 8);
-        return string(c);
+        buf.write_1_byte((uint8_t)cid);
+        buf.write_1_byte((uint8_t)(cid >> 8));
+        return buf.dumps();
     }
 
     cout << "cs id is beyound the limits" << endl;
-    return string("");
+    return "";
 }
 
 int RsRtmpChunkMessage::type_0_dump(string& buf)
@@ -328,7 +326,7 @@ int RsRtmpChunkMessage::type_0_dump(string& buf)
     // chunk data
     rs_buf.write_bytes(chunk_data);
 
-    buf = string(rs_buf.dumps());
+    buf = rs_buf.dumps();
     return ret;
 }
 
@@ -349,7 +347,7 @@ int RsRtmpChunkMessage::type_1_dump(string& buf)
     // chunk data
     rs_buf.write_bytes(chunk_data);
 
-    buf = string(rs_buf.dumps());
+    buf = rs_buf.dumps();
     return ret;
 }
 
@@ -366,29 +364,30 @@ int RsRtmpChunkMessage::type_2_dump(string& buf)
     // chunk data
     rs_buf.write_bytes(chunk_data);
 
-    buf = string(rs_buf.dumps());
+    buf = rs_buf.dumps();
     return ret;
 }
 
 int RsRtmpChunkMessage::type_3_dump(string& buf)
 {
     int ret = ERROR_SUCCESS;
-    buf = chunk_data;
+    buf.append(basic_header_dump());
+    buf.append(chunk_data);
     return ret;
 }
 
-int RsRtmpChunkMessage::initialize(IRsReaderWriter reader, uint32_t cs, uint32_t payload_length)
+int RsRtmpChunkMessage::initialize(IRsReaderWriter *reader, uint32_t cs, uint32_t payload_length)
 {
     int ret = ERROR_SUCCESS;
     chunk_size = cs;
 
     // read basic header
     string buf;
-    if ((ret = reader.read(buf, 1) != ERROR_SUCCESS)) {
+    if ((ret = reader->read(buf, 1) != ERROR_SUCCESS)) {
         cout << "read fmt failed. ret=" << ret << endl;
         return ret;
     }
-    fmt = uint8_t(buf.c_str()[0] & 0xc0);
+    fmt = uint8_t((buf.c_str()[0] & 0xc0) >> 6);
 
     int tmp = buf.c_str()[0] & 0x3f;
     if (tmp > 1) {
@@ -397,7 +396,7 @@ int RsRtmpChunkMessage::initialize(IRsReaderWriter reader, uint32_t cs, uint32_t
 
     if (tmp == 0) {
         buf.clear();
-        if ((ret = reader.read(buf, 1)) != ERROR_SUCCESS) {
+        if ((ret = reader->read(buf, 1)) != ERROR_SUCCESS) {
             cout << "read 1 byte failed. ret=" << ret << endl;
             return ret;
         }
@@ -406,7 +405,7 @@ int RsRtmpChunkMessage::initialize(IRsReaderWriter reader, uint32_t cs, uint32_t
 
     if (tmp == 1) {
         buf.clear();
-        if ((ret = reader.read(buf, 2)) != ERROR_SUCCESS) {
+        if ((ret = reader->read(buf, 2)) != ERROR_SUCCESS) {
             cout << "read 2 bytes failed. ret=" << ret << endl;
             return ret;
         }

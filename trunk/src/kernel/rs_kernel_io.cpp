@@ -39,7 +39,7 @@ int RsSocketIO::write(string buf, int size)
     return ret;
 }
 
-int RsSocketIO::read(string buf, int size)
+int RsSocketIO::read(string& buf, int size)
 {
     // TODO:FIXME: implement this function
     int ret = ERROR_SUCCESS;

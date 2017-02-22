@@ -31,8 +31,8 @@ public:
     IRsReaderWriter(){};
     virtual ~IRsReaderWriter(){};
 public:
-    virtual int write(std::string buf, int size) {return ERROR_SUCCESS;};
-    virtual int read(std::string buf, int size) {return ERROR_SUCCESS;};
+    virtual int write(std::string buf, int size) = 0;
+    virtual int read(std::string& buf, int size) = 0;
 };
 
 class RsSocketIO : public IRsReaderWriter
@@ -42,5 +42,5 @@ public:
     virtual ~RsSocketIO();
 public:
     int write(std::string buf, int size);
-    int read(std::string buf, int size);
+    int read(std::string& buf, int size);
 };

@@ -98,11 +98,12 @@ public:
 public:
     RsRtmpChunkMessage();
     virtual ~RsRtmpChunkMessage();
+
 private:
-    int type_0_decode(IRsReaderWriter reader);
-    int type_1_decode(IRsReaderWriter reader);
-    int type_2_decode(IRsReaderWriter reader, uint32_t size);
-    int type_3_decode(IRsReaderWriter reader, uint32_t size);
+    int type_0_decode(IRsReaderWriter *reader);
+    int type_1_decode(IRsReaderWriter *reader);
+    int type_2_decode(IRsReaderWriter *reader, uint32_t size);
+    int type_3_decode(IRsReaderWriter *reader, uint32_t size);
 
     std::string basic_header_dump();
     int type_0_dump(std::string& buf);
@@ -110,7 +111,7 @@ private:
     int type_2_dump(std::string& buf);
     int type_3_dump(std::string& buf);
 public:
-    int initialize(IRsReaderWriter reader, uint32_t cs, uint32_t payload_length = 0);
+    int initialize(IRsReaderWriter *reader, uint32_t cs, uint32_t payload_length = 0);
     int dumps(std::string& buf);
 public:
     static RTMP_CHUNK_MESSAGES create_chunk_messages(uint32_t ts, std::string msg, uint8_t msg_type, uint32_t msg_stream_id, uint32_t cs);
