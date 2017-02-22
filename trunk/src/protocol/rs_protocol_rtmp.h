@@ -73,6 +73,9 @@ public:
     virtual ~s2(){};
 };
 
+class RsRtmpChunkMessage;
+using RTMP_CHUNK_MESSAGES = std::vector<std::shared_ptr<RsRtmpChunkMessage>>;
+
 class RsRtmpChunkMessage
 {
 public:
@@ -82,10 +85,9 @@ public:
     uint8_t fmt;
     uint32_t cs_id;
     // message header
-    // type 0
     uint32_t timestamp;
     uint32_t message_length;
-    uint8_t message_type;
+    uint8_t message_type_id;
     uint32_t message_stream_id;
     // type 1, 2
     uint32_t timestamp_delta;
@@ -97,13 +99,19 @@ public:
     RsRtmpChunkMessage();
     virtual ~RsRtmpChunkMessage();
 private:
-    int type_0_decode(IRsReaderWriter reader, uint32_t cs);
-    int type_1_decode();
-    int type_2_decode();
+    int type_0_decode(IRsReaderWriter reader);
+    int type_1_decode(IRsReaderWriter reader);
+    int type_2_decode(IRsReaderWriter reader, uint32_t size);
     int type_3_decode(IRsReaderWriter reader, uint32_t size);
+
+    std::string basic_header_dump();
+    int type_0_dump(std::string& buf);
+    int type_1_dump(std::string& buf);
+    int type_2_dump(std::string& buf);
+    int type_3_dump(std::string& buf);
 public:
-    int initialize(IRsReaderWriter reader, uint32_t cs, uint32_t payload_length = 0, uint64_t pre_timestamp = 0);
-    std::string dumps();
+    int initialize(IRsReaderWriter reader, uint32_t cs, uint32_t payload_length = 0);
+    int dumps(std::string& buf);
 public:
-    static std::vector<RsRtmpChunkMessage*> create_chunk_messages(uint8_t fmt, std::string msg, uint8_t msg_type, uint32_t msg_stream_id);
+    static RTMP_CHUNK_MESSAGES create_chunk_messages(uint32_t ts, std::string msg, uint8_t msg_type, uint32_t msg_stream_id, uint32_t cs);
 };

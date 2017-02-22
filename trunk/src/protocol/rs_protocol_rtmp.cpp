@@ -139,7 +139,7 @@ RsRtmpChunkMessage::~RsRtmpChunkMessage()
 {
 }
 
-int RsRtmpChunkMessage::type_0_decode(IRsReaderWriter reader, uint32_t cs)
+int RsRtmpChunkMessage::type_0_decode(IRsReaderWriter reader)
 {
     int ret = ERROR_SUCCESS;
     bool has_extended_timestamp = false;
@@ -173,7 +173,7 @@ int RsRtmpChunkMessage::type_0_decode(IRsReaderWriter reader, uint32_t cs)
         return ret;
     }
 
-    message_type = (uint8_t) buf.c_str()[0];
+    message_type_id = (uint8_t) buf.c_str()[0];
     buf.clear();
 
     // read message stream id
@@ -198,23 +198,73 @@ int RsRtmpChunkMessage::type_0_decode(IRsReaderWriter reader, uint32_t cs)
 
     // read payload
     int length = message_length > chunk_size ? chunk_size : message_length;
-    if ((ret = reader.read(buf, length)) != ERROR_SUCCESS) {
+    if ((ret = reader.read(chunk_data, length)) != ERROR_SUCCESS) {
         cout << "read message payload failed. ret=" << ret << endl;
         return ret;
     }
-    chunk_data = buf;
 
     return ERROR_SUCCESS;
 }
 
-int RsRtmpChunkMessage::type_1_decode()
+int RsRtmpChunkMessage::type_1_decode(IRsReaderWriter reader)
 {
-    return ERROR_SUCCESS;
+    int ret = ERROR_SUCCESS;
+    string buf;
+
+    // timestamp delta
+    if ((ret = reader.read(buf, 3)) != ERROR_SUCCESS) {
+        cout << "read timestamp delta failed. ret=" << ret << endl;
+        return ret;
+    }
+    timestamp_delta = RsBufferLittleEndian::convert_3bytes_into_uint32(buf);
+    buf.clear();
+
+    // message length
+    if ((ret = reader.read(buf, 3)) != ERROR_SUCCESS) {
+        cout << "read message length failed. ret=" << ret << endl;
+        return ret;
+    }
+    message_length = RsBufferLittleEndian::convert_3bytes_into_uint32(buf);
+    buf.clear();
+
+    // message type id
+    if ((ret = reader.read(buf, 1)) != ERROR_SUCCESS) {
+        cout << "read message type id failed. ret=" << ret << endl;
+        return ret;
+    }
+    message_type_id = (uint8_t) buf.c_str()[0];
+    buf.clear();
+
+    // chunk data
+    int length = message_length > chunk_size ? chunk_size : message_length;
+    if ((ret = reader.read(chunk_data, length)) != ERROR_SUCCESS) {
+        cout << "read chunk data failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    return ret;
 }
 
-int RsRtmpChunkMessage::type_2_decode()
+int RsRtmpChunkMessage::type_2_decode(IRsReaderWriter reader, uint32_t size)
 {
-    return ERROR_SUCCESS;
+    int ret = ERROR_SUCCESS;
+    string buf;
+
+    // timestamp delta
+    if ((ret = reader.read(buf, 3)) != ERROR_SUCCESS) {
+        cout << "read timestamp delta failed. ret=" << ret << endl;
+        return ret;
+    }
+    timestamp_delta = RsBufferLittleEndian::convert_3bytes_into_uint32(buf);
+    buf.clear();
+
+    // chunk data
+    if ((ret = reader.read(chunk_data, size)) != ERROR_SUCCESS) {
+        cout << "read chunk data failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    return ret;
 }
 
 int RsRtmpChunkMessage::type_3_decode(IRsReaderWriter reader, uint32_t size)
@@ -228,7 +278,106 @@ int RsRtmpChunkMessage::type_3_decode(IRsReaderWriter reader, uint32_t size)
     return ret;
 }
 
-int RsRtmpChunkMessage::initialize(IRsReaderWriter reader, uint32_t cs, uint32_t payload_length, uint64_t pre_timestamp)
+string RsRtmpChunkMessage::basic_header_dump()
+{
+    if (cs_id < 64) {
+        uint8_t cid = (uint8_t) cs_id;
+        char c = (char) ((fmt << 6) & 0xc0 + cid & 0x3f);
+        return string(&c);
+    } else if (cs_id < 320) {
+        uint8_t cid = (uint8_t) cs_id;
+        char c[2] = {0};
+        c[0] = (char) ((fmt << 6) & 0xc0);
+        c[1] = (char) (cid - 64);
+        return string(c);
+    } else if (cs_id < 65599) {
+        char c[3] = {0};
+        c[0] = (char) ((fmt << 6) & 0xc0 + 1);
+
+        uint16_t cid = uint16_t(cs_id - 64);
+
+        c[1] = (char) (uint8_t) cid;
+        c[2] = (char) (uint8_t) (cid >> 8);
+        return string(c);
+    }
+
+    cout << "cs id is beyound the limits" << endl;
+    return string("");
+}
+
+int RsRtmpChunkMessage::type_0_dump(string& buf)
+{
+    int ret = ERROR_SUCCESS;
+
+    RsBufferLittleEndian rs_buf;
+
+    // basic header
+    rs_buf.write_bytes(basic_header_dump());
+    // timestamp
+    rs_buf.write_3_byte(timestamp);
+    // message_length
+    rs_buf.write_3_byte(message_length);
+    // message type id
+    rs_buf.write_1_byte(message_type_id);
+    // message stream id
+    rs_buf.write_4_byte(message_stream_id);
+    // extended timestamp
+    if (timestamp >= CHUNK_MESSAGE_TIMESTAMP_MAX && extended_timestamp != 0) {
+        rs_buf.write_4_byte(extended_timestamp);
+    }
+    // chunk data
+    rs_buf.write_bytes(chunk_data);
+
+    buf = string(rs_buf.dumps());
+    return ret;
+}
+
+int RsRtmpChunkMessage::type_1_dump(string& buf)
+{
+    int ret = ERROR_SUCCESS;
+
+    RsBufferLittleEndian rs_buf;
+
+    //basic header
+    rs_buf.write_bytes(basic_header_dump());
+    // timestamp delta
+    rs_buf.write_3_byte(timestamp_delta);
+    // message length
+    rs_buf.write_3_byte(message_length);
+    // message type id
+    rs_buf.write_1_byte(message_type_id);
+    // chunk data
+    rs_buf.write_bytes(chunk_data);
+
+    buf = string(rs_buf.dumps());
+    return ret;
+}
+
+int RsRtmpChunkMessage::type_2_dump(string& buf)
+{
+    int ret =  ERROR_SUCCESS;
+
+    RsBufferLittleEndian rs_buf;
+
+    // basic header
+    rs_buf.write_bytes(basic_header_dump());
+    // timestamp delta
+    rs_buf.write_3_byte(timestamp_delta);
+    // chunk data
+    rs_buf.write_bytes(chunk_data);
+
+    buf = string(rs_buf.dumps());
+    return ret;
+}
+
+int RsRtmpChunkMessage::type_3_dump(string& buf)
+{
+    int ret = ERROR_SUCCESS;
+    buf = chunk_data;
+    return ret;
+}
+
+int RsRtmpChunkMessage::initialize(IRsReaderWriter reader, uint32_t cs, uint32_t payload_length)
 {
     int ret = ERROR_SUCCESS;
     chunk_size = cs;
@@ -264,14 +413,15 @@ int RsRtmpChunkMessage::initialize(IRsReaderWriter reader, uint32_t cs, uint32_t
 
         cs_id = (uint32_t) (64 + uint8_t(buf.c_str()[0]) + 256 * uint8_t(buf.c_str()[1]));
     }
-    // read message header
+
+    // read message header and chunk data
     switch (fmt) {
         case 0:
-            return type_0_decode(reader, cs);
+            return type_0_decode(reader);
         case 1:
-            return type_1_decode();
+            return type_1_decode(reader);
         case 2:
-            return type_2_decode();
+            return type_2_decode(reader, cs < payload_length ? cs : payload_length);
         case 3:
             return type_3_decode(reader, cs < payload_length ? cs : payload_length);
         default:
@@ -281,16 +431,60 @@ int RsRtmpChunkMessage::initialize(IRsReaderWriter reader, uint32_t cs, uint32_t
     }
 }
 
-string RsRtmpChunkMessage::dumps()
+int RsRtmpChunkMessage::dumps(string& buf)
 {
-    RsBufferLittleEndian msg;
+    buf.clear();
 
-    return string(msg.dumps());
+    switch (fmt) {
+        case 0:
+            return type_0_dump(buf);
+        case 1:
+            return type_1_dump(buf);
+        case 2:
+            return type_2_dump(buf);
+        case 3:
+            return type_3_dump(buf);
+        default:
+            cout << "the fmt is beyound the limist" << endl;
+    }
+
+    return ERROR_SUCCESS;
 }
 
-vector<RsRtmpChunkMessage*> RsRtmpChunkMessage::create_chunk_messages(uint8_t fmt, string msg, uint8_t msg_type, uint32_t msg_stream_id)
+RTMP_CHUNK_MESSAGES RsRtmpChunkMessage::create_chunk_messages(uint32_t ts, string msg, uint8_t msg_type, uint32_t msg_stream_id, uint32_t cs)
 {
-    vector<RsRtmpChunkMessage*> msgs;
+    RTMP_CHUNK_MESSAGES msgs;
+
+    // create type 0 message
+    RsRtmpChunkMessage type0;
+    type0.fmt = 0;
+    type0.chunk_size = cs;
+    type0.timestamp = ts;
+    if (ts > CHUNK_MESSAGE_TIMESTAMP_MAX) {
+        type0.timestamp = CHUNK_MESSAGE_TIMESTAMP_MAX;
+        type0.extended_timestamp = ts;
+    }
+
+    type0.message_length = (uint32_t) msg.length();
+    type0.message_type_id = msg_type;
+    type0.message_stream_id = msg_stream_id;
+
+    auto data_length = msg.length() > cs ? cs : msg.length();
+    type0.chunk_data = msg.substr(0, data_length);
+    msg.erase(0, data_length);
+
+    msgs.push_back(shared_ptr<RsRtmpChunkMessage> (&type0));
+
+    // create type 3 messages
+    while (!msg.empty()) {
+        RsRtmpChunkMessage type3;
+        type3.fmt = 3;
+        auto length = msg.length() > cs ? cs : msg.length();
+        type3.chunk_data = msg.substr(0, length);
+        msg.erase(0, length);
+
+        msgs.push_back(shared_ptr<RsRtmpChunkMessage>(&type3));
+    }
 
     return msgs;
 }

@@ -24,9 +24,10 @@ SOFTWARE.
 
 #pragma once
 #include "rs_common.h"
+#include "rs_kernel_io.h"
 
 // little endian
-class RsBufferLittleEndian
+class RsBufferLittleEndian : public IRsReaderWriter
 {
 private:
     std::string buffer;
@@ -41,6 +42,7 @@ public:
     int write_8_byte(uint64_t val);
     int write_bytes(std::string buf);
     int write_bytes(const char* buf, int size);
+    int write(std::string buf, int size) {return write_bytes(buf.c_str(), size);}
 
     uint8_t read_1_byte();
     uint16_t read_2_byte();
@@ -48,6 +50,7 @@ public:
     uint32_t read_4_byte();
     uint64_t read_8_byte();
     std::string read_bytes(int size);
+    int read(std::string buf, int size) {buf = read_bytes(size); return ERROR_SUCCESS;}
 
     const char* dumps();
 public:
