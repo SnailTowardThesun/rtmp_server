@@ -455,34 +455,34 @@ RTMP_CHUNK_MESSAGES RsRtmpChunkMessage::create_chunk_messages(uint32_t ts, strin
     RTMP_CHUNK_MESSAGES msgs;
 
     // create type 0 message
-    RsRtmpChunkMessage type0;
-    type0.fmt = 0;
-    type0.chunk_size = cs;
-    type0.timestamp = ts;
+    RsRtmpChunkMessage* type0 = new RsRtmpChunkMessage();
+    type0->fmt = 0;
+    type0->chunk_size = cs;
+    type0->timestamp = ts;
     if (ts > CHUNK_MESSAGE_TIMESTAMP_MAX) {
-        type0.timestamp = CHUNK_MESSAGE_TIMESTAMP_MAX;
-        type0.extended_timestamp = ts;
+        type0->timestamp = CHUNK_MESSAGE_TIMESTAMP_MAX;
+        type0->extended_timestamp = ts;
     }
 
-    type0.message_length = (uint32_t) msg.length();
-    type0.message_type_id = msg_type;
-    type0.message_stream_id = msg_stream_id;
+    type0->message_length = (uint32_t) msg.length();
+    type0->message_type_id = msg_type;
+    type0->message_stream_id = msg_stream_id;
 
     auto data_length = msg.length() > cs ? cs : msg.length();
-    type0.chunk_data = msg.substr(0, data_length);
+    type0->chunk_data = msg.substr(0, data_length);
     msg.erase(0, data_length);
 
-    msgs.push_back(shared_ptr<RsRtmpChunkMessage> (&type0));
+    msgs.push_back(shared_ptr<RsRtmpChunkMessage> (type0));
 
     // create type 3 messages
     while (!msg.empty()) {
-        RsRtmpChunkMessage type3;
-        type3.fmt = 3;
+        RsRtmpChunkMessage* type3 = new RsRtmpChunkMessage();
+        type3->fmt = 3;
         auto length = msg.length() > cs ? cs : msg.length();
-        type3.chunk_data = msg.substr(0, length);
+        type3->chunk_data = msg.substr(0, length);
         msg.erase(0, length);
 
-        msgs.push_back(shared_ptr<RsRtmpChunkMessage>(&type3));
+        msgs.push_back(shared_ptr<RsRtmpChunkMessage>(type3));
     }
 
     return msgs;

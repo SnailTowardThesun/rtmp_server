@@ -154,5 +154,6 @@ TEST(RTMP_CHUNK_MESSAGE, create_msgs)
         string buf = rs_get_random(2048);
         auto test = RsRtmpChunkMessage::create_chunk_messages(1024, buf, 1, 1, 512);
         ASSERT_EQ(4, test.size());
+        test.clear();
     }
 }
