@@ -41,6 +41,7 @@ The common value for rtmp server
 #include <memory>
 #include <stdint.h>
 #include <stdlib.h>
+#include <algorithm>
 
 #include "rs_common_errno.h"
 #include "rs_common_utility.h"
