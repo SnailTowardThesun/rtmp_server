@@ -36,7 +36,7 @@ public:
     virtual ~RsBufferLittleEndian();
 public:
     int write_1_byte(uint8_t val);
-    int write_2_byte(uint16_t val);
+    int write_2_byte(unsigned long val);
     int write_3_byte(uint32_t val);
     int write_4_byte(uint32_t val);
     int write_8_byte(uint64_t val);
@@ -52,8 +52,10 @@ public:
     std::string read_bytes(int size);
     int read(std::string& buf, int size) {buf = read_bytes(size); return ERROR_SUCCESS;}
 
-    std::string dumps();
+    std::string dump();
 public:
+    static uint16_t convert_2bytes_into_uint16(std::string buf);
     static uint32_t convert_3bytes_into_uint32(std::string buf);
     static uint32_t convert_4bytes_into_uint32(std::string buf);
+    static uint64_t convert_8bytes_into_uint64(std::string buf);
 };

@@ -25,6 +25,7 @@ SOFTWARE.
 #include "rs_common.h"
 #include "uv.h"
 #include "rs_kernel_io.h"
+#include "rs_protocol_amf0.h"
 
 class RsRtmpConn
 {

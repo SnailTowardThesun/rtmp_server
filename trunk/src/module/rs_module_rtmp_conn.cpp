@@ -55,7 +55,7 @@ int RsRtmpConn::simple_handshake_with_server()
     }
 
     // send c0c1
-    string str = c.dumps();
+    string str = c.dump();
     if ((ret = io->write(str, (int)str.length())) != ERROR_SUCCESS) {
         cout << "send c0c1 failed. ret=" << ret << endl;
         return ret;
@@ -79,7 +79,7 @@ int RsRtmpConn::simple_handshake_with_server()
         return ret;
     }
 
-    str = c211.dumps();
+    str = c211.dump();
     if ((ret = io->write(str, (int)str.length())) != ERROR_SUCCESS) {
         cout << "send c2 failed. ret=" << ret << endl;
         return ret;
@@ -120,7 +120,7 @@ int RsRtmpConn::simple_handshake_with_client()
         return ret;
     }
 
-    str = s0s11.dumps() + s21.dumps();
+    str = s0s11.dump() + s21.dump();
     if ((ret = io->write(str, (int)str.length())) != ERROR_SUCCESS) {
         cout << "send s0s1s2 failed. ret=" << ret << endl;
         return ret;

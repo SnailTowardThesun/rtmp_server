@@ -40,7 +40,7 @@ public:
 public:
     int initialize();
     int initialize(std::string buf);
-    std::string dumps();
+    std::string dump();
 };
 
 class c2
@@ -55,7 +55,7 @@ public:
 public:
     int initialize();
     int initialize(uint32_t ts, std::string rd);
-    std::string dumps();
+    std::string dump();
 
 };
 
@@ -112,7 +112,7 @@ private:
     int type_3_dump(std::string& buf);
 public:
     int initialize(IRsReaderWriter *reader, uint32_t cs, uint32_t payload_length = 0);
-    int dumps(std::string& buf);
+    int dump(std::string &buf);
 public:
     static RTMP_CHUNK_MESSAGES create_chunk_messages(uint32_t ts, std::string msg, uint8_t msg_type, uint32_t msg_stream_id, uint32_t cs);
 };

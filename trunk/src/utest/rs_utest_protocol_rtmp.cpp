@@ -43,25 +43,25 @@ TEST(RTMP_CHUNK_MESSAGE, dump)
 
     string buf;
     // type 0
-    ASSERT_EQ(ERROR_SUCCESS, msg.dumps(buf));
+    ASSERT_EQ(ERROR_SUCCESS, msg.dump(buf));
     ASSERT_EQ(buf.length(), 512 + 11 + 1);
 
     // type 1
     buf.clear();
     msg.fmt = 1;
-    ASSERT_EQ(ERROR_SUCCESS, msg.dumps(buf));
+    ASSERT_EQ(ERROR_SUCCESS, msg.dump(buf));
     ASSERT_EQ(buf.length(), 512 + 1 + 7);
 
     // type 2
     buf.clear();
     msg.fmt = 2;
-    ASSERT_EQ(ERROR_SUCCESS, msg.dumps(buf));
+    ASSERT_EQ(ERROR_SUCCESS, msg.dump(buf));
     ASSERT_EQ(buf.length(), 512 + 1 + 3);
 
     // type 3
     buf.clear();
     msg.fmt = 3;
-    ASSERT_EQ(ERROR_SUCCESS, msg.dumps(buf));
+    ASSERT_EQ(ERROR_SUCCESS, msg.dump(buf));
     ASSERT_EQ(buf.length(), 512 + 1);
 }
 
@@ -81,7 +81,7 @@ TEST(RTMP_CHUNK_MESSAGE, initialize)
     {
         string buf;
         RsBufferLittleEndian rs_buf;
-        ASSERT_EQ(ERROR_SUCCESS, msg.dumps(buf));
+        ASSERT_EQ(ERROR_SUCCESS, msg.dump(buf));
         rs_buf.write_bytes(buf);
 
         RsRtmpChunkMessage test_msg;
@@ -99,7 +99,7 @@ TEST(RTMP_CHUNK_MESSAGE, initialize)
         string buf;
         RsBufferLittleEndian rs_buf;
         msg.fmt = 1;
-        ASSERT_EQ(ERROR_SUCCESS, msg.dumps(buf));
+        ASSERT_EQ(ERROR_SUCCESS, msg.dump(buf));
         rs_buf.write_bytes(buf);
 
         RsRtmpChunkMessage test_msg;
@@ -116,7 +116,7 @@ TEST(RTMP_CHUNK_MESSAGE, initialize)
         string buf;
         RsBufferLittleEndian rs_buf;
         msg.fmt = 2;
-        ASSERT_EQ(ERROR_SUCCESS, msg.dumps(buf));
+        ASSERT_EQ(ERROR_SUCCESS, msg.dump(buf));
         rs_buf.write_bytes(buf);
 
         RsRtmpChunkMessage test_msg;
@@ -131,7 +131,7 @@ TEST(RTMP_CHUNK_MESSAGE, initialize)
         string buf;
         RsBufferLittleEndian rs_buf;
         msg.fmt = 3;
-        ASSERT_EQ(ERROR_SUCCESS, msg.dumps(buf));
+        ASSERT_EQ(ERROR_SUCCESS, msg.dump(buf));
         rs_buf.write_bytes(buf);
 
         RsRtmpChunkMessage test_msg;

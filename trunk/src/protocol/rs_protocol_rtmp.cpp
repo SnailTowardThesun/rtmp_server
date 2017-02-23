@@ -78,7 +78,7 @@ int c0c1::initialize(std::string buf)
     return ret;
 }
 
-string c0c1::dumps()
+string c0c1::dump()
 {
     RsBufferLittleEndian buf;
 
@@ -87,7 +87,7 @@ string c0c1::dumps()
     buf.write_4_byte(zero);
     buf.write_bytes(random_data);
 
-    return string(buf.dumps());
+    return string(buf.dump());
 }
 
 c2::c2()
@@ -120,7 +120,7 @@ int c2::initialize(uint32_t ts, string rd)
     return ret;
 }
 
-string c2::dumps()
+string c2::dump()
 {
     RsBufferLittleEndian buf;
 
@@ -128,7 +128,7 @@ string c2::dumps()
     buf.write_4_byte(timestamp2);
     buf.write_bytes(random_data);
 
-    return string(buf.dumps());
+    return string(buf.dump());
 }
 
 RsRtmpChunkMessage::RsRtmpChunkMessage()
@@ -284,19 +284,19 @@ string RsRtmpChunkMessage::basic_header_dump()
     if (cs_id < 64) {
         uint8_t cid = (uint8_t) cs_id;
         buf.write_1_byte((uint8_t) (((fmt << 6) & 0xc0) | (cid & 0x3f)));
-        return buf.dumps();
+        return buf.dump();
     } else if (cs_id < 320) {
         uint8_t cid = (uint8_t) (cs_id - 64);
         buf.write_1_byte((uint8_t) ((fmt << 6) & 0xc0));
         buf.write_1_byte(cid);
-        return buf.dumps();
+        return buf.dump();
     } else if (cs_id < 65599) {
         buf.write_1_byte((uint8_t) ((fmt << 6) & 0xc0 + 1));
 
         uint16_t cid = uint16_t(cs_id - 64);
         buf.write_1_byte((uint8_t)cid);
         buf.write_1_byte((uint8_t)(cid >> 8));
-        return buf.dumps();
+        return buf.dump();
     }
 
     cout << "cs id is beyound the limits" << endl;
@@ -326,7 +326,7 @@ int RsRtmpChunkMessage::type_0_dump(string& buf)
     // chunk data
     rs_buf.write_bytes(chunk_data);
 
-    buf = rs_buf.dumps();
+    buf = rs_buf.dump();
     return ret;
 }
 
@@ -347,7 +347,7 @@ int RsRtmpChunkMessage::type_1_dump(string& buf)
     // chunk data
     rs_buf.write_bytes(chunk_data);
 
-    buf = rs_buf.dumps();
+    buf = rs_buf.dump();
     return ret;
 }
 
@@ -364,7 +364,7 @@ int RsRtmpChunkMessage::type_2_dump(string& buf)
     // chunk data
     rs_buf.write_bytes(chunk_data);
 
-    buf = rs_buf.dumps();
+    buf = rs_buf.dump();
     return ret;
 }
 
@@ -430,7 +430,7 @@ int RsRtmpChunkMessage::initialize(IRsReaderWriter *reader, uint32_t cs, uint32_
     }
 }
 
-int RsRtmpChunkMessage::dumps(string& buf)
+int RsRtmpChunkMessage::dump(string &buf)
 {
     buf.clear();
 

@@ -23,5 +23,116 @@ SOFTWARE.
 */
 
 #pragma once
+
+#include <rs_kernel_io.h>
 #include "rs_common.h"
 
+namespace AMF0_MARKER
+{
+    const uint8_t AMF0_NUMBER = 0x00;
+    const uint8_t AMF0_BOOLEAN = 0x01;
+    const uint8_t AMF0_STRING = 0x02;
+    const uint8_t AMF0_OBJECT = 0x03;
+    const uint8_t AMF0_MOVIECLIP = 0x04;
+    const uint8_t AMF0_NULL = 0x05;
+    const uint8_t AMF0_UNDEFINED = 0x06;
+    const uint8_t AMF0_REFERENCE = 0x07;
+    const uint8_t AMF0_ECMA_ARRAY = 0x08;
+    const uint8_t AMF0_OBJECT_END = 0x09;
+    const uint8_t AMF0_STRICT_ARRAY = 0x0A;
+    const uint8_t AMF0_DATE = 0x0B;
+    const uint8_t AMF0_LONG_STRING = 0x0C;
+    const uint8_t AMF0_UNSUPPORTED = 0x0D;
+    const uint8_t AMF0_RECORDSET = 0x0E;
+    const uint8_t AMF0_XML_DOCUMENT = 0x0F;
+    const uint8_t AMF0_TYPED_OBJECT = 0x10;
+};
+
+class RsAmf0Package
+{
+public:
+    uint8_t marker;
+public:
+    RsAmf0Package();
+    virtual ~RsAmf0Package();
+public:
+    bool is_number();
+    bool is_boolean();
+    bool is_string();
+    bool is_objec();
+    bool is_movieclip();
+    bool is_null();
+    bool is_undefined();
+    bool is_reference();
+    bool is_ecma_array();
+    bool is_object_end();
+    bool is_strict_array();
+    bool is_date();
+    bool is_long_string();
+    bool is_unsupported();
+    bool is_recordset();
+    bool is_xml_document();
+    bool is_typed_object();
+protected:
+    virtual std::string encode() = 0;
+public:
+    std::string dump();
+};
+
+class RsAmf0Number : public RsAmf0Package
+{
+public:
+    double value;
+public:
+    RsAmf0Number() = delete;
+    RsAmf0Number(double nu);
+    virtual ~RsAmf0Number();
+protected:
+    std::string encode();
+public:
+    int initialize(IRsReaderWriter *reader);
+};
+
+class RsAmf0Boolean : public RsAmf0Package
+{
+public:
+    bool value;
+public:
+    RsAmf0Boolean() = delete;
+    RsAmf0Boolean(bool val);
+    virtual ~RsAmf0Boolean();
+protected:
+    std::string encode();
+public:
+    int initialzie(IRsReaderWriter *reader);
+};
+
+class RsAmf0String : public RsAmf0Package
+{
+public:
+    uint16_t size;
+    std::string value;
+public:
+    RsAmf0String() = delete;
+    RsAmf0String(std::string val);
+    virtual ~RsAmf0String();
+protected:
+    std::string encode();
+public:
+    int initialize(IRsReaderWriter *reader);
+};
+
+class RsAmf0ObjectProperty
+{
+private:
+    using Property = std::pair<std::string, std::shared_ptr<RsAmf0Package>>;
+    std::vector<Property> properties;
+public:
+    RsAmf0ObjectProperty();
+    virtual ~RsAmf0ObjectProperty();
+public:
+    void set(std::string key, RsAmf0Package* value);
+    RsAmf0Package* get(std::string key);
+public:
+    std::string dump();
+};
