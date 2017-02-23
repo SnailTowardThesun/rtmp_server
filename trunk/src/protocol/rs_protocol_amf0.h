@@ -24,7 +24,7 @@ SOFTWARE.
 
 #pragma once
 
-#include <rs_kernel_io.h>
+#include "rs_kernel_io.h"
 #include "rs_common.h"
 
 namespace AMF0_MARKER
@@ -76,6 +76,7 @@ public:
 protected:
     virtual std::string encode() = 0;
 public:
+    static RsAmf0Package* create_package(IRsReaderWriter *reader);
     std::string dump();
 };
 
@@ -84,7 +85,7 @@ class RsAmf0Number : public RsAmf0Package
 public:
     double value;
 public:
-    RsAmf0Number() = delete;
+    RsAmf0Number();
     RsAmf0Number(double nu);
     virtual ~RsAmf0Number();
 protected:
@@ -98,13 +99,13 @@ class RsAmf0Boolean : public RsAmf0Package
 public:
     bool value;
 public:
-    RsAmf0Boolean() = delete;
+    RsAmf0Boolean();
     RsAmf0Boolean(bool val);
     virtual ~RsAmf0Boolean();
 protected:
     std::string encode();
 public:
-    int initialzie(IRsReaderWriter *reader);
+    int initialize(IRsReaderWriter *reader);
 };
 
 class RsAmf0String : public RsAmf0Package
@@ -113,7 +114,7 @@ public:
     uint16_t size;
     std::string value;
 public:
-    RsAmf0String() = delete;
+    RsAmf0String();
     RsAmf0String(std::string val);
     virtual ~RsAmf0String();
 protected:
@@ -133,6 +134,26 @@ public:
 public:
     void set(std::string key, RsAmf0Package* value);
     RsAmf0Package* get(std::string key);
+    // begin with 0
+    RsAmf0Package* get(int index);
 public:
+    int initialize(IRsReaderWriter *reader);
     std::string dump();
+};
+
+class RsAmf0Object : public RsAmf0Package
+{
+private:
+    RsAmf0ObjectProperty property;
+public:
+    RsAmf0Object();
+    virtual ~RsAmf0Object();
+public:
+    void set(std::string key, RsAmf0Package *value);
+    RsAmf0Package* get(std::string key);
+    RsAmf0Package* get(int index);
+protected:
+    std::string encode();
+public:
+    int initialize(IRsReaderWriter *reader);
 };
