@@ -186,7 +186,7 @@ string RsAmf0Package::dump()
 
 RsAmf0Number::RsAmf0Number()
 {
-
+    marker = AMF0_MARKER::AMF0_NUMBER;
 }
 
 RsAmf0Number::RsAmf0Number(double nu)
@@ -211,20 +211,7 @@ string RsAmf0Number::encode()
 int RsAmf0Number::initialize(IRsReaderWriter *reader)
 {
     int ret = ERROR_SUCCESS;
-
     string buf;
-    // read mark
-    if ((ret = reader->read(buf, 1)) != ERROR_SUCCESS) {
-        cout << "read mark for amf0 number failed. ret=" << ret << endl;
-        return ret;
-    }
-    buf.clear();
-
-    if (buf[0] != AMF0_MARKER::AMF0_NUMBER) {
-        ret = ERROR_RTMP_PROTOCOL_AMF0_DECODE_ERROR;
-        return ret;
-    }
-    marker = (uint8_t)buf[0];
 
     if ((ret = reader->read(buf, 8)) != ERROR_SUCCESS) {
         cout << "read number for amf0 number failed. ret=" << ret << endl;
@@ -236,7 +223,7 @@ int RsAmf0Number::initialize(IRsReaderWriter *reader)
 
 RsAmf0Boolean::RsAmf0Boolean()
 {
-
+    marker = AMF0_MARKER::AMF0_BOOLEAN;
 }
 
 RsAmf0Boolean::RsAmf0Boolean(bool val)
@@ -262,18 +249,6 @@ int RsAmf0Boolean::initialize(IRsReaderWriter *reader)
 {
     int ret = ERROR_SUCCESS;
     string buf;
-    // read marker
-    if ((ret = reader->read(buf, 1)) != ERROR_SUCCESS) {
-        cout << "read marker for amf0 string failed. ret=" << ret << endl;
-        return ret;
-    }
-
-    if (buf[0] != AMF0_MARKER::AMF0_BOOLEAN) {
-        ret = ERROR_RTMP_PROTOCOL_AMF0_DECODE_ERROR;
-        return ret;
-    }
-    marker = (uint8_t)buf[0];
-    buf.clear();
 
     // read value
     if ((ret = reader->read(buf, 1)) != ERROR_SUCCESS) {
@@ -314,18 +289,6 @@ int RsAmf0String::initialize(IRsReaderWriter *reader)
 {
     int ret = ERROR_SUCCESS;
     string buf;
-
-    // read mark
-    if ((ret = reader->read(buf, 1)) != ERROR_SUCCESS) {
-        cout << "read marker for amf0 string failed. ret=" << ret << endl;
-        return ret;
-    }
-    if (buf[0] != AMF0_MARKER::AMF0_STRING) {
-        ret = ERROR_RTMP_PROTOCOL_AMF0_DECODE_ERROR;
-        return ret;
-    }
-    marker = (uint8_t)buf[0];
-    buf.clear();
 
     // read size
     if ((ret = reader->read(buf, 2)) != ERROR_SUCCESS) {
@@ -484,20 +447,37 @@ string RsAmf0Object::encode()
 
 int RsAmf0Object::initialize(IRsReaderWriter *reader)
 {
-    int ret = 0;
+    return property.initialize(reader);
+}
+
+RsAmf0Null::RsAmf0Null()
+{
+    marker = AMF0_MARKER::AMF0_NULL;
+}
+
+RsAmf0Null::~RsAmf0Null()
+{
+
+}
+
+string RsAmf0Null::encode()
+{
+    RsBufferLittleEndian rs_buf;
+
+    rs_buf.write_1_byte(marker);
+
+    return rs_buf.dump();
+}
+
+int RsAmf0Null::initialize(IRsReaderWriter *reader)
+{
+    int ret = ERROR_SUCCESS;
     string buf;
 
-    // read marker
     if ((ret = reader->read(buf, 1)) != ERROR_SUCCESS) {
-        cout << "read marker for amf0 object failed. ret=" << ret << endl;
+        cout << "read marker for amf0 null failed. ret=" << ret << endl;
         return ret;
     }
 
-    if (buf[0] != AMF0_MARKER::AMF0_OBJECT) {
-        ret = ERROR_RTMP_PROTOCOL_AMF0_DECODE_ERROR;
-        return ret;
-    }
-    marker = (uint8_t)buf[0];
-
-    return property.initialize(reader);
+    return ret;
 }

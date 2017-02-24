@@ -157,3 +157,14 @@ protected:
 public:
     int initialize(IRsReaderWriter *reader);
 };
+
+class RsAmf0Null : public RsAmf0Package
+{
+public:
+    RsAmf0Null();
+    virtual ~RsAmf0Null();
+protected:
+    std::string encode();
+public:
+    int initialize(IRsReaderWriter *reader);
+};
