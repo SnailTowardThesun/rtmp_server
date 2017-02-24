@@ -397,6 +397,11 @@ int RsAmf0ObjectProperty::initialize(IRsReaderWriter *reader)
     return ret;
 }
 
+uint32_t RsAmf0ObjectProperty::count()
+{
+    return properties.size();
+}
+
 string RsAmf0ObjectProperty::dump()
 {
     RsBufferLittleEndian buf;
@@ -471,12 +476,181 @@ string RsAmf0Null::encode()
 
 int RsAmf0Null::initialize(IRsReaderWriter *reader)
 {
+    return ERROR_SUCCESS;
+}
+
+RsAmf0Undefined::RsAmf0Undefined()
+{
+    marker = AMF0_MARKER::AMF0_UNDEFINED;
+}
+
+RsAmf0Undefined::~RsAmf0Undefined()
+{
+
+}
+
+string RsAmf0Undefined::encode()
+{
+    RsBufferLittleEndian rs_buf;
+
+    rs_buf.write_1_byte(marker);
+
+    return rs_buf.dump();
+}
+
+int RsAmf0Undefined::initialize(IRsReaderWriter *reader)
+{
+    return ERROR_SUCCESS;
+}
+
+RsAmf0Reference::RsAmf0Reference()
+{
+    marker = AMF0_MARKER::AMF0_REFERENCE;
+}
+
+RsAmf0Reference::RsAmf0Reference(uint16_t ref)
+{
+    marker = AMF0_MARKER::AMF0_REFERENCE;
+    reference = ref;
+}
+
+RsAmf0Reference::~RsAmf0Reference()
+{
+
+}
+
+string RsAmf0Reference::encode()
+{
+    RsBufferLittleEndian rs_buf;
+
+    rs_buf.write_1_byte(marker);
+    rs_buf.write_2_byte(reference);
+
+    return rs_buf.dump();
+}
+
+int RsAmf0Reference::initialize(IRsReaderWriter *reader)
+{
     int ret = ERROR_SUCCESS;
     string buf;
 
-    if ((ret = reader->read(buf, 1)) != ERROR_SUCCESS) {
-        cout << "read marker for amf0 null failed. ret=" << ret << endl;
+    if ((ret = reader->read(buf, 2)) != ERROR_SUCCESS) {
+        cout << "reade reference for amf0 reference failed. ret=" << ret << endl;
         return ret;
+    }
+    reference = RsBufferLittleEndian::convert_2bytes_into_uint16(buf);
+
+    return ret;
+}
+
+RsAmf0ECMAArray::RsAmf0ECMAArray()
+{
+    marker = AMF0_MARKER::AMF0_ECMA_ARRAY;
+}
+
+RsAmf0ECMAArray::~RsAmf0ECMAArray()
+{
+
+}
+
+void RsAmf0ECMAArray::set(string key, RsAmf0Package* val)
+{
+    properties.set(key, val);
+}
+
+RsAmf0Package* RsAmf0ECMAArray::get(string key)
+{
+    return properties.get(key);
+}
+
+RsAmf0Package* RsAmf0ECMAArray::get(int index)
+{
+    return properties.get(index);
+}
+
+string RsAmf0ECMAArray::encode()
+{
+    count = properties.count();
+
+    RsBufferLittleEndian rs_buf;
+
+    rs_buf.write_1_byte(marker);
+    rs_buf.write_4_byte(count);
+    rs_buf.write_bytes(properties.dump());
+
+    return rs_buf.dump();
+}
+
+int RsAmf0ECMAArray::initialize(IRsReaderWriter *reader)
+{
+    int ret = ERROR_SUCCESS;
+    string buf;
+
+    if ((ret = reader->read(buf, 4)) != ERROR_SUCCESS) {
+        cout << "read size for amf0 ecma array failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    return properties.initialize(reader);
+}
+
+RsAmf0StrictArray::RsAmf0StrictArray()
+{
+    marker = AMF0_MARKER::AMF0_STRICT_ARRAY;
+}
+
+RsAmf0StrictArray::~RsAmf0StrictArray()
+{
+
+}
+
+void RsAmf0StrictArray::set(RsAmf0Package* val)
+{
+    array.push_back(shared_ptr<RsAmf0Package>(val));
+    count++;
+}
+
+RsAmf0Package* RsAmf0StrictArray::get(int index)
+{
+    assert(index <= array.size());
+    return array[index].get();
+}
+
+string RsAmf0StrictArray::encode()
+{
+    count = array.size();
+    RsBufferLittleEndian rs_buf;
+
+    rs_buf.write_1_byte(marker);
+    rs_buf.write_4_byte(count);
+
+    for (auto i : array) {
+        rs_buf.write_bytes(i->dump());
+    }
+
+    return rs_buf.dump();
+}
+
+int RsAmf0StrictArray::initialize(IRsReaderWriter *reader)
+{
+    int ret = 0;
+    string buf;
+    array.clear();
+
+    if ((ret = reader->read(buf, 4)) != ERROR_SUCCESS) {
+        cout << "read size of strict array failed. ret=" << ret << endl;
+        return ret;
+    }
+    count = RsBufferLittleEndian::convert_4bytes_into_uint32(buf);
+
+    for (uint32_t i = 0; i < count; i++) {
+        RsAmf0Package* pkg = RsAmf0Package::create_package(reader);
+        if (pkg == nullptr) {
+            ret = ERROR_RTMP_PROTOCOL_AMF0_DECODE_ERROR;
+            return ret;
+        }
+
+        array.push_back(shared_ptr<RsAmf0Package>(pkg));
     }
 
     return ret;

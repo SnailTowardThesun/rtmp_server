@@ -76,6 +76,8 @@ public:
 protected:
     virtual std::string encode() = 0;
 public:
+    virtual int initialize(IRsReaderWriter *reader) = 0;
+public:
     static RsAmf0Package* create_package(IRsReaderWriter *reader);
     std::string dump();
 };
@@ -138,6 +140,7 @@ public:
     RsAmf0Package* get(int index);
 public:
     int initialize(IRsReaderWriter *reader);
+    uint32_t count();
     std::string dump();
 };
 
@@ -163,6 +166,66 @@ class RsAmf0Null : public RsAmf0Package
 public:
     RsAmf0Null();
     virtual ~RsAmf0Null();
+protected:
+    std::string encode();
+public:
+    int initialize(IRsReaderWriter *reader);
+};
+
+class RsAmf0Undefined : public RsAmf0Package
+{
+public:
+    RsAmf0Undefined();
+    virtual ~RsAmf0Undefined();
+protected:
+    std::string encode();
+public:
+    int initialize(IRsReaderWriter *reader);
+};
+
+class RsAmf0Reference : public RsAmf0Package
+{
+public:
+    uint16_t reference;
+public:
+    RsAmf0Reference();
+    RsAmf0Reference(uint16_t ref);
+    virtual ~RsAmf0Reference();
+protected:
+    std::string encode();
+public:
+    int initialize(IRsReaderWriter *reader);
+};
+
+class RsAmf0ECMAArray : public RsAmf0Package
+{
+public:
+    uint32_t count;
+    RsAmf0ObjectProperty properties;
+public:
+    RsAmf0ECMAArray();
+    virtual ~RsAmf0ECMAArray();
+public:
+    void set(std::string key, RsAmf0Package* val);
+    RsAmf0Package* get(std::string key);
+    RsAmf0Package* get(int index);
+protected:
+    std::string encode();
+public:
+    int initialize(IRsReaderWriter *reader);
+};
+
+class RsAmf0StrictArray : public RsAmf0Package
+{
+public:
+    uint32_t count;
+    std::vector<std::shared_ptr<RsAmf0Package>> array;
+public:
+    RsAmf0StrictArray();
+    virtual ~RsAmf0StrictArray();
+public:
+    void set(RsAmf0Package* val);
+    RsAmf0Package* get(int index);
 protected:
     std::string encode();
 public:
