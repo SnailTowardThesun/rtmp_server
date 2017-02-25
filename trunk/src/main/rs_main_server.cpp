@@ -42,5 +42,5 @@ int main(int argc, char* argv[])
 {
     _server_info();
 
-    return RSServer::getInstance()->run();
+    return RsServer::getInstance()->run();
 }

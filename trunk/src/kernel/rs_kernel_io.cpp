@@ -24,22 +24,22 @@ SOFTWARE.
 
 #include "rs_kernel_io.h"
 using namespace std;
-RsSocketIO::RsSocketIO()
+RsTCPSocketIO::RsTCPSocketIO()
 {
 }
 
-RsSocketIO::~RsSocketIO()
+RsTCPSocketIO::~RsTCPSocketIO()
 {
 }
 
-int RsSocketIO::write(string buf, int size)
+int RsTCPSocketIO::write(string buf, int size)
 {
     // TODO:FIXME: implement this function
     int ret = ERROR_SUCCESS;
     return ret;
 }
 
-int RsSocketIO::read(string& buf, int size)
+int RsTCPSocketIO::read(string& buf, int size)
 {
     // TODO:FIXME: implement this function
     int ret = ERROR_SUCCESS;

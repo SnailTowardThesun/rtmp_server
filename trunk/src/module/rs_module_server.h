@@ -23,38 +23,33 @@ SOFTWARE.
 */
 #pragma once
 
+#include "rs_kernel_io.h"
 #include "rs_module_rtmp_conn.h"
 
-class RSRtmpServer
+class RsRtmpServer
 {
 public:
-    RSRtmpServer();
-    virtual ~RSRtmpServer();
+    RsRtmpServer();
+    virtual ~RsRtmpServer();
 public:
-    virtual int initialize();
+    int initialize();
 private:
-    struct sockaddr_in addr;
-    uv_tcp_t* server;
     std::vector<std::shared_ptr<RsRtmpConn>> conns;
-private:
-    static void connection_cb(uv_stream_t *server, int status);
-public:
-    void on_connection(uv_stream_t *server, int status);
 public:
     int dispose();
 };
 
-class RSServer
+class RsServer
 {
 private:
-    RSRtmpServer _rtmp_server;
+    RsRtmpServer _rtmp_server;
 public:
-    RSServer();
-    virtual ~RSServer();
+    RsServer();
+    virtual ~RsServer();
 public:
     // the server is unique.
-    static RSServer* getInstance();
+    static RsServer* getInstance();
 public:
-    virtual int run();
-    virtual int exit();
+    int run();
+    int exit();
 };

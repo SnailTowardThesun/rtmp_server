@@ -22,93 +22,53 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <string.h>
 #include "rs_module_server.h"
 using namespace std;
 
-RSRtmpServer::RSRtmpServer()
+RsRtmpServer::RsRtmpServer()
 {
-    server = new uv_tcp_t();
-    server->data = static_cast<void*>(this);
+
 }
 
-RSRtmpServer::~RSRtmpServer()
+RsRtmpServer::~RsRtmpServer()
 {
-    rs_free_p(server);
     conns.clear();
 }
 
-int RSRtmpServer::initialize()
+int RsRtmpServer::initialize()
 {
     int ret = ERROR_SUCCESS;
-
-    uv_tcp_init(uv_default_loop(), server);
-
-    uv_ip4_addr("0.0.0.0", RTMP_DEFAULT_PORT, &addr);
-
-    uv_tcp_bind(server, (const struct sockaddr*)&addr, 0);
-    if ((ret = uv_listen((uv_stream_t*) server, 1024, connection_cb)) != ERROR_SUCCESS) {
-        cout << "socket listen failed. ret=" << ret << endl;
-    }
 
     return ret;
 }
 
-void RSRtmpServer::connection_cb(uv_stream_t *server, int status)
-{
-
-    RSRtmpServer* ptr = static_cast<RSRtmpServer*>(server->data);
-    if (ptr) {
-        return ptr->on_connection(server, status);
-    }
-    cout << "get class pointer failed." << endl;
-}
-
-void RSRtmpServer::on_connection(uv_stream_t *server, int status)
-{
-    cout << "get on connection" << endl;
-    int ret = ERROR_SUCCESS;
-
-    RsRtmpConn* conn = new RsRtmpConn();
-    if ((ret = conn->initialize(server)) != ERROR_SUCCESS) {
-        cout << "initialize rtmp connection failed. ret=" << ret << endl;
-        rs_free_p(conn);
-        return;
-    }
-
-    conns.push_back(shared_ptr<RsRtmpConn>(conn));
-}
-
-int RSRtmpServer::dispose()
+int RsRtmpServer::dispose()
 {
     int ret = ERROR_SUCCESS;
-
-    uv_close((uv_handle_t*)server, [](uv_handle_t *handle) {
-        cout << "close rtmp server" << endl;
-    });
 
     return ret;
 }
 
-RSServer::RSServer()
+RsServer::RsServer()
 {
+
 }
 
-RSServer::~RSServer()
+RsServer::~RsServer()
 {
-    exit();
+
 }
 
-static RSServer* _instance = nullptr;
-RSServer* RSServer::getInstance()
+static RsServer* _instance = nullptr;
+RsServer* RsServer::getInstance()
 {
     if (_instance == nullptr) {
-        _instance = new RSServer();
+        _instance = new RsServer();
     }
     return _instance;
 }
 
-int RSServer::run()
+int RsServer::run()
 {
     int ret = ERROR_SUCCESS;
 
@@ -121,7 +81,7 @@ int RSServer::run()
     return uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 }
 
-int RSServer::exit()
+int RsServer::exit()
 {
     int ret = ERROR_SUCCESS;
     if ((ret = _rtmp_server.dispose()) != ERROR_SUCCESS) {

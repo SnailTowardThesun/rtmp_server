@@ -30,7 +30,7 @@ SOFTWARE.
 class RsRtmpConn
 {
 private:
-    RsSocketIO* io;
+    RsTCPSocketIO* io;
 public:
     RsRtmpConn();
     virtual ~RsRtmpConn();

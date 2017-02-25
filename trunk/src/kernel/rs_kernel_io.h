@@ -35,11 +35,11 @@ public:
     virtual int read(std::string& buf, int size) = 0;
 };
 
-class RsSocketIO : public IRsReaderWriter
+class RsTCPSocketIO : public IRsReaderWriter
 {
 public:
-    RsSocketIO();
-    virtual ~RsSocketIO();
+    RsTCPSocketIO();
+    virtual ~RsTCPSocketIO();
 public:
     int write(std::string buf, int size);
     int read(std::string& buf, int size);
