@@ -51,7 +51,8 @@ public:
 public:
     connection_cb cb;
 public:
-    int initialize(std::string ip, int port);
+    int listen(std::string ip, int port);
+    int connect(std::string ip, int port);
     int initialize(uv_tcp_t *stream);
     static void on_connected(uv_stream_t *stream, int status);
 // implement IRsReaderWrite

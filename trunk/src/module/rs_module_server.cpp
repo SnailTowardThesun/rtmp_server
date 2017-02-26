@@ -47,7 +47,7 @@ int RsRtmpServer::initialize()
     // create the listen socket
     string local_ip = rs_get_local_ip();
     int rtmp_port = RsConfig::getInstance()->get_rtmp_listen();
-    if ((ret = sock->initialize(local_ip, rtmp_port)) != ERROR_SUCCESS) {
+    if ((ret = sock->listen(local_ip, rtmp_port)) != ERROR_SUCCESS) {
         cout << "initialize socket for rtmp server failed. ret=" << ret << endl;
         return ret;
     }

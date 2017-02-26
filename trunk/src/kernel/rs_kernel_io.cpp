@@ -40,7 +40,7 @@ RsTCPSocketIO::~RsTCPSocketIO()
     }
 }
 
-int RsTCPSocketIO::initialize(string ip, int port) {
+int RsTCPSocketIO::listen(string ip, int port) {
     int ret = ERROR_SUCCESS;
 
     sock = shared_ptr<uv_tcp_t>(new uv_tcp_t());
@@ -66,6 +66,14 @@ int RsTCPSocketIO::initialize(string ip, int port) {
         cout << "socket listen failed. ret=" << ret << endl;
         return ret;
     }
+
+    return ret;
+}
+
+int RsTCPSocketIO::read(std::string &buf, int size)
+{
+    // TODO:FIXME: implement this function
+    int ret = ERROR_SUCCESS;
 
     return ret;
 }
