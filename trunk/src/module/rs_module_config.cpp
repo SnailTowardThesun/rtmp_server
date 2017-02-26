@@ -21,37 +21,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#pragma once
 
-#include "rs_kernel_io.h"
-#include "rs_module_rtmp_conn.h"
+#include "rs_module_config.h"
 
-class RsRtmpServer
+RsConfig::RsConfig()
 {
-private:
-    RsTCPSocketIO *sock;
-public:
-    RsRtmpServer();
-    virtual ~RsRtmpServer();
-public:
-    int initialize();
-private:
-    std::vector<std::shared_ptr<RsRtmpConn>> conns;
-public:
-    int dispose();
-};
 
-class RsServer
+}
+
+RsConfig::~RsConfig()
 {
-private:
-    RsRtmpServer _rtmp_server;
-public:
-    RsServer();
-    virtual ~RsServer();
-public:
-    // the server is unique.
-    static RsServer* getInstance();
-public:
-    int run();
-    int exit();
-};
+
+}
+
+static RsConfig* __config_instance = nullptr;
+RsConfig* RsConfig::getInstance()
+{
+    if (__config_instance == nullptr) {
+        __config_instance = new RsConfig();
+    }
+
+    return __config_instance;
+}
+
+int RsConfig::get_rtmp_listen()
+{
+    // TODO:FIXME: implement this function
+    return RTMP_DEFAULT_PORT;
+}

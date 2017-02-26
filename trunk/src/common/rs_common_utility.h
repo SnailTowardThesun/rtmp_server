@@ -31,6 +31,15 @@ if (p != nullptr) { \
     p = nullptr;\
 }
 
+#define rs_free_array(p) \
+if (p != nullptr)\
+{\
+    delete[] p;\
+    p = nullptr;\
+}
+
 extern std::string rs_get_random(int size);
 
 extern int64_t rs_get_system_time_ms();
+
+extern std::string rs_get_local_ip();

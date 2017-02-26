@@ -23,21 +23,34 @@ SOFTWARE.
 */
 
 #include "rs_module_server.h"
+#include "rs_module_config.h"
+#include "rs_common_utility.h"
+
 using namespace std;
 
-RsRtmpServer::RsRtmpServer()
+RsRtmpServer::RsRtmpServer() : sock(nullptr)
 {
-
+    sock = new RsTCPSocketIO();
 }
 
 RsRtmpServer::~RsRtmpServer()
 {
+    dispose();
     conns.clear();
+    rs_free_p(sock);
 }
 
 int RsRtmpServer::initialize()
 {
     int ret = ERROR_SUCCESS;
+
+    // create the listen socket
+    string local_ip = rs_get_local_ip();
+    int rtmp_port = RsConfig::getInstance()->get_rtmp_listen();
+    if ((ret = sock->initialize(local_ip, rtmp_port)) != ERROR_SUCCESS) {
+        cout << "initialize socket for rtmp server failed. ret=" << ret << endl;
+        return ret;
+    }
 
     return ret;
 }

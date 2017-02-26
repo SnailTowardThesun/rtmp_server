@@ -23,35 +23,15 @@ SOFTWARE.
 */
 #pragma once
 
-#include "rs_kernel_io.h"
-#include "rs_module_rtmp_conn.h"
+#include "rs_common.h"
 
-class RsRtmpServer
+class RsConfig
 {
-private:
-    RsTCPSocketIO *sock;
 public:
-    RsRtmpServer();
-    virtual ~RsRtmpServer();
+    RsConfig();
+    virtual ~RsConfig();
 public:
-    int initialize();
-private:
-    std::vector<std::shared_ptr<RsRtmpConn>> conns;
+    static RsConfig* getInstance();
 public:
-    int dispose();
-};
-
-class RsServer
-{
-private:
-    RsRtmpServer _rtmp_server;
-public:
-    RsServer();
-    virtual ~RsServer();
-public:
-    // the server is unique.
-    static RsServer* getInstance();
-public:
-    int run();
-    int exit();
+    int get_rtmp_listen();
 };

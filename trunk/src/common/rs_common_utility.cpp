@@ -51,3 +51,9 @@ int64_t rs_get_system_time_ms()
     now_us = ((int64_t)now.tv_sec) * 1000 * 1000 + (int64_t)now.tv_usec;
     return now_us/1000;
 }
+
+string rs_get_local_ip()
+{
+    // TODO:FIXME: implement this function
+    return "127.0.0.1";
+}
