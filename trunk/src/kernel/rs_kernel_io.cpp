@@ -70,7 +70,7 @@ int RsTCPSocketIO::listen(string ip, int port) {
     return ret;
 }
 
-int RsTCPSocketIO::read(std::string &buf, int size)
+int RsTCPSocketIO::connect(std::string ip, int port)
 {
     // TODO:FIXME: implement this function
     int ret = ERROR_SUCCESS;
