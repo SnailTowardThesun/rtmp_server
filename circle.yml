@@ -8,3 +8,4 @@ compile:
 test:
     override:
         - (echo "run unit test" && cd trunk && ./objs/utest_rs_server)
+        - (echo "run test cases" && cd trunk && ./objs/test_rs_server)
