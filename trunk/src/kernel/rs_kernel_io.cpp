@@ -140,7 +140,6 @@ void RsTCPSocketIO::on_connected(uv_stream_t *stream, int status)
 
 int RsTCPSocketIO::write(string buf, int size)
 {
-    // TODO:FIXME: implement this function
     int ret = ERROR_SUCCESS;
 
     uv_write_t write_req;
@@ -168,6 +167,7 @@ int RsTCPSocketIO::read(string& buf, int size)
     }
 
     buf = buffer.substr(0, (unsigned long) size);
+    buffer.erase(0, (unsigned long) size);
     return ret;
 }
 
