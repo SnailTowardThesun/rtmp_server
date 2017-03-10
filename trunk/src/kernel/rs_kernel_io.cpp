@@ -75,6 +75,21 @@ int RsTCPSocketIO::connect(std::string ip, int port)
     // TODO:FIXME: implement this function
     int ret = ERROR_SUCCESS;
 
+    sock = shared_ptr<uv_tcp_t>(new uv_tcp_t());
+    sock->data = this;
+
+    if ((ret = uv_tcp_init(uv_default_loop(), sock.get())) != ERROR_SUCCESS) {
+        cout << "create scocket using libuv failed. ret=" << ret << endl;
+        return ret;
+    }
+
+    struct sockaddr_in addr;
+    if ((ret = uv_ip4_addr(ip.c_str(), port, &addr)) != ERROR_SUCCESS) {
+        cout << "initialize the ip4 address failed. ret=" << ret << endl;
+        return ret;
+    }
+
+
     return ret;
 }
 
