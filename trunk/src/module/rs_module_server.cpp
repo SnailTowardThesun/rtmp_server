@@ -31,6 +31,8 @@ using namespace std;
 RsRtmpServer::RsRtmpServer() : sock(nullptr)
 {
     sock = new RsTCPSocketIO();
+    sock->cb = on_connection;
+    sock->param = this;
 }
 
 RsRtmpServer::~RsRtmpServer()
@@ -53,6 +55,11 @@ int RsRtmpServer::initialize()
     }
 
     return ret;
+}
+
+void RsRtmpServer::on_connection(IRsReaderWriter *io, void* param)
+{
+    cout << "got on connection for rtmp" << endl;
 }
 
 int RsRtmpServer::dispose()

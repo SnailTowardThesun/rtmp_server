@@ -7,8 +7,6 @@ set(CMAKE_CXX_FLAGS "-g -std=c++11 -pthread -Wall")
 
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-set (SRC_FILE_LISTS ${SRC_DIR}/main/rs_main_server.cpp src/common/rs_common.cpp)
-
 # 3rdlibrary
 if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/googletest-release-1.8.0)
 else()
@@ -36,6 +34,7 @@ else()
 
 endif (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1)
 
+set (SRC_FILE_LISTS )
 # common part
 include_directories(${SRC_DIR}/common)
 aux_source_directory(${SRC_DIR}/common SRC_FILE_LISTS)
@@ -60,8 +59,10 @@ set (LIBRARY_OUTPUT_PATH ${RS_SERVER_BINARY_DIR})
 # libuv
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1/include)
 
-add_executable(rs_server ${SRC_FILE_LISTS})
+add_executable(rs_server ${SRC_FILE_LISTS} ${SRC_DIR}/main/rs_main_server.cpp)
 target_link_libraries(rs_server ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1/.libs/libuv.a)
 
+add_executable(rs_rtmp_client ${SRC_FILE_LISTS} ${SRC_DIR}/main/rs_main_rtmp_client.cpp)
+target_link_libraries(rs_rtmp_client ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1/.libs/libuv.a)
+
 add_subdirectory(${SRC_DIR}/utest)
-add_subdirectory(${SRC_DIR}/test)

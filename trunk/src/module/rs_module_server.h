@@ -35,6 +35,7 @@ public:
     virtual ~RsRtmpServer();
 public:
     int initialize();
+    static void on_connection(IRsReaderWriter* io, void* param);
 private:
     std::vector<std::shared_ptr<RsRtmpConn>> conns;
 public:
