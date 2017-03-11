@@ -25,8 +25,3 @@ The main file for utest.
 */
 
 #include "gtest/gtest.h"
-
-TEST(demo, demo)
-{
-    EXPECT_TRUE(1);
-}
