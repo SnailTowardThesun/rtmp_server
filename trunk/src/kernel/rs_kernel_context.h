@@ -21,54 +21,24 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+#pragma once
 
-#include "rs_module_log.h"
-#include <sstream>
-#include <sys/types.h>
-#include <unistd.h>
+#include "rs_common.h"
+#include "rs_kernel_io.h"
 
-using namespace std;
-
-IRSLog::IRSLog()
+class RsConnContext
 {
-    pid = getpid();
-}
+private:
+    uint64_t DEFAULT_ID;
+    std::map<IRsReaderWriter*, uint64_t> connection_ids;
+public:
+    static uint64_t current_ID;
+public:
+    RsConnContext();
+    virtual ~RsConnContext();
+public:
+    virtual int32_t regist(IRsReaderWriter* io);
+    virtual void unregist(IRsReaderWriter* io);
+    virtual uint64_t get_id(IRsReaderWriter* io);
+};
 
-void IRSLog::info()
-{
-}
-
-void IRSLog::verbose()
-{
-}
-
-void IRSLog::trace()
-{
-}
-
-void IRSLog::warn()
-{
-}
-
-void IRSLog::error()
-{
-}
-
-RSConsoleLog::RSConsoleLog()
-{
-}
-
-RSConsoleLog::~RSConsoleLog()
-{
-}
-
-void RSConsoleLog::log(int64_t cid, string level, string message)
-{
-    stringstream ss;
-    ss << "[" << pid << "]";
-    ss << "[" << cid << "]";
-    ss << "[" << level << "]";
-    ss << ": " << message << endl;
-
-    cout << ss.str();
-}

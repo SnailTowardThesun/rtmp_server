@@ -22,53 +22,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "rs_module_log.h"
-#include <sstream>
-#include <sys/types.h>
-#include <unistd.h>
+#include "gtest/gtest.h"
+#include "rs_kernel_context.h"
 
-using namespace std;
-
-IRSLog::IRSLog()
+TEST(RsConnContext, regist_unregist)
 {
-    pid = getpid();
-}
+    RsConnContext context;
+    RsTCPSocketIO io[10];
+    for (int i = 0; i < 10; i++)
+    {
+        context.regist(&io[i]);
+    }
 
-void IRSLog::info()
-{
-}
-
-void IRSLog::verbose()
-{
-}
-
-void IRSLog::trace()
-{
-}
-
-void IRSLog::warn()
-{
-}
-
-void IRSLog::error()
-{
-}
-
-RSConsoleLog::RSConsoleLog()
-{
-}
-
-RSConsoleLog::~RSConsoleLog()
-{
-}
-
-void RSConsoleLog::log(int64_t cid, string level, string message)
-{
-    stringstream ss;
-    ss << "[" << pid << "]";
-    ss << "[" << cid << "]";
-    ss << "[" << level << "]";
-    ss << ": " << message << endl;
-
-    cout << ss.str();
+    for (int i = 0; i < 10; i++)
+    {
+        ASSERT_EQ(context.get_id(&io[i]), 200 + i);
+    }
 }

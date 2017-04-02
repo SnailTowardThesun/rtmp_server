@@ -22,53 +22,48 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "rs_module_log.h"
-#include <sstream>
-#include <sys/types.h>
-#include <unistd.h>
-
+#include "rs_kernel_context.h"
 using namespace std;
 
-IRSLog::IRSLog()
+uint64_t RsConnContext::current_ID = 200;
+
+RsConnContext::RsConnContext()
 {
-    pid = getpid();
+    DEFAULT_ID = 100;
 }
 
-void IRSLog::info()
-{
-}
-
-void IRSLog::verbose()
-{
-}
-
-void IRSLog::trace()
+RsConnContext::~RsConnContext()
 {
 }
 
-void IRSLog::warn()
+int32_t RsConnContext::regist(IRsReaderWriter* io)
 {
+    int32_t ret = ERROR_SUCCESS;
+
+    if (connection_ids.find(io) != connection_ids.end())
+    {
+        ret = ERROR_CONTEXT_CONN_ID_EXISTS;
+        return ret;
+    }
+
+    connection_ids[io] = current_ID++;
+
+    return ret;
 }
 
-void IRSLog::error()
+
+void RsConnContext::unregist(IRsReaderWriter* io)
 {
+    connection_ids.erase(io);
 }
 
-RSConsoleLog::RSConsoleLog()
+uint64_t RsConnContext::get_id(IRsReaderWriter* io)
 {
-}
+    auto id = connection_ids.find(io);
+    if (id == connection_ids.end())
+    {
+        return DEFAULT_ID;
+    }
 
-RSConsoleLog::~RSConsoleLog()
-{
-}
-
-void RSConsoleLog::log(int64_t cid, string level, string message)
-{
-    stringstream ss;
-    ss << "[" << pid << "]";
-    ss << "[" << cid << "]";
-    ss << "[" << level << "]";
-    ss << ": " << message << endl;
-
-    cout << ss.str();
+    return id->second;
 }

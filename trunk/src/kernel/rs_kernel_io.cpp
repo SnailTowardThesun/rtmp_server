@@ -101,6 +101,7 @@ int RsTCPSocketIO::connect(std::string ip, int port)
         if (status == UV_ECONNREFUSED) {
             std::cout << "connected" << std::endl;
         }
+        cout << "connect failed" << endl;
     };
 
     if ((ret = uv_tcp_connect(req.get(), sock, (const struct sockaddr*)&addr, conn_cb)) != ERROR_SUCCESS) {

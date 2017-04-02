@@ -33,10 +33,17 @@ SOFTWARE.
 class IRSLog
 {
 public:
-    IRSLog() {};
+    int32_t pid;
+public:
+    IRSLog();
     virtual ~IRSLog() {};
 public:
-    virtual int32_t log(std::string level, std::string message) = 0;
+    virtual void log(int64_t cid, std::string level, std::string message) = 0;
+    virtual void info();
+    virtual void verbose();
+    virtual void trace();
+    virtual void warn();
+    virtual void error();
 };
 
 
@@ -46,7 +53,7 @@ public:
     RSConsoleLog();
     virtual ~RSConsoleLog();
 public:
-    virtual int32_t log(std::string level, std::string message);
+    virtual void log(int64_t cid, std::string level, std::string message);
 };
 
 // TODO:FIXME: implement the log using disk.
