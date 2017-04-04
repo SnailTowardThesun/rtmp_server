@@ -20,30 +20,30 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+The log system for rtmp server
 */
 
-#ifndef RS_MODULE_LOG_H
-#define RS_MODULE_LOG_H
-/**
- * The log system for rtmp server
- */
-
+#pragma once
 #include "rs_common.h"
+#include "rs_kernel_io.h"
 
 class IRSLog
 {
+private:
+    char* msg;
 public:
     int32_t pid;
 public:
     IRSLog();
-    virtual ~IRSLog() {};
+    virtual ~IRSLog();
 public:
     virtual void log(int64_t cid, std::string level, std::string message) = 0;
-    virtual void info();
-    virtual void verbose();
-    virtual void trace();
-    virtual void warn();
-    virtual void error();
+    virtual void info(IRsReaderWriter* io, const char* fmt, ...);
+    virtual void verbose(IRsReaderWriter* io, const char* fmt, ...);
+    virtual void trace(IRsReaderWriter* io, const char* fmt, ...);
+    virtual void warn(IRsReaderWriter* io, const char* fmt, ...);
+    virtual void error(IRsReaderWriter* io, const char* fmt, ...);
 };
 
 
@@ -58,4 +58,3 @@ public:
 
 // TODO:FIXME: implement the log using disk.
 
-#endif

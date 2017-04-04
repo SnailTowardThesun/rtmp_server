@@ -67,3 +67,14 @@ uint64_t RsConnContext::get_id(IRsReaderWriter* io)
 
     return id->second;
 }
+
+static RsConnContext* _rs_context = nullptr;
+RsConnContext* RsConnContext::getInstance()
+{
+    if (_rs_context == nullptr)
+    {
+        _rs_context = new RsConnContext();
+    }
+
+    return _rs_context;
+}

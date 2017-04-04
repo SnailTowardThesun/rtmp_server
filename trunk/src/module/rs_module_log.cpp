@@ -26,32 +26,87 @@ SOFTWARE.
 #include <sstream>
 #include <sys/types.h>
 #include <unistd.h>
-
+#include <stdarg.h>
+#include "rs_kernel_context.h"
 using namespace std;
 
-IRSLog::IRSLog()
+#define RS_LOG_MAX_LENGTH 4096
+
+#define RS_LOG_LEVEL_INFO "info"
+#define RS_LOG_LEVEL_VERBOSE "verbose"
+#define RS_LOG_LEVEL_TRACE "trace"
+#define RS_LOG_LEVEL_WARN "warn"
+#define RS_LOG_LEVEL_ERROR "error"
+
+IRSLog::IRSLog() : msg(nullptr)
 {
     pid = getpid();
+    msg = new char[4096];
 }
 
-void IRSLog::info()
+IRSLog::~IRSLog()
 {
+    rs_free_p(msg);
 }
 
-void IRSLog::verbose()
+void IRSLog::info(IRsReaderWriter* io, const char* fmt, ...)
 {
+    va_list ap;
+    va_start(ap, fmt);
+    auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
+    va_end(ap);
+
+    auto cid = RsConnContext::getInstance()->get_id(io);
+
+    log(cid, RS_LOG_LEVEL_INFO, string(msg, size));
 }
 
-void IRSLog::trace()
+void IRSLog::verbose(IRsReaderWriter* io, const char* fmt, ...)
 {
+    va_list ap;
+    va_start(ap, fmt);
+    auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
+    va_end(ap);
+
+    auto cid = RsConnContext::getInstance()->get_id(io);
+
+    log(cid, RS_LOG_LEVEL_VERBOSE, string(msg, size));
 }
 
-void IRSLog::warn()
+void IRSLog::trace(IRsReaderWriter* io, const char* fmt, ...)
 {
+    va_list ap;
+    va_start(ap, fmt);
+    auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
+    va_end(ap);
+
+    auto cid = RsConnContext::getInstance()->get_id(io);
+
+    log(cid, RS_LOG_LEVEL_TRACE, string(msg, size));
 }
 
-void IRSLog::error()
+void IRSLog::warn(IRsReaderWriter* io, const char* fmt, ...)
 {
+    va_list ap;
+    va_start(ap, fmt);
+    auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
+    va_end(ap);
+
+    auto cid = RsConnContext::getInstance()->get_id(io);
+
+    log(cid, RS_LOG_LEVEL_WARN, string(msg, size));
+}
+
+void IRSLog::error(IRsReaderWriter* io, const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
+    va_end(ap);
+
+    auto cid = RsConnContext::getInstance()->get_id(io);
+
+    log(cid, RS_LOG_LEVEL_ERROR, string(msg, size));
 }
 
 RSConsoleLog::RSConsoleLog()

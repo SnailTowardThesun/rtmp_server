@@ -40,5 +40,7 @@ public:
     virtual int32_t regist(IRsReaderWriter* io);
     virtual void unregist(IRsReaderWriter* io);
     virtual uint64_t get_id(IRsReaderWriter* io);
+
+    static RsConnContext* getInstance();
 };
 
