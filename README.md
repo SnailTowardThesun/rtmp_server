@@ -8,3 +8,4 @@
 cd trunk
 cmake . && make
 ```
+
