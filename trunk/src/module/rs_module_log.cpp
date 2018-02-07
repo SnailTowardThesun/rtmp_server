@@ -26,6 +26,7 @@ SOFTWARE.
 #include <sstream>
 #include <unistd.h>
 #include <sys/time.h>
+#include <cstdarg>
 #include "rs_kernel_context.h"
 
 namespace rs_log {
