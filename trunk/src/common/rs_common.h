@@ -32,15 +32,16 @@ The common value for rtmp server
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 0
 #define VERSION_REVISION 0
+#define VERSION_BUILD 0
 
 #include <iostream>
 #include <vector>
 #include <map>
 #include <string>
-#include <assert.h>
+#include <cassert>
 #include <memory>
-#include <stdint.h>
-#include <stdlib.h>
+#include <cstdint>
+#include <cstdlib>
 #include <algorithm>
 
 #include "rs_common_errno.h"

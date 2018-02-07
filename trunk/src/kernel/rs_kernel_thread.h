@@ -23,30 +23,35 @@ SOFTWARE.
 */
 
 #pragma once
+
 #include "uv.h"
 
-class RSLocker
-{
+class RSLocker {
 private:
     uv_mutex_t *_locker;
 public:
     RSLocker();
+
     virtual ~RSLocker();
 };
 
-class RSBaseThread
-{
+class RSBaseThread {
 private:
     uv_thread_t *_thread;
 public:
     bool interupt;
 public:
     RSBaseThread();
+
     virtual ~RSBaseThread();
+
 private:
     static void cycle(void *param);
+
 public:
     virtual int start();
+
     virtual int stop();
+
     virtual int do_cycle();
 };

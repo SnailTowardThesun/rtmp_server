@@ -28,8 +28,7 @@ SOFTWARE.
 
 using namespace std;
 
-TEST(RTMP_CHUNK_MESSAGE, dump)
-{
+TEST(RTMP_CHUNK_MESSAGE, dump) {
     RsRtmpChunkMessage msg;
     msg.fmt = 0;
     msg.cs_id = 3;
@@ -65,8 +64,7 @@ TEST(RTMP_CHUNK_MESSAGE, dump)
     ASSERT_EQ(buf.length(), 512 + 1);
 }
 
-TEST(RTMP_CHUNK_MESSAGE, initialize)
-{
+TEST(RTMP_CHUNK_MESSAGE, initialize) {
     RsRtmpChunkMessage msg;
     msg.fmt = 0;
     msg.cs_id = 3;
@@ -142,8 +140,7 @@ TEST(RTMP_CHUNK_MESSAGE, initialize)
     }
 }
 
-TEST(RTMP_CHUNK_MESSAGE, create_msgs)
-{
+TEST(RTMP_CHUNK_MESSAGE, create_msgs) {
     {
         string buf = rs_get_random(1024);
         auto test = RsRtmpChunkMessage::create_chunk_messages(1024, buf, 1, 1, 512);

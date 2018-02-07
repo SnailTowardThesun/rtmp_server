@@ -30,16 +30,14 @@ SOFTWARE.
 /**
  * Output the server info
  */
-void _server_info()
-{
+void _server_info() {
     // TODO:FIXME: implement log system
-    std::cout << "version: " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_REVISION << std::endl;
+    std::cout << "version: " << VERSION_MAJOR << "." << VERSION_MINOR << "."
+              << VERSION_REVISION << "." << VERSION_BUILD << std::endl;
     std::cout << "Copyright (c) 2016 ME_Kun_Han hanvskun@hotmail.com" << std::endl;
-    std::cout << "author : " << AUTHOR << std::endl;
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
     _server_info();
 
     return RsServer::getInstance()->run();

@@ -22,29 +22,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #pragma once
+
 #include "rs_common.h"
 #include "uv.h"
 #include "rs_kernel_io.h"
 #include "rs_protocol_amf0.h"
 
-class RsRtmpConn
-{
+class RsRtmpConn {
 private:
-    RsTCPSocketIO* io;
+    RsTCPSocketIO *io;
 public:
     RsRtmpConn();
+
     virtual ~RsRtmpConn();
+
 public:
-    int initialize(uv_stream_t* server);
+    int initialize(uv_stream_t *server);
+
 public:
     // for rtmp protocol
     int simple_handshake_with_server();
+
     int simple_handshake_with_client();
+
     int complex_handshake_with_server();
+
     int complex_handshake_witout_client();
 
     int connect();
 
     int play_stream();
+
     int publish_stream();
 };

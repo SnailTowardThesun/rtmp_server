@@ -26,21 +26,24 @@ SOFTWARE.
 #include "rs_common.h"
 #include "rs_kernel_io.h"
 
-class RsConnContext
-{
+class RsConnContext {
 private:
     uint64_t DEFAULT_ID;
-    std::map<IRsReaderWriter*, uint64_t> connection_ids;
+    std::map<IRsReaderWriter *, uint64_t> connection_ids;
 public:
     static uint64_t current_ID;
 public:
     RsConnContext();
-    virtual ~RsConnContext();
-public:
-    virtual int32_t regist(IRsReaderWriter* io);
-    virtual void unregist(IRsReaderWriter* io);
-    virtual uint64_t get_id(IRsReaderWriter* io);
 
-    static RsConnContext* getInstance();
+    virtual ~RsConnContext();
+
+public:
+    virtual int32_t regist(IRsReaderWriter *io);
+
+    virtual void unregist(IRsReaderWriter *io);
+
+    virtual uint64_t get_id(IRsReaderWriter *io);
+
+    static RsConnContext *getInstance();
 };
 

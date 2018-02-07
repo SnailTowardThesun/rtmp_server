@@ -25,13 +25,27 @@ SOFTWARE.
 
 #include "rs_common.h"
 
-class RsConfig
-{
+class RsConfig {
+private:
+    std::string conf;
 public:
-    RsConfig();
-    virtual ~RsConfig();
+    RsConfig() = default;
+
+    RsConfig(RsConfig const &) = delete;
+
+    RsConfig &operator=(RsConfig const &) = delete;
+
+    virtual ~RsConfig() = default;
+
 public:
-    static RsConfig* getInstance();
+    int initialize(std::string path);
+
 public:
     int get_rtmp_listen();
+
+public:
+    static std::shared_ptr<RsConfig> getInstance() {
+        static std::shared_ptr<RsConfig> ins(new RsConfig());
+        return ins;
+    };
 };

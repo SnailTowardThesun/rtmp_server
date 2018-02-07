@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #pragma once
+
 #include "rs_common.h"
 
 #define rs_free_p(p) \

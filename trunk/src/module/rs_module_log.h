@@ -25,33 +25,41 @@ The log system for rtmp server
 */
 
 #pragma once
+
 #include "rs_common.h"
 #include "rs_kernel_io.h"
 
-class IRSLog
-{
+class IRSLog {
 private:
-    char* msg;
+    char *msg;
 public:
     int32_t pid;
 public:
     IRSLog();
+
     virtual ~IRSLog();
+
 public:
     virtual void log(int64_t cid, std::string level, std::string message) = 0;
-    virtual void info(IRsReaderWriter* io, const char* fmt, ...);
-    virtual void verbose(IRsReaderWriter* io, const char* fmt, ...);
-    virtual void trace(IRsReaderWriter* io, const char* fmt, ...);
-    virtual void warn(IRsReaderWriter* io, const char* fmt, ...);
-    virtual void error(IRsReaderWriter* io, const char* fmt, ...);
+
+    virtual void info(IRsReaderWriter *io, const char *fmt, ...);
+
+    virtual void verbose(IRsReaderWriter *io, const char *fmt, ...);
+
+    virtual void trace(IRsReaderWriter *io, const char *fmt, ...);
+
+    virtual void warn(IRsReaderWriter *io, const char *fmt, ...);
+
+    virtual void error(IRsReaderWriter *io, const char *fmt, ...);
 };
 
 
-class RSConsoleLog : public IRSLog
-{
+class RSConsoleLog : public IRSLog {
 public:
     RSConsoleLog();
+
     virtual ~RSConsoleLog();
+
 public:
     virtual void log(int64_t cid, std::string level, std::string message);
 };

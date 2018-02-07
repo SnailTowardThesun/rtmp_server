@@ -23,19 +23,18 @@ SOFTWARE.
 */
 
 #include "rs_kernel_io.h"
+
 using namespace std;
 
 #define MESSAGE_BUFFER_LENGTH 4096
 
-RsTCPSocketIO::RsTCPSocketIO() : sock(nullptr)
-{
+RsTCPSocketIO::RsTCPSocketIO() : sock(nullptr) {
     signal = make_shared<uv_sem_t>();
     uv_sem_init(signal.get(), 0);
     base = shared_ptr<char>(new char[MESSAGE_BUFFER_LENGTH]);
 }
 
-RsTCPSocketIO::~RsTCPSocketIO()
-{
+RsTCPSocketIO::~RsTCPSocketIO() {
     if (sock) {
         close();
     }
@@ -60,12 +59,12 @@ int RsTCPSocketIO::listen(string ip, int port) {
         return ret;
     }
 
-    if ((ret = uv_tcp_bind(sock, (const struct sockaddr*)&addr, 0)) != ERROR_SUCCESS) {
+    if ((ret = uv_tcp_bind(sock, (const struct sockaddr *) &addr, 0)) != ERROR_SUCCESS) {
         cout << "bind socket failed. ret=" << ret << endl;
         return ret;
     }
 
-    if ((ret = uv_listen((uv_stream_t*)sock, 128, on_connected)) != ERROR_SUCCESS) {
+    if ((ret = uv_listen((uv_stream_t *) sock, 128, on_connected)) != ERROR_SUCCESS) {
         cout << "socket listen failed. ret=" << ret << endl;
         return ret;
     }
@@ -73,8 +72,7 @@ int RsTCPSocketIO::listen(string ip, int port) {
     return ret;
 }
 
-int RsTCPSocketIO::connect(std::string ip, int port)
-{
+int RsTCPSocketIO::connect(std::string ip, int port) {
     // TODO:FIXME: implement this function
     int ret = ERROR_SUCCESS;
 
@@ -97,14 +95,15 @@ int RsTCPSocketIO::connect(std::string ip, int port)
     req->data = this;
 
 
-    auto conn_cb = [](uv_connect_t* req, int status) -> void{
+    auto conn_cb = [](uv_connect_t *req, int status) -> void {
         if (status == UV_ECONNREFUSED) {
             std::cout << "connected" << std::endl;
         }
         cout << "connect failed" << endl;
     };
 
-    if ((ret = uv_tcp_connect(req.get(), sock, (const struct sockaddr*)&addr, conn_cb)) != ERROR_SUCCESS) {
+    if ((ret = uv_tcp_connect(req.get(), sock, (const struct sockaddr *) &addr,
+                              conn_cb)) != ERROR_SUCCESS) {
         cout << "connected failed. ret=" << ret << endl;
         return ret;
     }
@@ -112,8 +111,7 @@ int RsTCPSocketIO::connect(std::string ip, int port)
     return ret;
 }
 
-int RsTCPSocketIO::initialize(uv_tcp_t *stream)
-{
+int RsTCPSocketIO::initialize(uv_tcp_t *stream) {
     int ret = ERROR_SUCCESS;
 
     assert(sock == nullptr);
@@ -121,17 +119,17 @@ int RsTCPSocketIO::initialize(uv_tcp_t *stream)
     sock->data = this;
 
     // start to read
-    auto alloc_cb = [](uv_handle_t* handle,
+    auto alloc_cb = [](uv_handle_t *handle,
                        size_t suggested_size,
-                       uv_buf_t* buf) {
-        RsTCPSocketIO *io = (RsTCPSocketIO*) handle->data;
+                       uv_buf_t *buf) {
+        RsTCPSocketIO *io = (RsTCPSocketIO *) handle->data;
         *buf = uv_buf_init(io->base.get(), MESSAGE_BUFFER_LENGTH);
     };
 
-    auto read_cb = [](uv_stream_t* stream,
+    auto read_cb = [](uv_stream_t *stream,
                       ssize_t nread,
-                      const uv_buf_t* buf) {
-        RsTCPSocketIO *io = (RsTCPSocketIO*) stream->data;
+                      const uv_buf_t *buf) {
+        RsTCPSocketIO *io = (RsTCPSocketIO *) stream->data;
         if (nread <= 0) {
             io->close();
             return;
@@ -141,7 +139,7 @@ int RsTCPSocketIO::initialize(uv_tcp_t *stream)
         cout << "get message: " << buf->base << "nread = " << nread << endl;
     };
 
-    if ((ret = uv_read_start((uv_stream_t*)sock, alloc_cb, read_cb)) != ERROR_SUCCESS) {
+    if ((ret = uv_read_start((uv_stream_t *) sock, alloc_cb, read_cb)) != ERROR_SUCCESS) {
         cout << "start to read failed. ret=" << ret << endl;
         return ret;
     }
@@ -149,32 +147,31 @@ int RsTCPSocketIO::initialize(uv_tcp_t *stream)
     return ret;
 }
 
-void RsTCPSocketIO::on_connected(uv_stream_t *server, int status)
-{
+void RsTCPSocketIO::on_connected(uv_stream_t *server, int status) {
     int ret = ERROR_SUCCESS;
 
-    RsTCPSocketIO* tcp = static_cast<RsTCPSocketIO*>(server->data);
+    RsTCPSocketIO *tcp = static_cast<RsTCPSocketIO *>(server->data);
     assert(tcp != nullptr);
 
     auto incomming = new uv_tcp_t();
     if ((ret = uv_tcp_init(server->loop, incomming)) != ERROR_SUCCESS) {
         cout << "initialzie the client socket from loop failed. ret=" << ret << endl;
-        return ;
+        return;
     }
 
-    if ((ret = uv_accept(server, (uv_stream_t*)incomming)) != ERROR_SUCCESS) {
+    if ((ret = uv_accept(server, (uv_stream_t *) incomming)) != ERROR_SUCCESS) {
         cout << "accept one connection failed. ret=" << ret << endl;
-        return ;
+        return;
     }
 
     auto client = new RsTCPSocketIO();
     if ((ret = client->initialize(incomming)) != ERROR_SUCCESS) {
         cout << "initialize tcp socket with uv stream t failed. ret=" << ret << endl;
-        return ;
+        return;
     }
 }
-int RsTCPSocketIO::write(string buf, int size)
-{
+
+int RsTCPSocketIO::write(string buf, int size) {
     int ret = ERROR_SUCCESS;
 
     assert(buf.size() >= size);
@@ -187,9 +184,10 @@ int RsTCPSocketIO::write(string buf, int size)
     };
 
     uv_write_t write_req;
-    uv_buf_t test_buf = { (char*)buf.c_str(), (size_t)size };
+    uv_buf_t test_buf = {(char *) buf.c_str(), (size_t) size};
 
-    if ((ret = uv_write(&write_req, (uv_stream_t*)sock, &test_buf, 1, write_cb)) != ERROR_SUCCESS) {
+    if ((ret = uv_write(&write_req, (uv_stream_t *) sock, &test_buf, 1, write_cb)) !=
+        ERROR_SUCCESS) {
         cout << "write failed. ret=" << ret << endl;
         return ret;
     }
@@ -197,8 +195,7 @@ int RsTCPSocketIO::write(string buf, int size)
     return ret;
 }
 
-int RsTCPSocketIO::read(string& buf, int size)
-{
+int RsTCPSocketIO::read(string &buf, int size) {
     int ret = ERROR_SUCCESS;
 
     while (buffer.size() < size) {
@@ -210,9 +207,8 @@ int RsTCPSocketIO::read(string& buf, int size)
     return ret;
 }
 
-void RsTCPSocketIO::close()
-{
-    uv_close((uv_handle_t*)sock, [](uv_handle_t* handle){
+void RsTCPSocketIO::close() {
+    uv_close((uv_handle_t *) sock, [](uv_handle_t *handle) {
         cout << "socket has been closed" << endl;
     });
 

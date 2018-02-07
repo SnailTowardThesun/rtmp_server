@@ -25,17 +25,14 @@ SOFTWARE.
 #include "gtest/gtest.h"
 #include "rs_kernel_context.h"
 
-TEST(RsConnContext, regist_unregist)
-{
+TEST(RsConnContext, regist_unregist) {
     RsConnContext context;
     RsTCPSocketIO io[10];
-    for (int i = 0; i < 10; i++)
-    {
+    for (int i = 0; i < 10; i++) {
         context.regist(&io[i]);
     }
 
-    for (int i = 0; i < 10; i++)
-    {
+    for (int i = 0; i < 10; i++) {
         ASSERT_EQ(context.get_id(&io[i]), 200 + i);
     }
 }

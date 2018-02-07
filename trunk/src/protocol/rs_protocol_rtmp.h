@@ -23,12 +23,12 @@ SOFTWARE.
 */
 
 #pragma once
+
 #include "rs_common.h"
 #include "rs_kernel_io.h"
 #include "uv.h"
 
-class c0c1
-{
+class c0c1 {
 public:
     uint8_t version;
     uint32_t timestamp;
@@ -36,48 +36,55 @@ public:
     std::string random_data;
 public:
     c0c1();
+
     virtual ~c0c1();
+
 public:
     int initialize();
+
     int initialize(std::string buf);
+
     std::string dump();
 };
 
-class c2
-{
+class c2 {
 public:
     uint32_t timestamp;
     uint32_t timestamp2;
     std::string random_data;
 public:
     c2();
+
     virtual ~c2();
+
 public:
     int initialize();
+
     int initialize(uint32_t ts, std::string rd);
+
     std::string dump();
 
 };
 
-class s0s1 : public c0c1
-{
+class s0s1 : public c0c1 {
 public:
-    s0s1(){};
-    virtual ~s0s1(){};
+    s0s1() {};
+
+    virtual ~s0s1() {};
 };
 
-class s2 : public c2
-{
+class s2 : public c2 {
 public:
-    s2(){};
-    virtual ~s2(){};
+    s2() {};
+
+    virtual ~s2() {};
 };
 
 class RsRtmpChunkMessage;
+
 using RTMP_CHUNK_MESSAGES = std::vector<std::shared_ptr<RsRtmpChunkMessage>>;
 
-class RsRtmpChunkMessage
-{
+class RsRtmpChunkMessage {
 public:
     // chunk size
     uint32_t chunk_size;
@@ -97,22 +104,35 @@ public:
     std::string chunk_data;
 public:
     RsRtmpChunkMessage();
+
     virtual ~RsRtmpChunkMessage();
 
 private:
     int type_0_decode(IRsReaderWriter *reader);
+
     int type_1_decode(IRsReaderWriter *reader);
+
     int type_2_decode(IRsReaderWriter *reader, uint32_t size);
+
     int type_3_decode(IRsReaderWriter *reader, uint32_t size);
 
     std::string basic_header_dump();
-    int type_0_dump(std::string& buf);
-    int type_1_dump(std::string& buf);
-    int type_2_dump(std::string& buf);
-    int type_3_dump(std::string& buf);
+
+    int type_0_dump(std::string &buf);
+
+    int type_1_dump(std::string &buf);
+
+    int type_2_dump(std::string &buf);
+
+    int type_3_dump(std::string &buf);
+
 public:
     int initialize(IRsReaderWriter *reader, uint32_t cs, uint32_t payload_length = 0);
+
     int dump(std::string &buf);
+
 public:
-    static RTMP_CHUNK_MESSAGES create_chunk_messages(uint32_t ts, std::string msg, uint8_t msg_type, uint32_t msg_stream_id, uint32_t cs);
+    static RTMP_CHUNK_MESSAGES
+    create_chunk_messages(uint32_t ts, std::string msg, uint8_t msg_type,
+                          uint32_t msg_stream_id, uint32_t cs);
 };

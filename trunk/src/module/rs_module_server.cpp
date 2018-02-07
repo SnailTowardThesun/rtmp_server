@@ -28,22 +28,19 @@ SOFTWARE.
 
 using namespace std;
 
-RsRtmpServer::RsRtmpServer() : sock(nullptr)
-{
+RsRtmpServer::RsRtmpServer() : sock(nullptr) {
     sock = new RsTCPSocketIO();
     sock->cb = on_connection;
     sock->param = this;
 }
 
-RsRtmpServer::~RsRtmpServer()
-{
+RsRtmpServer::~RsRtmpServer() {
     dispose();
     conns.clear();
     rs_free_p(sock);
 }
 
-int RsRtmpServer::initialize()
-{
+int RsRtmpServer::initialize() {
     int ret = ERROR_SUCCESS;
 
     // create the listen socket
@@ -57,39 +54,34 @@ int RsRtmpServer::initialize()
     return ret;
 }
 
-void RsRtmpServer::on_connection(IRsReaderWriter *io, void* param)
-{
+void RsRtmpServer::on_connection(IRsReaderWriter *io, void *param) {
     cout << "got on connection for rtmp" << endl;
 }
 
-int RsRtmpServer::dispose()
-{
+int RsRtmpServer::dispose() {
     int ret = ERROR_SUCCESS;
 
     return ret;
 }
 
-RsServer::RsServer()
-{
+RsServer::RsServer() {
 
 }
 
-RsServer::~RsServer()
-{
+RsServer::~RsServer() {
 
 }
 
-static RsServer* _instance = nullptr;
-RsServer* RsServer::getInstance()
-{
+static RsServer *_instance = nullptr;
+
+RsServer *RsServer::getInstance() {
     if (_instance == nullptr) {
         _instance = new RsServer();
     }
     return _instance;
 }
 
-int RsServer::run()
-{
+int RsServer::run() {
     int ret = ERROR_SUCCESS;
 
     // initialize the all servers
@@ -101,8 +93,7 @@ int RsServer::run()
     return uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 }
 
-int RsServer::exit()
-{
+int RsServer::exit() {
     int ret = ERROR_SUCCESS;
     if ((ret = _rtmp_server.dispose()) != ERROR_SUCCESS) {
         cout << "rtmp server dispose failed. ret=" << ret << endl;

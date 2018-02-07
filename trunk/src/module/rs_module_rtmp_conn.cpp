@@ -24,25 +24,22 @@ SOFTWARE.
 
 #include "rs_module_rtmp_conn.h"
 #include "rs_protocol_rtmp.h"
+
 using namespace std;
 
-RsRtmpConn::RsRtmpConn() : io(nullptr)
-{
+RsRtmpConn::RsRtmpConn() : io(nullptr) {
 
 }
 
-RsRtmpConn::~RsRtmpConn()
-{
+RsRtmpConn::~RsRtmpConn() {
     rs_free_p(io);
 }
 
-int RsRtmpConn::initialize(uv_stream_t *server)
-{
+int RsRtmpConn::initialize(uv_stream_t *server) {
     return ERROR_SUCCESS;
 }
 
-int RsRtmpConn::simple_handshake_with_server()
-{
+int RsRtmpConn::simple_handshake_with_server() {
     assert(io != nullptr);
 
     int ret = ERROR_SUCCESS;
@@ -56,7 +53,7 @@ int RsRtmpConn::simple_handshake_with_server()
 
     // send c0c1
     string str = c.dump();
-    if ((ret = io->write(str, (int)str.length())) != ERROR_SUCCESS) {
+    if ((ret = io->write(str, (int) str.length())) != ERROR_SUCCESS) {
         cout << "send c0c1 failed. ret=" << ret << endl;
         return ret;
     }
@@ -80,7 +77,7 @@ int RsRtmpConn::simple_handshake_with_server()
     }
 
     str = c211.dump();
-    if ((ret = io->write(str, (int)str.length())) != ERROR_SUCCESS) {
+    if ((ret = io->write(str, (int) str.length())) != ERROR_SUCCESS) {
         cout << "send c2 failed. ret=" << ret << endl;
         return ret;
     }
@@ -88,8 +85,7 @@ int RsRtmpConn::simple_handshake_with_server()
     return ret;
 }
 
-int RsRtmpConn::simple_handshake_with_client()
-{
+int RsRtmpConn::simple_handshake_with_client() {
     assert(io != nullptr);
 
     int ret = ERROR_SUCCESS;
@@ -121,7 +117,7 @@ int RsRtmpConn::simple_handshake_with_client()
     }
 
     str = s0s11.dump() + s21.dump();
-    if ((ret = io->write(str, (int)str.length())) != ERROR_SUCCESS) {
+    if ((ret = io->write(str, (int) str.length())) != ERROR_SUCCESS) {
         cout << "send s0s1s2 failed. ret=" << ret << endl;
         return ret;
     }
@@ -135,32 +131,27 @@ int RsRtmpConn::simple_handshake_with_client()
     return ret;
 }
 
-int RsRtmpConn::complex_handshake_with_server()
-{
+int RsRtmpConn::complex_handshake_with_server() {
     // TODO:FIXME:implement this method
     return ERROR_SUCCESS;
 }
 
-int RsRtmpConn::complex_handshake_witout_client()
-{
+int RsRtmpConn::complex_handshake_witout_client() {
     // TODO:FIXME:implement this method
     return ERROR_SUCCESS;
 }
 
-int RsRtmpConn::connect()
-{
+int RsRtmpConn::connect() {
     // TODO:FIXME:implement this method
     return ERROR_SUCCESS;
 }
 
-int RsRtmpConn::play_stream()
-{
+int RsRtmpConn::play_stream() {
     // TODO:FIXME:implement this method
     return ERROR_SUCCESS;
 }
 
-int RsRtmpConn::publish_stream()
-{
+int RsRtmpConn::publish_stream() {
     // TODO:FIXME:implement this method
     return ERROR_SUCCESS;
 }

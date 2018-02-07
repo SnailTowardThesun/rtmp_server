@@ -23,42 +23,50 @@ SOFTWARE.
 */
 
 #pragma once
+
 #include "rs_common.h"
 #include "uv.h"
 
-class IRsReaderWriter
-{
+class IRsReaderWriter {
 public:
-    IRsReaderWriter(){};
-    virtual ~IRsReaderWriter(){};
+    IRsReaderWriter() {};
+
+    virtual ~IRsReaderWriter() {};
 public:
     virtual int write(std::string buf, int size) = 0;
-    virtual int read(std::string& buf, int size) = 0;
+
+    virtual int read(std::string &buf, int size) = 0;
 };
 
-using connection_cb = void(*)(IRsReaderWriter *io, void* param);
+using connection_cb = void (*)(IRsReaderWriter *io, void *param);
 
-class RsTCPSocketIO : public IRsReaderWriter
-{
+class RsTCPSocketIO : public IRsReaderWriter {
 public:
-    uv_tcp_t* sock;
+    uv_tcp_t *sock;
     std::shared_ptr<char> base;
     std::string buffer;
     std::shared_ptr<uv_sem_t> signal;
 public:
     RsTCPSocketIO();
+
     virtual ~RsTCPSocketIO();
+
 public:
     connection_cb cb;
     void *param;
 public:
     int listen(std::string ip, int port);
+
     int connect(std::string ip, int port);
+
     int initialize(uv_tcp_t *stream);
+
     static void on_connected(uv_stream_t *server, int status);
 // implement IRsReaderWrite
 public:
     int write(std::string buf, int size);
-    int read(std::string& buf, int size);
+
+    int read(std::string &buf, int size);
+
     void close();
 };

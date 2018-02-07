@@ -28,6 +28,7 @@ SOFTWARE.
 #include <unistd.h>
 #include <stdarg.h>
 #include "rs_kernel_context.h"
+
 using namespace std;
 
 #define RS_LOG_MAX_LENGTH 4096
@@ -38,19 +39,16 @@ using namespace std;
 #define RS_LOG_LEVEL_WARN "warn"
 #define RS_LOG_LEVEL_ERROR "error"
 
-IRSLog::IRSLog() : msg(nullptr)
-{
+IRSLog::IRSLog() : msg(nullptr) {
     pid = getpid();
     msg = new char[4096];
 }
 
-IRSLog::~IRSLog()
-{
+IRSLog::~IRSLog() {
     rs_free_p(msg);
 }
 
-void IRSLog::info(IRsReaderWriter* io, const char* fmt, ...)
-{
+void IRSLog::info(IRsReaderWriter *io, const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
@@ -61,8 +59,7 @@ void IRSLog::info(IRsReaderWriter* io, const char* fmt, ...)
     log(cid, RS_LOG_LEVEL_INFO, string(msg, size));
 }
 
-void IRSLog::verbose(IRsReaderWriter* io, const char* fmt, ...)
-{
+void IRSLog::verbose(IRsReaderWriter *io, const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
@@ -73,8 +70,7 @@ void IRSLog::verbose(IRsReaderWriter* io, const char* fmt, ...)
     log(cid, RS_LOG_LEVEL_VERBOSE, string(msg, size));
 }
 
-void IRSLog::trace(IRsReaderWriter* io, const char* fmt, ...)
-{
+void IRSLog::trace(IRsReaderWriter *io, const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
@@ -85,8 +81,7 @@ void IRSLog::trace(IRsReaderWriter* io, const char* fmt, ...)
     log(cid, RS_LOG_LEVEL_TRACE, string(msg, size));
 }
 
-void IRSLog::warn(IRsReaderWriter* io, const char* fmt, ...)
-{
+void IRSLog::warn(IRsReaderWriter *io, const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
@@ -97,8 +92,7 @@ void IRSLog::warn(IRsReaderWriter* io, const char* fmt, ...)
     log(cid, RS_LOG_LEVEL_WARN, string(msg, size));
 }
 
-void IRSLog::error(IRsReaderWriter* io, const char* fmt, ...)
-{
+void IRSLog::error(IRsReaderWriter *io, const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
@@ -109,16 +103,13 @@ void IRSLog::error(IRsReaderWriter* io, const char* fmt, ...)
     log(cid, RS_LOG_LEVEL_ERROR, string(msg, size));
 }
 
-RSConsoleLog::RSConsoleLog()
-{
+RSConsoleLog::RSConsoleLog() {
 }
 
-RSConsoleLog::~RSConsoleLog()
-{
+RSConsoleLog::~RSConsoleLog() {
 }
 
-void RSConsoleLog::log(int64_t cid, string level, string message)
-{
+void RSConsoleLog::log(int64_t cid, string level, string message) {
     stringstream ss;
     ss << "[" << pid << "]";
     ss << "[" << cid << "]";

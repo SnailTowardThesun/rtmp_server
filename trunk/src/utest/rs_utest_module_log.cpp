@@ -25,31 +25,30 @@ SOFTWARE.
 #include "gtest/gtest.h"
 #include "rs_module_log.h"
 #include "rs_kernel_context.h"
+
 using namespace std;
 
-class MockRsLog : public IRSLog
-{
+class MockRsLog : public IRSLog {
 public:
     int64_t _cid;
     string _level;
     string _msg;
 public:
     MockRsLog() {};
+
     ~MockRsLog() {};
 public:
-    virtual void log(int64_t cid, string level, string message)
-    {
+    virtual void log(int64_t cid, string level, string message) {
         _cid = cid;
         _level = level;
         _msg = message;
     }
 };
 
-TEST (RsLog, IRSLog_info)
-{
-    RsTCPSocketIO* io = new RsTCPSocketIO();
+TEST (RsLog, IRSLog_info) {
+    RsTCPSocketIO *io = new RsTCPSocketIO();
     RsConnContext::getInstance()->regist(io);
-    MockRsLog* log = new MockRsLog();
+    MockRsLog *log = new MockRsLog();
 
     log->info(io, "this is for info test %d", 10);
     ASSERT_EQ(log->_cid, RsConnContext::getInstance()->get_id(io));
@@ -61,11 +60,10 @@ TEST (RsLog, IRSLog_info)
     rs_free_p(log);
 }
 
-TEST (RsLog, IRSLog_verbose)
-{
-    RsTCPSocketIO* io = new RsTCPSocketIO();
+TEST (RsLog, IRSLog_verbose) {
+    RsTCPSocketIO *io = new RsTCPSocketIO();
     RsConnContext::getInstance()->regist(io);
-    MockRsLog* log = new MockRsLog();
+    MockRsLog *log = new MockRsLog();
 
     log->verbose(io, "this is for verbose test %d", 10);
     ASSERT_EQ(log->_cid, RsConnContext::getInstance()->get_id(io));
@@ -77,11 +75,10 @@ TEST (RsLog, IRSLog_verbose)
     rs_free_p(log);
 }
 
-TEST (RsLog, IRSLog_trace)
-{
-    RsTCPSocketIO* io = new RsTCPSocketIO();
+TEST (RsLog, IRSLog_trace) {
+    RsTCPSocketIO *io = new RsTCPSocketIO();
     RsConnContext::getInstance()->regist(io);
-    MockRsLog* log = new MockRsLog();
+    MockRsLog *log = new MockRsLog();
 
     log->trace(io, "this is for trace test %d", 10);
     ASSERT_EQ(log->_cid, RsConnContext::getInstance()->get_id(io));
@@ -93,11 +90,10 @@ TEST (RsLog, IRSLog_trace)
     rs_free_p(log);
 }
 
-TEST (RsLog, IRSLog_warn)
-{
-    RsTCPSocketIO* io = new RsTCPSocketIO();
+TEST (RsLog, IRSLog_warn) {
+    RsTCPSocketIO *io = new RsTCPSocketIO();
     RsConnContext::getInstance()->regist(io);
-    MockRsLog* log = new MockRsLog();
+    MockRsLog *log = new MockRsLog();
 
     log->warn(io, "this is for warn test %d", 10);
     ASSERT_EQ(log->_cid, RsConnContext::getInstance()->get_id(io));
@@ -109,11 +105,10 @@ TEST (RsLog, IRSLog_warn)
     rs_free_p(log);
 }
 
-TEST (RsLog, IRSLog_error)
-{
-    RsTCPSocketIO* io = new RsTCPSocketIO();
+TEST (RsLog, IRSLog_error) {
+    RsTCPSocketIO *io = new RsTCPSocketIO();
     RsConnContext::getInstance()->regist(io);
-    MockRsLog* log = new MockRsLog();
+    MockRsLog *log = new MockRsLog();
 
     log->error(io, "this is for error test %d", 10);
     ASSERT_EQ(log->_cid, RsConnContext::getInstance()->get_id(io));

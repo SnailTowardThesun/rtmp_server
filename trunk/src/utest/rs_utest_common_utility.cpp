@@ -25,8 +25,7 @@ SOFTWARE.
 #include "gtest/gtest.h"
 #include "rs_common_utility.h"
 
-TEST(CommonUtility, rs_get_random)
-{
+TEST(CommonUtility, rs_get_random) {
     {
         int size = 0;
         std::string rd = rs_get_random(size);
@@ -44,8 +43,7 @@ TEST(CommonUtility, rs_get_random)
     }
 }
 
-TEST(CommonUtility, rs_get_system_time_ms)
-{
+TEST(CommonUtility, rs_get_system_time_ms) {
     int64_t now = rs_get_system_time_ms();
     ASSERT_TRUE(now > 0);
 }

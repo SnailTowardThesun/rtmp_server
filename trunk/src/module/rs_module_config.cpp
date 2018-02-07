@@ -24,28 +24,13 @@ SOFTWARE.
 
 #include "rs_module_config.h"
 
-RsConfig::RsConfig()
-{
+int RsConfig::initialize(std::string path) {
+    int ret = ERROR_SUCCESS;
 
+    return ret;
 }
 
-RsConfig::~RsConfig()
-{
-
-}
-
-static RsConfig* __config_instance = nullptr;
-RsConfig* RsConfig::getInstance()
-{
-    if (__config_instance == nullptr) {
-        __config_instance = new RsConfig();
-    }
-
-    return __config_instance;
-}
-
-int RsConfig::get_rtmp_listen()
-{
+int RsConfig::get_rtmp_listen() {
     // TODO:FIXME: implement this function
     return RTMP_DEFAULT_PORT;
 }

@@ -25,21 +25,20 @@ SOFTWARE.
 #include "rs_common_utility.h"
 #include <math.h>
 #include <sys/time.h>
+
 using namespace std;
 
-string rs_get_random(int size)
-{
+string rs_get_random(int size) {
     string rd;
 
-    for(int i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i) {
         rd.push_back(rand() % 128 + 32);
     }
 
     return rd;
 }
 
-int64_t rs_get_system_time_ms()
-{
+int64_t rs_get_system_time_ms() {
     int64_t now_us = 0;
 
     timeval now;
@@ -48,12 +47,11 @@ int64_t rs_get_system_time_ms()
         return -1;
     }
 
-    now_us = ((int64_t)now.tv_sec) * 1000 * 1000 + (int64_t)now.tv_usec;
-    return now_us/1000;
+    now_us = ((int64_t) now.tv_sec) * 1000 * 1000 + (int64_t) now.tv_usec;
+    return now_us / 1000;
 }
 
-string rs_get_local_ip()
-{
+string rs_get_local_ip() {
     // TODO:FIXME: implement this function
     return "127.0.0.1";
 }

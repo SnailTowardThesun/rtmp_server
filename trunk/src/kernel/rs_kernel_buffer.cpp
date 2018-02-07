@@ -23,33 +23,30 @@ SOFTWARE.
 */
 
 #include "rs_kernel_buffer.h"
+
 using namespace std;
 
-RsBufferLittleEndian::RsBufferLittleEndian()
-{
+RsBufferLittleEndian::RsBufferLittleEndian() {
 
 }
 
-RsBufferLittleEndian::~RsBufferLittleEndian()
-{
+RsBufferLittleEndian::~RsBufferLittleEndian() {
 }
 
-int RsBufferLittleEndian::write_1_byte(uint8_t val)
-{
+int RsBufferLittleEndian::write_1_byte(uint8_t val) {
     int ret = ERROR_SUCCESS;
 
-    char *p = (char*)&val;
+    char *p = (char *) &val;
 
     buffer += p[0];
 
     return ret;
 }
 
-int RsBufferLittleEndian::write_2_byte(unsigned long val)
-{
+int RsBufferLittleEndian::write_2_byte(unsigned long val) {
     int ret = ERROR_SUCCESS;
 
-    char *pVal = (char*)&val;
+    char *pVal = (char *) &val;
 
     buffer += pVal[1];
     buffer += pVal[0];
@@ -57,11 +54,10 @@ int RsBufferLittleEndian::write_2_byte(unsigned long val)
     return ret;
 }
 
-int RsBufferLittleEndian::write_3_byte(uint32_t val)
-{
+int RsBufferLittleEndian::write_3_byte(uint32_t val) {
     int ret = ERROR_SUCCESS;
 
-    char *pVal = (char*)&val;
+    char *pVal = (char *) &val;
 
     buffer += pVal[2];
     buffer += pVal[1];
@@ -70,11 +66,10 @@ int RsBufferLittleEndian::write_3_byte(uint32_t val)
     return ret;
 }
 
-int RsBufferLittleEndian::write_4_byte(uint32_t val)
-{
+int RsBufferLittleEndian::write_4_byte(uint32_t val) {
     int ret = ERROR_SUCCESS;
 
-    char *pVal = (char*)&val;
+    char *pVal = (char *) &val;
 
     buffer += pVal[3];
     buffer += pVal[2];
@@ -84,11 +79,10 @@ int RsBufferLittleEndian::write_4_byte(uint32_t val)
     return ret;
 }
 
-int RsBufferLittleEndian::write_8_byte(uint64_t val)
-{
+int RsBufferLittleEndian::write_8_byte(uint64_t val) {
     int ret = ERROR_SUCCESS;
 
-    char *pVal = (char*)&val;
+    char *pVal = (char *) &val;
 
     buffer += pVal[7];
     buffer += pVal[6];
@@ -102,23 +96,20 @@ int RsBufferLittleEndian::write_8_byte(uint64_t val)
     return ret;
 }
 
-int RsBufferLittleEndian::write_bytes(string buf)
-{
+int RsBufferLittleEndian::write_bytes(string buf) {
     buffer.append(buf);
     return ERROR_SUCCESS;
 }
 
-int RsBufferLittleEndian::write_bytes(const char *buf, int size)
-{
+int RsBufferLittleEndian::write_bytes(const char *buf, int size) {
     int ret = ERROR_SUCCESS;
 
-    buffer += string((const char*)buf, (unsigned long) size);
+    buffer += string((const char *) buf, (unsigned long) size);
 
     return ret;
 }
 
-uint8_t RsBufferLittleEndian::read_1_byte()
-{
+uint8_t RsBufferLittleEndian::read_1_byte() {
     uint8_t val = 0;
 
     val = static_cast<uint8_t>(buffer[0]);
@@ -128,11 +119,10 @@ uint8_t RsBufferLittleEndian::read_1_byte()
     return val;
 }
 
-uint16_t RsBufferLittleEndian::read_2_byte()
-{
+uint16_t RsBufferLittleEndian::read_2_byte() {
     uint16_t val = 0;
 
-    char *pVal = (char*)&val;
+    char *pVal = (char *) &val;
 
     for (int i = 1; i >= 0; --i) {
         pVal[i] = buffer.at(0);
@@ -142,11 +132,10 @@ uint16_t RsBufferLittleEndian::read_2_byte()
     return val;
 }
 
-uint32_t RsBufferLittleEndian::read_3_byte()
-{
+uint32_t RsBufferLittleEndian::read_3_byte() {
     uint32_t val = 0;
 
-    char *pVal = (char*)&val;
+    char *pVal = (char *) &val;
 
     for (int i = 2; i >= 0; --i) {
         pVal[i] = buffer.at(0);
@@ -156,25 +145,23 @@ uint32_t RsBufferLittleEndian::read_3_byte()
     return val;
 }
 
-uint32_t RsBufferLittleEndian::read_4_byte()
-{
+uint32_t RsBufferLittleEndian::read_4_byte() {
     uint32_t val = 0;
 
-    char *pVal = (char*)&val;
+    char *pVal = (char *) &val;
 
     for (int i = 3; i >= 0; --i) {
         pVal[i] = buffer.at(0);
         buffer.erase(buffer.begin());
     }
 
-    return  val;
+    return val;
 }
 
-uint64_t RsBufferLittleEndian::read_8_byte()
-{
+uint64_t RsBufferLittleEndian::read_8_byte() {
     uint64_t val = 0;
 
-    char *pVal = (char*)&val;
+    char *pVal = (char *) &val;
 
     for (int i = 7; i >= 0; --i) {
         pVal[i] = buffer.at(0);
@@ -184,16 +171,14 @@ uint64_t RsBufferLittleEndian::read_8_byte()
     return val;
 }
 
-string RsBufferLittleEndian::read_bytes(int size)
-{
+string RsBufferLittleEndian::read_bytes(int size) {
     string buf;
     buf = buffer.substr(0, size);
     buffer.erase(0, size);
     return buf;
 }
 
-string RsBufferLittleEndian::dump()
-{
+string RsBufferLittleEndian::dump() {
     if (!buffer.empty()) {
         return buffer;
     }
@@ -202,29 +187,25 @@ string RsBufferLittleEndian::dump()
     return "";
 }
 
-uint16_t RsBufferLittleEndian::convert_2bytes_into_uint16(std::string buf)
-{
+uint16_t RsBufferLittleEndian::convert_2bytes_into_uint16(std::string buf) {
     RsBufferLittleEndian rs_buf;
     rs_buf.write_bytes(buf.c_str(), 2);
     return rs_buf.read_2_byte();
 }
 
-uint32_t RsBufferLittleEndian::convert_3bytes_into_uint32(std::string buf)
-{
+uint32_t RsBufferLittleEndian::convert_3bytes_into_uint32(std::string buf) {
     RsBufferLittleEndian rs_buf;
     rs_buf.write_bytes(buf.c_str(), 3);
     return rs_buf.read_3_byte();
 }
 
-uint32_t RsBufferLittleEndian::convert_4bytes_into_uint32(std::string buf)
-{
+uint32_t RsBufferLittleEndian::convert_4bytes_into_uint32(std::string buf) {
     RsBufferLittleEndian rs_buf;
     rs_buf.write_bytes(buf.c_str(), 4);
     return rs_buf.read_4_byte();
 }
 
-uint64_t RsBufferLittleEndian::convert_8bytes_into_uint64(std::string buf)
-{
+uint64_t RsBufferLittleEndian::convert_8bytes_into_uint64(std::string buf) {
     RsBufferLittleEndian rs_buf;
     rs_buf.write_bytes(buf.c_str(), 8);
     return rs_buf.read_8_byte();

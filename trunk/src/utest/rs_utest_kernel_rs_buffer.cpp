@@ -25,8 +25,7 @@ SOFTWARE.
 #include "gtest/gtest.h"
 #include "rs_kernel_buffer.h"
 
-TEST(RsBuffer, read_write)
-{
+TEST(RsBuffer, read_write) {
     RsBufferLittleEndian buffer;
 
     {
@@ -98,7 +97,8 @@ TEST(RsBuffer, read_write)
 
     {
         std::string strTest = "hello rtmp server utest";
-        ASSERT_EQ(buffer.write_bytes((char*)strTest.c_str(), strTest.size()), ERROR_SUCCESS);
+        ASSERT_EQ(buffer.write_bytes((char *) strTest.c_str(), strTest.size()),
+                  ERROR_SUCCESS);
         std::string strRead = buffer.read_bytes(strTest.size());
         ASSERT_TRUE(strTest == strRead);
     }

@@ -25,10 +25,10 @@ SOFTWARE.
 #include <cstdlib>
 #include "rs_kernel_thread.h"
 #include "rs_common.h"
+
 using namespace std;
 
-RSLocker::RSLocker() : _locker(nullptr)
-{
+RSLocker::RSLocker() : _locker(nullptr) {
     _locker = new uv_mutex_t();
     if (uv_mutex_init(_locker) == 0) {
         uv_mutex_lock(_locker);
@@ -38,8 +38,7 @@ RSLocker::RSLocker() : _locker(nullptr)
     }
 }
 
-RSLocker::~RSLocker()
-{
+RSLocker::~RSLocker() {
     if (_locker != nullptr) {
         uv_mutex_unlock(_locker);
     }
@@ -47,35 +46,31 @@ RSLocker::~RSLocker()
     rs_free_p(_locker);
 }
 
-RSBaseThread::RSBaseThread() : _thread(nullptr), 
-    interupt(false)
-{
+RSBaseThread::RSBaseThread() : _thread(nullptr),
+                               interupt(false) {
 
 }
 
-RSBaseThread::~RSBaseThread()
-{
+RSBaseThread::~RSBaseThread() {
     stop();
     rs_free_p(_thread);
 }
 
-void RSBaseThread::cycle(void *param)
-{
-    RSBaseThread *th = static_cast<RSBaseThread*>(param);
+void RSBaseThread::cycle(void *param) {
+    RSBaseThread *th = static_cast<RSBaseThread *>(param);
     if (th) {
         th->do_cycle();
     }
 }
 
-int RSBaseThread::start()
-{
+int RSBaseThread::start() {
     int ret = ERROR_SUCCESS;
 
     interupt = false;
 
     if (_thread != nullptr && (ret = stop()) != ERROR_SUCCESS) {
         // TODO:FIXME implement log module
-        cout<< "fail to stop thread" << endl;
+        cout << "fail to stop thread" << endl;
         return ret;
     }
 
@@ -89,8 +84,7 @@ int RSBaseThread::start()
     return ret;
 }
 
-int RSBaseThread::stop()
-{
+int RSBaseThread::stop() {
     int ret = ERROR_SUCCESS;
 
     if (_thread == nullptr) {
@@ -110,8 +104,7 @@ int RSBaseThread::stop()
     return ret;
 }
 
-int RSBaseThread::do_cycle()
-{
+int RSBaseThread::do_cycle() {
     // TODO:FIXME implement log module
     cout << "this is base thread do cycle function" << endl;
     return ERROR_SUCCESS;

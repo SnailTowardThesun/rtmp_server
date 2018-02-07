@@ -26,33 +26,39 @@ SOFTWARE.
 #include "rs_kernel_io.h"
 #include "rs_module_rtmp_conn.h"
 
-class RsRtmpServer
-{
+class RsRtmpServer {
 private:
     RsTCPSocketIO *sock;
 public:
     RsRtmpServer();
+
     virtual ~RsRtmpServer();
+
 public:
     int initialize();
-    static void on_connection(IRsReaderWriter* io, void* param);
+
+    static void on_connection(IRsReaderWriter *io, void *param);
+
 private:
     std::vector<std::shared_ptr<RsRtmpConn>> conns;
 public:
     int dispose();
 };
 
-class RsServer
-{
+class RsServer {
 private:
     RsRtmpServer _rtmp_server;
 public:
     RsServer();
+
     virtual ~RsServer();
+
 public:
     // the server is unique.
-    static RsServer* getInstance();
+    static RsServer *getInstance();
+
 public:
     int run();
+
     int exit();
 };

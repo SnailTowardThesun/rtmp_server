@@ -23,25 +23,22 @@ SOFTWARE.
 */
 
 #include "rs_kernel_context.h"
+
 using namespace std;
 
 uint64_t RsConnContext::current_ID = 200;
 
-RsConnContext::RsConnContext()
-{
+RsConnContext::RsConnContext() {
     DEFAULT_ID = 100;
 }
 
-RsConnContext::~RsConnContext()
-{
+RsConnContext::~RsConnContext() {
 }
 
-int32_t RsConnContext::regist(IRsReaderWriter* io)
-{
+int32_t RsConnContext::regist(IRsReaderWriter *io) {
     int32_t ret = ERROR_SUCCESS;
 
-    if (connection_ids.find(io) != connection_ids.end())
-    {
+    if (connection_ids.find(io) != connection_ids.end()) {
         ret = ERROR_CONTEXT_CONN_ID_EXISTS;
         return ret;
     }
@@ -52,27 +49,23 @@ int32_t RsConnContext::regist(IRsReaderWriter* io)
 }
 
 
-void RsConnContext::unregist(IRsReaderWriter* io)
-{
+void RsConnContext::unregist(IRsReaderWriter *io) {
     connection_ids.erase(io);
 }
 
-uint64_t RsConnContext::get_id(IRsReaderWriter* io)
-{
+uint64_t RsConnContext::get_id(IRsReaderWriter *io) {
     auto id = connection_ids.find(io);
-    if (id == connection_ids.end())
-    {
+    if (id == connection_ids.end()) {
         return DEFAULT_ID;
     }
 
     return id->second;
 }
 
-static RsConnContext* _rs_context = nullptr;
-RsConnContext* RsConnContext::getInstance()
-{
-    if (_rs_context == nullptr)
-    {
+static RsConnContext *_rs_context = nullptr;
+
+RsConnContext *RsConnContext::getInstance() {
+    if (_rs_context == nullptr) {
         _rs_context = new RsConnContext();
     }
 

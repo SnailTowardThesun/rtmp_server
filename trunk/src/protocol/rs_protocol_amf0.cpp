@@ -25,105 +25,86 @@ SOFTWARE.
 #include "rs_common_utility.h"
 #include "rs_protocol_amf0.h"
 #include "rs_kernel_buffer.h"
+
 using namespace std;
 
-RsAmf0Package::RsAmf0Package()
-{
+RsAmf0Package::RsAmf0Package() {
 
 }
 
-RsAmf0Package::~RsAmf0Package()
-{
+RsAmf0Package::~RsAmf0Package() {
 
 }
 
-bool RsAmf0Package::is_number()
-{
+bool RsAmf0Package::is_number() {
     return marker == AMF0_MARKER::AMF0_NUMBER;
 }
 
-bool RsAmf0Package::is_boolean()
-{
+bool RsAmf0Package::is_boolean() {
     return marker == AMF0_MARKER::AMF0_BOOLEAN;
 }
 
-bool RsAmf0Package::is_string()
-{
+bool RsAmf0Package::is_string() {
     return marker == AMF0_MARKER::AMF0_STRING;
 }
 
-bool RsAmf0Package::is_objec()
-{
+bool RsAmf0Package::is_objec() {
     return marker == AMF0_MARKER::AMF0_OBJECT;
 }
 
-bool RsAmf0Package::is_movieclip()
-{
+bool RsAmf0Package::is_movieclip() {
     return marker == AMF0_MARKER::AMF0_MOVIECLIP;
 }
 
-bool RsAmf0Package::is_null()
-{
+bool RsAmf0Package::is_null() {
     return marker == AMF0_MARKER::AMF0_NULL;
 }
 
-bool RsAmf0Package::is_undefined()
-{
+bool RsAmf0Package::is_undefined() {
     return marker == AMF0_MARKER::AMF0_UNDEFINED;
 }
 
-bool RsAmf0Package::is_reference()
-{
+bool RsAmf0Package::is_reference() {
     return marker == AMF0_MARKER::AMF0_REFERENCE;
 }
 
-bool RsAmf0Package::is_ecma_array()
-{
+bool RsAmf0Package::is_ecma_array() {
     return marker == AMF0_MARKER::AMF0_ECMA_ARRAY;
 }
 
-bool RsAmf0Package::is_object_end()
-{
+bool RsAmf0Package::is_object_end() {
     return marker == AMF0_MARKER::AMF0_OBJECT_END;
 }
 
-bool RsAmf0Package::is_strict_array()
-{
+bool RsAmf0Package::is_strict_array() {
     return marker == AMF0_MARKER::AMF0_STRICT_ARRAY;
 }
 
-bool RsAmf0Package::is_date()
-{
+bool RsAmf0Package::is_date() {
     return marker == AMF0_MARKER::AMF0_DATE;
 }
 
-bool RsAmf0Package::is_long_string()
-{
+bool RsAmf0Package::is_long_string() {
     return marker == AMF0_MARKER::AMF0_LONG_STRING;
 }
 
-bool RsAmf0Package::is_unsupported()
-{
+bool RsAmf0Package::is_unsupported() {
     return marker == AMF0_MARKER::AMF0_UNSUPPORTED;
 }
 
-bool RsAmf0Package::is_recordset()
-{
+bool RsAmf0Package::is_recordset() {
     return marker == AMF0_MARKER::AMF0_RECORDSET;
 }
 
-bool RsAmf0Package::is_xml_document()
-{
+bool RsAmf0Package::is_xml_document() {
     return marker == AMF0_MARKER::AMF0_XML_DOCUMENT;
 }
 
-bool RsAmf0Package::is_typed_object()
-{
+bool RsAmf0Package::is_typed_object() {
     return marker == AMF0_MARKER::AMF0_TYPED_OBJECT;
 }
 
-RsAmf0Package* RsAmf0Package::create_package(IRsReaderWriter *reader)
-{
+RsAmf0Package *RsAmf0Package::create_package(IRsReaderWriter *reader) {
     int ret = ERROR_SUCCESS;
     string buf;
     // read the marker
@@ -132,84 +113,74 @@ RsAmf0Package* RsAmf0Package::create_package(IRsReaderWriter *reader)
         return nullptr;
     }
 
-    switch(buf[0]) {
-        case AMF0_MARKER::AMF0_NUMBER:
-            {
-                RsAmf0Number* value = new RsAmf0Number();
-                if ((ret = value->initialize(reader)) != ERROR_SUCCESS) {
-                    cout << "initialzie amf0 number failed. ret=" << ret << endl;
-                    rs_free_p(value);
-                    return nullptr;
-                }
-                return value;
+    switch (buf[0]) {
+        case AMF0_MARKER::AMF0_NUMBER: {
+            RsAmf0Number *value = new RsAmf0Number();
+            if ((ret = value->initialize(reader)) != ERROR_SUCCESS) {
+                cout << "initialzie amf0 number failed. ret=" << ret << endl;
+                rs_free_p(value);
+                return nullptr;
             }
-        case AMF0_MARKER::AMF0_BOOLEAN:
-            {
-                RsAmf0Boolean *value = new RsAmf0Boolean();
-                if ((ret = value->initialize(reader)) != ERROR_SUCCESS) {
-                    cout << "initialize amf0 boolean failed. ret=" << ret << endl;
-                    rs_free_p(value);
-                    return nullptr;
-                }
-                return value;
+            return value;
+        }
+        case AMF0_MARKER::AMF0_BOOLEAN: {
+            RsAmf0Boolean *value = new RsAmf0Boolean();
+            if ((ret = value->initialize(reader)) != ERROR_SUCCESS) {
+                cout << "initialize amf0 boolean failed. ret=" << ret << endl;
+                rs_free_p(value);
+                return nullptr;
             }
-        case AMF0_MARKER::AMF0_STRING:
-            {
-                RsAmf0String *value = new RsAmf0String();
-                if ((ret = value->initialize(reader)) != ERROR_SUCCESS) {
-                    cout << "initialize amf0 string failed. ret=" << ret << endl;
-                    rs_free_p(value);
-                    return nullptr;
-                }
-                return value;
+            return value;
+        }
+        case AMF0_MARKER::AMF0_STRING: {
+            RsAmf0String *value = new RsAmf0String();
+            if ((ret = value->initialize(reader)) != ERROR_SUCCESS) {
+                cout << "initialize amf0 string failed. ret=" << ret << endl;
+                rs_free_p(value);
+                return nullptr;
             }
-        case AMF0_MARKER::AMF0_OBJECT:
-            {
-                RsAmf0Object *value = new RsAmf0Object();
-                if ((ret = value->initialize(reader)) != ERROR_SUCCESS) {
-                    cout << "initialize amf0 object failed. ret=" << ret << endl;
-                    rs_free_p(value);
-                    return nullptr;
-                }
-                return value;
+            return value;
+        }
+        case AMF0_MARKER::AMF0_OBJECT: {
+            RsAmf0Object *value = new RsAmf0Object();
+            if ((ret = value->initialize(reader)) != ERROR_SUCCESS) {
+                cout << "initialize amf0 object failed. ret=" << ret << endl;
+                rs_free_p(value);
+                return nullptr;
             }
-        // TODO:FIXME: implement other type of amf0 package
+            return value;
+        }
+            // TODO:FIXME: implement other type of amf0 package
         default:
             return nullptr;
     }
 }
 
-string RsAmf0Package::dump()
-{
+string RsAmf0Package::dump() {
     return encode();
 }
 
-RsAmf0Number::RsAmf0Number()
-{
+RsAmf0Number::RsAmf0Number() {
     marker = AMF0_MARKER::AMF0_NUMBER;
 }
 
-RsAmf0Number::RsAmf0Number(double nu)
-{
+RsAmf0Number::RsAmf0Number(double nu) {
     marker = AMF0_MARKER::AMF0_NUMBER;
     value = nu;
 }
 
-RsAmf0Number::~RsAmf0Number()
-{
+RsAmf0Number::~RsAmf0Number() {
 
 }
 
-string RsAmf0Number::encode()
-{
+string RsAmf0Number::encode() {
     RsBufferLittleEndian buf;
     buf.write_1_byte(marker);
     buf.write_8_byte(static_cast<uint64_t>(value));
     return buf.dump();
 }
 
-int RsAmf0Number::initialize(IRsReaderWriter *reader)
-{
+int RsAmf0Number::initialize(IRsReaderWriter *reader) {
     int ret = ERROR_SUCCESS;
     string buf;
 
@@ -221,32 +192,27 @@ int RsAmf0Number::initialize(IRsReaderWriter *reader)
     return ret;
 }
 
-RsAmf0Boolean::RsAmf0Boolean()
-{
+RsAmf0Boolean::RsAmf0Boolean() {
     marker = AMF0_MARKER::AMF0_BOOLEAN;
 }
 
-RsAmf0Boolean::RsAmf0Boolean(bool val)
-{
+RsAmf0Boolean::RsAmf0Boolean(bool val) {
     marker = AMF0_MARKER::AMF0_BOOLEAN;
     value = val;
 }
 
-RsAmf0Boolean::~RsAmf0Boolean()
-{
+RsAmf0Boolean::~RsAmf0Boolean() {
 
 }
 
-string RsAmf0Boolean::encode()
-{
+string RsAmf0Boolean::encode() {
     RsBufferLittleEndian buf;
     buf.write_1_byte(marker);
     buf.write_1_byte(uint8_t(value));
     return buf.dump();
 }
 
-int RsAmf0Boolean::initialize(IRsReaderWriter *reader)
-{
+int RsAmf0Boolean::initialize(IRsReaderWriter *reader) {
     int ret = ERROR_SUCCESS;
     string buf;
 
@@ -256,28 +222,24 @@ int RsAmf0Boolean::initialize(IRsReaderWriter *reader)
         return ret;
     }
 
-    value = (uint8_t)buf[0];
+    value = (uint8_t) buf[0];
     return ret;
 }
 
-RsAmf0String::RsAmf0String()
-{
+RsAmf0String::RsAmf0String() {
 
 }
 
-RsAmf0String::RsAmf0String(string val)
-{
+RsAmf0String::RsAmf0String(string val) {
     marker = AMF0_MARKER::AMF0_STRING;
     value = val;
 }
 
-RsAmf0String::~RsAmf0String()
-{
+RsAmf0String::~RsAmf0String() {
 
 }
 
-string RsAmf0String::encode()
-{
+string RsAmf0String::encode() {
     RsBufferLittleEndian buf;
     buf.write_1_byte(marker);
     buf.write_2_byte((uint16_t) value.size());
@@ -285,8 +247,7 @@ string RsAmf0String::encode()
     return buf.dump();
 }
 
-int RsAmf0String::initialize(IRsReaderWriter *reader)
-{
+int RsAmf0String::initialize(IRsReaderWriter *reader) {
     int ret = ERROR_SUCCESS;
     string buf;
 
@@ -308,28 +269,25 @@ int RsAmf0String::initialize(IRsReaderWriter *reader)
     return ret;
 }
 
-RsAmf0ObjectProperty::RsAmf0ObjectProperty()
-{
+RsAmf0ObjectProperty::RsAmf0ObjectProperty() {
 
 }
 
-RsAmf0ObjectProperty::~RsAmf0ObjectProperty()
-{
+RsAmf0ObjectProperty::~RsAmf0ObjectProperty() {
 
 }
 
-void RsAmf0ObjectProperty::set(std::string key, RsAmf0Package *value)
-{
+void RsAmf0ObjectProperty::set(std::string key, RsAmf0Package *value) {
     auto predicate = [&](Property elem) {
         return elem.first == key;
     };
 
-    properties.erase(remove_if(properties.begin(), properties.end(), predicate), properties.end());
+    properties.erase(remove_if(properties.begin(), properties.end(), predicate),
+                     properties.end());
     properties.push_back(make_pair(key, shared_ptr<RsAmf0Package>(value)));
 }
 
-RsAmf0Package* RsAmf0ObjectProperty::get(std::string key)
-{
+RsAmf0Package *RsAmf0ObjectProperty::get(std::string key) {
     for (auto i : properties) {
         if (i.first == key) {
             return i.second.get();
@@ -339,8 +297,7 @@ RsAmf0Package* RsAmf0ObjectProperty::get(std::string key)
     return nullptr;
 }
 
-RsAmf0Package* RsAmf0ObjectProperty::get(int index)
-{
+RsAmf0Package *RsAmf0ObjectProperty::get(int index) {
     if (index > properties.size()) {
         cout << "the index is beyound the size of properties" << endl;
         return nullptr;
@@ -349,12 +306,11 @@ RsAmf0Package* RsAmf0ObjectProperty::get(int index)
     return properties[index].second.get();
 }
 
-int RsAmf0ObjectProperty::initialize(IRsReaderWriter *reader)
-{
+int RsAmf0ObjectProperty::initialize(IRsReaderWriter *reader) {
     int ret = ERROR_SUCCESS;
     string buf;
 
-    while(1) {
+    while (1) {
         // read size of key
         if ((ret = reader->read(buf, 2)) != ERROR_SUCCESS) {
             cout << "read size of key failed. ret=" << ret << endl;
@@ -397,13 +353,11 @@ int RsAmf0ObjectProperty::initialize(IRsReaderWriter *reader)
     return ret;
 }
 
-uint32_t RsAmf0ObjectProperty::count()
-{
+uint32_t RsAmf0ObjectProperty::count() {
     return properties.size();
 }
 
-string RsAmf0ObjectProperty::dump()
-{
+string RsAmf0ObjectProperty::dump() {
     RsBufferLittleEndian buf;
     for (auto i : properties) {
         buf.write_2_byte((uint16_t) i.first.length());
@@ -417,56 +371,46 @@ string RsAmf0ObjectProperty::dump()
     return buf.dump();
 }
 
-RsAmf0Object::RsAmf0Object()
-{
+RsAmf0Object::RsAmf0Object() {
     marker = AMF0_MARKER::AMF0_OBJECT;
 }
 
-RsAmf0Object::~RsAmf0Object()
-{
+RsAmf0Object::~RsAmf0Object() {
 
 }
 
-void RsAmf0Object::set(string key, RsAmf0Package *value)
-{
+void RsAmf0Object::set(string key, RsAmf0Package *value) {
     property.set(key, value);
 }
 
-RsAmf0Package* RsAmf0Object::get(string key)
-{
+RsAmf0Package *RsAmf0Object::get(string key) {
     return property.get(key);
 }
 
-RsAmf0Package* RsAmf0Object::get(int index)
-{
+RsAmf0Package *RsAmf0Object::get(int index) {
     return property.get(index);
 }
 
-string RsAmf0Object::encode()
-{
+string RsAmf0Object::encode() {
     RsBufferLittleEndian buf;
     buf.write_1_byte(marker);
     buf.write_bytes(property.dump());
     return buf.dump();
 }
 
-int RsAmf0Object::initialize(IRsReaderWriter *reader)
-{
+int RsAmf0Object::initialize(IRsReaderWriter *reader) {
     return property.initialize(reader);
 }
 
-RsAmf0Null::RsAmf0Null()
-{
+RsAmf0Null::RsAmf0Null() {
     marker = AMF0_MARKER::AMF0_NULL;
 }
 
-RsAmf0Null::~RsAmf0Null()
-{
+RsAmf0Null::~RsAmf0Null() {
 
 }
 
-string RsAmf0Null::encode()
-{
+string RsAmf0Null::encode() {
     RsBufferLittleEndian rs_buf;
 
     rs_buf.write_1_byte(marker);
@@ -474,23 +418,19 @@ string RsAmf0Null::encode()
     return rs_buf.dump();
 }
 
-int RsAmf0Null::initialize(IRsReaderWriter *reader)
-{
+int RsAmf0Null::initialize(IRsReaderWriter *reader) {
     return ERROR_SUCCESS;
 }
 
-RsAmf0Undefined::RsAmf0Undefined()
-{
+RsAmf0Undefined::RsAmf0Undefined() {
     marker = AMF0_MARKER::AMF0_UNDEFINED;
 }
 
-RsAmf0Undefined::~RsAmf0Undefined()
-{
+RsAmf0Undefined::~RsAmf0Undefined() {
 
 }
 
-string RsAmf0Undefined::encode()
-{
+string RsAmf0Undefined::encode() {
     RsBufferLittleEndian rs_buf;
 
     rs_buf.write_1_byte(marker);
@@ -498,29 +438,24 @@ string RsAmf0Undefined::encode()
     return rs_buf.dump();
 }
 
-int RsAmf0Undefined::initialize(IRsReaderWriter *reader)
-{
+int RsAmf0Undefined::initialize(IRsReaderWriter *reader) {
     return ERROR_SUCCESS;
 }
 
-RsAmf0Reference::RsAmf0Reference()
-{
+RsAmf0Reference::RsAmf0Reference() {
     marker = AMF0_MARKER::AMF0_REFERENCE;
 }
 
-RsAmf0Reference::RsAmf0Reference(uint16_t ref)
-{
+RsAmf0Reference::RsAmf0Reference(uint16_t ref) {
     marker = AMF0_MARKER::AMF0_REFERENCE;
     reference = ref;
 }
 
-RsAmf0Reference::~RsAmf0Reference()
-{
+RsAmf0Reference::~RsAmf0Reference() {
 
 }
 
-string RsAmf0Reference::encode()
-{
+string RsAmf0Reference::encode() {
     RsBufferLittleEndian rs_buf;
 
     rs_buf.write_1_byte(marker);
@@ -529,8 +464,7 @@ string RsAmf0Reference::encode()
     return rs_buf.dump();
 }
 
-int RsAmf0Reference::initialize(IRsReaderWriter *reader)
-{
+int RsAmf0Reference::initialize(IRsReaderWriter *reader) {
     int ret = ERROR_SUCCESS;
     string buf;
 
@@ -543,33 +477,27 @@ int RsAmf0Reference::initialize(IRsReaderWriter *reader)
     return ret;
 }
 
-RsAmf0ECMAArray::RsAmf0ECMAArray()
-{
+RsAmf0ECMAArray::RsAmf0ECMAArray() {
     marker = AMF0_MARKER::AMF0_ECMA_ARRAY;
 }
 
-RsAmf0ECMAArray::~RsAmf0ECMAArray()
-{
+RsAmf0ECMAArray::~RsAmf0ECMAArray() {
 
 }
 
-void RsAmf0ECMAArray::set(string key, RsAmf0Package* val)
-{
+void RsAmf0ECMAArray::set(string key, RsAmf0Package *val) {
     properties.set(key, val);
 }
 
-RsAmf0Package* RsAmf0ECMAArray::get(string key)
-{
+RsAmf0Package *RsAmf0ECMAArray::get(string key) {
     return properties.get(key);
 }
 
-RsAmf0Package* RsAmf0ECMAArray::get(int index)
-{
+RsAmf0Package *RsAmf0ECMAArray::get(int index) {
     return properties.get(index);
 }
 
-string RsAmf0ECMAArray::encode()
-{
+string RsAmf0ECMAArray::encode() {
     count = properties.count();
 
     RsBufferLittleEndian rs_buf;
@@ -581,8 +509,7 @@ string RsAmf0ECMAArray::encode()
     return rs_buf.dump();
 }
 
-int RsAmf0ECMAArray::initialize(IRsReaderWriter *reader)
-{
+int RsAmf0ECMAArray::initialize(IRsReaderWriter *reader) {
     int ret = ERROR_SUCCESS;
     string buf;
 
@@ -594,30 +521,25 @@ int RsAmf0ECMAArray::initialize(IRsReaderWriter *reader)
     return properties.initialize(reader);
 }
 
-RsAmf0StrictArray::RsAmf0StrictArray()
-{
+RsAmf0StrictArray::RsAmf0StrictArray() {
     marker = AMF0_MARKER::AMF0_STRICT_ARRAY;
 }
 
-RsAmf0StrictArray::~RsAmf0StrictArray()
-{
+RsAmf0StrictArray::~RsAmf0StrictArray() {
 
 }
 
-void RsAmf0StrictArray::set(RsAmf0Package* val)
-{
+void RsAmf0StrictArray::set(RsAmf0Package *val) {
     array.push_back(shared_ptr<RsAmf0Package>(val));
     count++;
 }
 
-RsAmf0Package* RsAmf0StrictArray::get(int index)
-{
+RsAmf0Package *RsAmf0StrictArray::get(int index) {
     assert(index <= array.size());
     return array[index].get();
 }
 
-string RsAmf0StrictArray::encode()
-{
+string RsAmf0StrictArray::encode() {
     count = array.size();
     RsBufferLittleEndian rs_buf;
 
@@ -631,8 +553,7 @@ string RsAmf0StrictArray::encode()
     return rs_buf.dump();
 }
 
-int RsAmf0StrictArray::initialize(IRsReaderWriter *reader)
-{
+int RsAmf0StrictArray::initialize(IRsReaderWriter *reader) {
     int ret = 0;
     string buf;
     array.clear();
@@ -644,7 +565,7 @@ int RsAmf0StrictArray::initialize(IRsReaderWriter *reader)
     count = RsBufferLittleEndian::convert_4bytes_into_uint32(buf);
 
     for (uint32_t i = 0; i < count; i++) {
-        RsAmf0Package* pkg = RsAmf0Package::create_package(reader);
+        RsAmf0Package *pkg = RsAmf0Package::create_package(reader);
         if (pkg == nullptr) {
             ret = ERROR_RTMP_PROTOCOL_AMF0_DECODE_ERROR;
             return ret;
