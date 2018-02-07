@@ -8,3 +8,5 @@ trunk/objs/
 
 trunk/3rdlibrary/googletest-release-1.8.0/
 trunk/3rdlibrary/libuv-v1.9.1/
+trunk/3rdlibrary/rapidjson-1.1.0/
+build

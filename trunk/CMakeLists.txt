@@ -34,6 +34,13 @@ else()
 
 endif (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1)
 
+if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/rapidjson-1.1.0)
+else()
+    execute_process(COMMAND "tar" "zxvf" "rapidjson-1.1.0.tar.gz"
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary
+            )
+endif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/rapidjson-1.1.0)
+
 set (SRC_FILE_LISTS )
 # common part
 include_directories(${SRC_DIR}/common)
@@ -58,6 +65,9 @@ set (LIBRARY_OUTPUT_PATH ${RS_SERVER_BINARY_DIR})
 
 # libuv
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1/include)
+
+# rapidjson
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/rapidjson-1.1.0/include)
 
 add_executable(rs_server ${SRC_FILE_LISTS} ${SRC_DIR}/main/rs_main_server.cpp)
 target_link_libraries(rs_server ${CMAKE_CURRENT_SOURCE_DIR}/3rdlibrary/libuv-v1.9.1/.libs/libuv.a)
