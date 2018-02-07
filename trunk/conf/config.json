@@ -1,0 +1,13 @@
+{
+  "log":{
+    "tank":"file",
+    "file":"./objs/log.log"
+  },
+  "server":[
+    {
+      "name":"rtmp-server-1",
+      "type":"rtmp",
+      "listen":1935
+    }
+  ]
+}

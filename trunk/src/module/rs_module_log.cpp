@@ -24,13 +24,11 @@ SOFTWARE.
 
 #include "rs_module_log.h"
 #include <sstream>
-#include <sys/types.h>
 #include <unistd.h>
-#include <stdarg.h>
+#include <sys/time.h>
 #include "rs_kernel_context.h"
 
-using namespace std;
-
+namespace rs_log {
 #define RS_LOG_MAX_LENGTH 4096
 
 #define RS_LOG_LEVEL_INFO "info"
@@ -39,82 +37,96 @@ using namespace std;
 #define RS_LOG_LEVEL_WARN "warn"
 #define RS_LOG_LEVEL_ERROR "error"
 
-IRSLog::IRSLog() : msg(nullptr) {
-    pid = getpid();
-    msg = new char[4096];
-}
+    IRSLog::IRSLog() : msg(nullptr) {
+        pid = getpid();
+        msg = new char[4096];
+    }
 
-IRSLog::~IRSLog() {
-    rs_free_p(msg);
-}
+    IRSLog::~IRSLog() {
+        rs_free_p(msg);
+    }
 
-void IRSLog::info(IRsReaderWriter *io, const char *fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-    auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
-    va_end(ap);
+    void IRSLog::info(IRsReaderWriter *io, const char *fmt, ...) {
+        va_list ap;
+        va_start(ap, fmt);
+        auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
+        va_end(ap);
 
-    auto cid = RsConnContext::getInstance()->get_id(io);
+        auto cid = RsConnContext::getInstance()->get_id(io);
 
-    log(cid, RS_LOG_LEVEL_INFO, string(msg, size));
-}
+        log(cid, RS_LOG_LEVEL_INFO, std::string(msg, static_cast<unsigned long>(size)));
+    }
 
-void IRSLog::verbose(IRsReaderWriter *io, const char *fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-    auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
-    va_end(ap);
+    void IRSLog::verbose(IRsReaderWriter *io, const char *fmt, ...) {
+        va_list ap;
+        va_start(ap, fmt);
+        auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
+        va_end(ap);
 
-    auto cid = RsConnContext::getInstance()->get_id(io);
+        auto cid = RsConnContext::getInstance()->get_id(io);
 
-    log(cid, RS_LOG_LEVEL_VERBOSE, string(msg, size));
-}
+        log(cid, RS_LOG_LEVEL_VERBOSE, std::string(msg, static_cast<unsigned long>(size)));
+    }
 
-void IRSLog::trace(IRsReaderWriter *io, const char *fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-    auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
-    va_end(ap);
+    void IRSLog::trace(IRsReaderWriter *io, const char *fmt, ...) {
+        va_list ap;
+        va_start(ap, fmt);
+        auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
+        va_end(ap);
 
-    auto cid = RsConnContext::getInstance()->get_id(io);
+        auto cid = RsConnContext::getInstance()->get_id(io);
 
-    log(cid, RS_LOG_LEVEL_TRACE, string(msg, size));
-}
+        log(cid, RS_LOG_LEVEL_TRACE, std::string(msg, static_cast<unsigned long>(size)));
+    }
 
-void IRSLog::warn(IRsReaderWriter *io, const char *fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-    auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
-    va_end(ap);
+    void IRSLog::warn(IRsReaderWriter *io, const char *fmt, ...) {
+        va_list ap;
+        va_start(ap, fmt);
+        auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
+        va_end(ap);
 
-    auto cid = RsConnContext::getInstance()->get_id(io);
+        auto cid = RsConnContext::getInstance()->get_id(io);
 
-    log(cid, RS_LOG_LEVEL_WARN, string(msg, size));
-}
+        log(cid, RS_LOG_LEVEL_WARN, std::string(msg, static_cast<unsigned long>(size)));
+    }
 
-void IRSLog::error(IRsReaderWriter *io, const char *fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-    auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
-    va_end(ap);
+    void IRSLog::error(IRsReaderWriter *io, const char *fmt, ...) {
+        va_list ap;
+        va_start(ap, fmt);
+        auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
+        va_end(ap);
 
-    auto cid = RsConnContext::getInstance()->get_id(io);
+        auto cid = RsConnContext::getInstance()->get_id(io);
 
-    log(cid, RS_LOG_LEVEL_ERROR, string(msg, size));
-}
+        log(cid, RS_LOG_LEVEL_ERROR, std::string(msg, static_cast<unsigned long>(size)));
+    }
 
-RSConsoleLog::RSConsoleLog() {
-}
+    void RSConsoleLog::log(int64_t cid, std::string level, std::string message) {
+        std::stringstream ss;
+        ss << "[" << pid << "]";
+        ss << "[" << cid << "]";
 
-RSConsoleLog::~RSConsoleLog() {
-}
+        // time
+        timeval tv = {0, 0};
+        struct tm *time;
+        if (gettimeofday(&tv, nullptr) == -1) {
+            return;
+        }
 
-void RSConsoleLog::log(int64_t cid, string level, string message) {
-    stringstream ss;
-    ss << "[" << pid << "]";
-    ss << "[" << cid << "]";
-    ss << "[" << level << "]";
-    ss << ": " << message << endl;
+        if ((time = localtime(&tv.tv_sec)) == nullptr) {
+            return;
+        }
 
-    cout << ss.str();
+        // [2017-08-01 14:23:32.893]
+        ss << "[" << 1900 + time->tm_year << "-" << 1 + time->tm_mon << "-"
+           << time->tm_mday
+           << " ";
+        ss << time->tm_hour << ":" << time->tm_min << ":" << time->tm_sec << "."
+           << (int) (tv.tv_usec / 1000.0) << "]";
+
+        ss << "[" << level << "]";
+        ss << ": " << message;
+
+        std::cout << ss.str() << std::endl << std::flush;
+    }
 }

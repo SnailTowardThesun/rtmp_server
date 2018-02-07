@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <rs_module_log.h>
 #include "rs_common.h"
 #include "rs_module_server.h"
 
@@ -39,6 +40,9 @@ void _server_info() {
 
 int main(int argc, char *argv[]) {
     _server_info();
+
+    // initialize log
+    rs_log::g_log = std::shared_ptr<rs_log::IRSLog>(new rs_log::RSConsoleLog());
 
     return RsServer::getInstance()->run();
 }

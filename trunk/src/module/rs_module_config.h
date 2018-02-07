@@ -25,27 +25,74 @@ SOFTWARE.
 
 #include "rs_common.h"
 
-class RsConfig {
-private:
-    std::string conf;
-public:
-    RsConfig() = default;
+namespace rs_config {
 
-    RsConfig(RsConfig const &) = delete;
+    const std::string DEFAULT_LOG_TANK_FILE_PATH = "./objs/log.log";
 
-    RsConfig &operator=(RsConfig const &) = delete;
-
-    virtual ~RsConfig() = default;
-
-public:
-    int initialize(std::string path);
-
-public:
-    int get_rtmp_listen();
-
-public:
-    static std::shared_ptr<RsConfig> getInstance() {
-        static std::shared_ptr<RsConfig> ins(new RsConfig());
-        return ins;
+    enum RS_LOG_TANK_TYPE {
+        RS_LOG_TANK_TYPE_CONSOLE = 0,
+        RS_LOG_TANK_TYPE_FILE,
+        RS_LOG_TANK_TYPE_UNKNOWN
     };
-};
+
+    class LogConfig {
+    private:
+        std::string filePath;
+        RS_LOG_TANK_TYPE type;
+    public:
+        LogConfig() {
+            filePath = DEFAULT_LOG_TANK_FILE_PATH;
+            type = RS_LOG_TANK_TYPE_UNKNOWN;
+        };
+
+        LogConfig(std::string &p, RS_LOG_TANK_TYPE t) {
+            filePath = p;
+            type = t;
+        }
+
+        ~LogConfig() = default;
+
+    public:
+        std::string &get_path() { return filePath; }
+
+        RS_LOG_TANK_TYPE get_type() { return type; }
+    };
+
+    class ServerItem {
+    public:
+        uint32_t listenPort;
+        enum {
+            RS_SERVER_TYPE_RTMP = 0
+        } serverType;
+    };
+
+    class RsConfig {
+    private:
+        std::string conf;
+
+        std::map<std::string, std::shared_ptr<ServerItem>> servers;
+
+    private:
+        RsConfig() = default;
+
+    public:
+
+        RsConfig(RsConfig const &) = delete;
+
+        RsConfig &operator=(RsConfig const &) = delete;
+
+        virtual ~RsConfig() = default;
+
+    public:
+        int initialize(std::string path);
+
+    public:
+        int get_rtmp_listen(std::string server);
+
+    public:
+        static std::shared_ptr<RsConfig> getInstance() {
+            static std::shared_ptr<RsConfig> ins(new RsConfig());
+            return ins;
+        };
+    };
+}

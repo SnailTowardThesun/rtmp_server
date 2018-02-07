@@ -23,14 +23,23 @@ SOFTWARE.
 */
 
 #include "rs_module_config.h"
+#include <rapidjson/rapidjson.h>
+#include <fstream>
 
-int RsConfig::initialize(std::string path) {
-    int ret = ERROR_SUCCESS;
+namespace rs_config {
+    int RsConfig::initialize(std::string path) {
+        int ret = ERROR_SUCCESS;
 
-    return ret;
-}
+        std::ifstream file(path, std::ios::binary);
+        if (!file.is_open()) {
 
-int RsConfig::get_rtmp_listen() {
-    // TODO:FIXME: implement this function
-    return RTMP_DEFAULT_PORT;
+        }
+
+        return ret;
+    }
+
+    int RsConfig::get_rtmp_listen(std::string name) {
+        // TODO:FIXME: implement this function
+        return RTMP_DEFAULT_PORT;
+    }
 }

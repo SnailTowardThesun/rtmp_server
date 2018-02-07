@@ -27,6 +27,7 @@ SOFTWARE.
 #include "rs_kernel_context.h"
 
 using namespace std;
+using namespace rs_log;
 
 class MockRsLog : public IRSLog {
 public:
@@ -34,9 +35,10 @@ public:
     string _level;
     string _msg;
 public:
-    MockRsLog() {};
+    MockRsLog() = default;
 
-    ~MockRsLog() {};
+    ~MockRsLog() = default;
+
 public:
     virtual void log(int64_t cid, string level, string message) {
         _cid = cid;

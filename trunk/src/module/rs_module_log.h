@@ -29,40 +29,50 @@ The log system for rtmp server
 #include "rs_common.h"
 #include "rs_kernel_io.h"
 
-class IRSLog {
-private:
-    char *msg;
-public:
-    int32_t pid;
-public:
-    IRSLog();
+namespace rs_log {
 
-    virtual ~IRSLog();
+    class IRSLog {
+    private:
+        char *msg;
+    public:
+        int32_t pid;
+    public:
+        IRSLog();
 
-public:
-    virtual void log(int64_t cid, std::string level, std::string message) = 0;
+        virtual ~IRSLog();
 
-    virtual void info(IRsReaderWriter *io, const char *fmt, ...);
+    public:
+        virtual void log(int64_t cid, std::string level, std::string message) = 0;
 
-    virtual void verbose(IRsReaderWriter *io, const char *fmt, ...);
+        virtual void info(IRsReaderWriter *io, const char *fmt, ...);
 
-    virtual void trace(IRsReaderWriter *io, const char *fmt, ...);
+        virtual void verbose(IRsReaderWriter *io, const char *fmt, ...);
 
-    virtual void warn(IRsReaderWriter *io, const char *fmt, ...);
+        virtual void trace(IRsReaderWriter *io, const char *fmt, ...);
 
-    virtual void error(IRsReaderWriter *io, const char *fmt, ...);
-};
+        virtual void warn(IRsReaderWriter *io, const char *fmt, ...);
+
+        virtual void error(IRsReaderWriter *io, const char *fmt, ...);
+    };
 
 
-class RSConsoleLog : public IRSLog {
-public:
-    RSConsoleLog();
+    class RSConsoleLog : public IRSLog {
+    public:
+        RSConsoleLog() = default;
 
-    virtual ~RSConsoleLog();
+        ~RSConsoleLog() override = default;
 
-public:
-    virtual void log(int64_t cid, std::string level, std::string message);
-};
+    public:
+        void log(int64_t cid, std::string level, std::string message) override;
+    };
 
+    static std::shared_ptr<IRSLog> g_log;
+}
+
+#define rs_info(io, fmt, ...) rs_log::g_log->info(io, fmt, ##__VA_ARGS__)
+#define rs_verbose(io, fmt, ...) rs_log::g_log->verbose(io, fmt, ##__VA_ARGS__)
+#define rs_trace(io, fmt, ...) rs_log::g_log->trace(io, fmt, ##__VA_ARGS__)
+#define rs_warn(io, fmt, ...) rs_log::g_log->warn(io, fmt, ##__VA_ARGS__)
+#define rs_error(io, fmt, ...) rs_log::g_log->error(io, fmt, ##__VA_ARGS__)
 // TODO:FIXME: implement the log using disk.
 
