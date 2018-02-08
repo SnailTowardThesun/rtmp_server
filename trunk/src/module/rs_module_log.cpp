@@ -29,7 +29,6 @@ SOFTWARE.
 #include <cstdarg>
 #include "rs_kernel_context.h"
 
-namespace rs_log {
 #define RS_LOG_MAX_LENGTH 4096
 
 #define RS_LOG_LEVEL_INFO "info"
@@ -37,6 +36,8 @@ namespace rs_log {
 #define RS_LOG_LEVEL_TRACE "trace"
 #define RS_LOG_LEVEL_WARN "warn"
 #define RS_LOG_LEVEL_ERROR "error"
+
+namespace rs_log {
 
     IRSLog::IRSLog() : msg(nullptr) {
         pid = getpid();
@@ -66,7 +67,8 @@ namespace rs_log {
 
         auto cid = RsConnContext::getInstance()->get_id(io);
 
-        log(cid, RS_LOG_LEVEL_VERBOSE, std::string(msg, static_cast<unsigned long>(size)));
+        log(cid, RS_LOG_LEVEL_VERBOSE,
+            std::string(msg, static_cast<unsigned long>(size)));
     }
 
     void IRSLog::trace(IRsReaderWriter *io, const char *fmt, ...) {

@@ -23,16 +23,130 @@ SOFTWARE.
 */
 
 #include "rs_module_config.h"
-#include <rapidjson/rapidjson.h>
+#include "rs_module_log.h"
+#include <rapidjson/filereadstream.h>
 #include <fstream>
 
 namespace rs_config {
-    int RsConfig::initialize(std::string path) {
+
+    int RsConfig::do_parse_log_related(const rapidjson::Value &obj) {
         int ret = ERROR_SUCCESS;
 
-        std::ifstream file(path, std::ios::binary);
-        if (!file.is_open()) {
+        RS_LOG_TANK_TYPE tankType = RS_LOG_TANK_TYPE_UNKNOWN;
+        std::string logFilePath;
 
+        if (!obj.IsObject()) {
+            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
+            rs_error(nullptr, "configure: format of log is invalid. ret=%d", ret);
+            return ret;
+        }
+
+        if (!obj.HasMember("tank")) {
+            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
+            rs_error(nullptr, "configure: no tank item in log part. ret=%d", ret);
+            return ret;
+        }
+
+        const rapidjson::Value &tankVal = obj["tank"];
+        if (!tankVal.IsString()) {
+            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
+            rs_error(nullptr, "configure: tank item is invalid. ret=%d", ret);
+            return ret;
+        }
+
+        auto tankStr = std::string(tankVal.GetString());
+        if (tankStr == std::string("file")) {
+            tankType = RS_LOG_TANK_TYPE_FILE;
+        } else if (tankStr == std::string("console")) {
+            tankType = RS_LOG_TANK_TYPE_CONSOLE;
+        } else {
+            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
+            rs_error(nullptr, "configure: the tank type is invalid. ret=%d", ret);
+            return ret;
+        }
+
+        if (tankType == RS_LOG_TANK_TYPE_CONSOLE) {
+            log = LogConfig("", tankType);
+            return ret;
+        }
+
+        if (!obj.HasMember("file")) {
+            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
+            rs_error(nullptr, "configure: no file item in log part. ret=%d", ret);
+            return ret;
+        }
+
+        const rapidjson::Value &fileVal = obj["file"];
+        if (!fileVal.IsString()) {
+            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
+            rs_error(nullptr, "configure: file item is invalid. ret=%d", ret);
+            return ret;
+        }
+
+        log = LogConfig(fileVal.GetString(), tankType);
+
+        return ret;
+    }
+
+    int RsConfig::do_parse_server_related(const rapidjson::Value &array) {
+        int ret = ERROR_SUCCESS;
+
+        return ret;
+    }
+
+    int RsConfig::do_parse_configure_file(const rapidjson::Document &doc) {
+        int ret = ERROR_SUCCESS;
+
+        // parse log related
+        if (doc.HasMember("log")) {
+            if ((ret = do_parse_log_related(doc["log"])) != ERROR_SUCCESS) {
+                rs_error(nullptr, "do parse log part in configure file failed. ret=%d",
+                         ret);
+                return ret;
+            }
+        } else {
+            // use default value
+            log = LogConfig(DEFAULT_LOG_TANK_FILE_PATH, DEFAULT_LOG_TANK_TYPE);
+        }
+
+        // parse server related
+        if (doc.HasMember("server")) {
+            if ((ret = do_parse_server_related(doc["server"])) != ERROR_SUCCESS) {
+                rs_error(nullptr, "parse server part in configure file failed. ret=%d",
+                         ret);
+                return ret;
+            }
+        } else {
+            ret = ERROR_CONFIGURE_NO_SERVER_PARTS;
+            rs_error(nullptr, "no server parts in configure. ret=%d", ret);
+            return ret;
+        }
+
+        return ret;
+    }
+
+    int RsConfig::initialize(const std::string &path) {
+        int ret = ERROR_SUCCESS;
+
+        conf = path;
+
+        rapidjson::Document doc;
+        {
+            auto file = std::fopen(conf.c_str(), "rb");
+            if (file == nullptr) {
+                rs_error(nullptr, "open configure file failed. errno=%d", errno);
+                ret = ERROR_CONFIGURE_OPEN_FILE_FAILED;
+                return ret;
+            }
+            char buffer[65536] = {0};
+            rapidjson::FileReadStream fileReadStream(file, buffer, sizeof(buffer));
+            doc.ParseStream(fileReadStream);
+            std::fclose(file);
+        }
+
+        if ((ret = do_parse_configure_file(doc)) != ERROR_SUCCESS) {
+            rs_error(nullptr, "parse configure file failed. ret=%d", ret);
+            return ret;
         }
 
         return ret;

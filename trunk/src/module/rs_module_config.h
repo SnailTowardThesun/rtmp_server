@@ -23,17 +23,19 @@ SOFTWARE.
 */
 #pragma once
 
+#include <rapidjson/document.h>
 #include "rs_common.h"
 
 namespace rs_config {
-
-    const std::string DEFAULT_LOG_TANK_FILE_PATH = "./objs/log.log";
 
     enum RS_LOG_TANK_TYPE {
         RS_LOG_TANK_TYPE_CONSOLE = 0,
         RS_LOG_TANK_TYPE_FILE,
         RS_LOG_TANK_TYPE_UNKNOWN
     };
+
+    const std::string DEFAULT_LOG_TANK_FILE_PATH = "./objs/log.log";
+    const RS_LOG_TANK_TYPE DEFAULT_LOG_TANK_TYPE = RS_LOG_TANK_TYPE_CONSOLE;
 
     class LogConfig {
     private:
@@ -45,7 +47,7 @@ namespace rs_config {
             type = RS_LOG_TANK_TYPE_UNKNOWN;
         };
 
-        LogConfig(std::string &p, RS_LOG_TANK_TYPE t) {
+        LogConfig(const std::string &p, RS_LOG_TANK_TYPE t) {
             filePath = p;
             type = t;
         }
@@ -70,6 +72,8 @@ namespace rs_config {
     private:
         std::string conf;
 
+        LogConfig log;
+
         std::map<std::string, std::shared_ptr<ServerItem>> servers;
 
     private:
@@ -83,8 +87,15 @@ namespace rs_config {
 
         virtual ~RsConfig() = default;
 
+    private:
+        int do_parse_log_related(const rapidjson::Value &obj);
+
+        int do_parse_server_related(const rapidjson::Value &array);
+
+        int do_parse_configure_file(const rapidjson::Document &doc);
+
     public:
-        int initialize(std::string path);
+        int initialize(const std::string &path);
 
     public:
         int get_rtmp_listen(std::string server);

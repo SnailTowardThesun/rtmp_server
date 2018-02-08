@@ -74,5 +74,6 @@ namespace rs_log {
 #define rs_trace(io, fmt, ...) rs_log::g_log->trace(io, fmt, ##__VA_ARGS__)
 #define rs_warn(io, fmt, ...) rs_log::g_log->warn(io, fmt, ##__VA_ARGS__)
 #define rs_error(io, fmt, ...) rs_log::g_log->error(io, fmt, ##__VA_ARGS__)
+
 // TODO:FIXME: implement the log using disk.
 
