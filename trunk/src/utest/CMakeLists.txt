@@ -35,6 +35,8 @@ aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/../module UTEST_SRC_FILE)
 # 3rdparty
 # libuv
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../3rdlibrary/libuv-v1.9.1/include)
+# rapidjson
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../3rdlibrary/rapidjson-1.1.0/include)
 
 add_executable(utest_rs_server ${UTEST_SRC_FILE})
 target_link_libraries(utest_rs_server gtest_main)

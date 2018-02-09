@@ -44,5 +44,5 @@ int main(int argc, char *argv[]) {
     // initialize log
     rs_log::g_log = std::shared_ptr<rs_log::IRSLog>(new rs_log::RSConsoleLog());
 
-    return RsServer::getInstance()->run();
+    return RsServer::get_instance()->run();
 }

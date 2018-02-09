@@ -29,10 +29,10 @@ SOFTWARE.
 
 namespace rs_config {
 
-    int RsConfig::do_parse_log_related(const rapidjson::Value &obj) {
+    int RSConfigLogItem::initialize(const rapidjson::Value &obj) {
+
         int ret = ERROR_SUCCESS;
 
-        RS_LOG_TANK_TYPE tankType = RS_LOG_TANK_TYPE_UNKNOWN;
         std::string logFilePath;
 
         if (!obj.IsObject()) {
@@ -56,17 +56,16 @@ namespace rs_config {
 
         auto tankStr = std::string(tankVal.GetString());
         if (tankStr == std::string("file")) {
-            tankType = RS_LOG_TANK_TYPE_FILE;
+            type = RS_LOG_TANK_TYPE_FILE;
         } else if (tankStr == std::string("console")) {
-            tankType = RS_LOG_TANK_TYPE_CONSOLE;
+            type = RS_LOG_TANK_TYPE_CONSOLE;
         } else {
             ret = ERROR_CONFIGURE_SYNTAX_INVALID;
             rs_error(nullptr, "configure: the tank type is invalid. ret=%d", ret);
             return ret;
         }
 
-        if (tankType == RS_LOG_TANK_TYPE_CONSOLE) {
-            log = LogConfig("", tankType);
+        if (type == RS_LOG_TANK_TYPE_CONSOLE) {
             return ret;
         }
 
@@ -83,13 +82,78 @@ namespace rs_config {
             return ret;
         }
 
-        log = LogConfig(fileVal.GetString(), tankType);
+        filePath = fileVal.GetString();
 
         return ret;
     }
 
-    int RsConfig::do_parse_server_related(const rapidjson::Value &array) {
+    int RSConfigServerItem::initialize(const rapidjson::Value &obj) {
         int ret = ERROR_SUCCESS;
+
+        if (!obj.IsObject()) {
+            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
+            rs_error(nullptr, "configure: server item should be object. ret=%d", ret);
+            return ret;
+        }
+
+        // server name
+        if (!obj.HasMember("name")) {
+            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
+            rs_error(nullptr, "configure: no name in server item. ret=%d", ret);
+            return ret;
+        }
+        const rapidjson::Value &nameVal = obj["name"];
+        if (!nameVal.IsString()) {
+            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
+            rs_error(nullptr,
+                     "configure: type of name in server item should be string. ret=%d",
+                     ret);
+            return ret;
+        }
+        name = nameVal.GetString();
+
+        // type
+        if (!obj.HasMember("type")) {
+            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
+            rs_error(nullptr, "configure: no type in server item. ret=%d", ret);
+            return ret;
+        }
+
+        const rapidjson::Value &typeVal = obj["type"];
+        if (!typeVal.IsString()) {
+            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
+            rs_error(nullptr,
+                     "configure: type of type in server item should be string. ret=%d",
+                     ret);
+            return ret;
+        }
+
+        std::string typeStr = typeVal.GetString();
+        if (typeStr == "rtmp") {
+            serverType = RS_SERVER_TYPE_RTMP;
+        } else {
+            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
+            rs_error(nullptr, "Only support RTMP server. ret=%d", ret);
+            return ret;
+        }
+
+        // port
+        if (!obj.HasMember("listen")) {
+            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
+            rs_error(nullptr, "configure: no listen in server item. ret=%d", ret);
+            return ret;
+        }
+
+        const rapidjson::Value &listenVal = obj["listen"];
+        if (!listenVal.IsInt()) {
+            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
+            rs_error(nullptr,
+                     "configure: type of listen in server item should be integer. ret=%d",
+                     ret);
+            return ret;
+        }
+
+        listenPort = static_cast<uint32_t>(listenVal.GetInt());
 
         return ret;
     }
@@ -99,29 +163,40 @@ namespace rs_config {
 
         // parse log related
         if (doc.HasMember("log")) {
-            if ((ret = do_parse_log_related(doc["log"])) != ERROR_SUCCESS) {
-                rs_error(nullptr, "do parse log part in configure file failed. ret=%d",
+            if ((ret = log.initialize(doc["log"])) != ERROR_SUCCESS) {
+                rs_error(nullptr, "initialize log part in configure file failed. ret=%d",
                          ret);
                 return ret;
             }
-        } else {
-            // use default value
-            log = LogConfig(DEFAULT_LOG_TANK_FILE_PATH, DEFAULT_LOG_TANK_TYPE);
         }
 
         // parse server related
-        if (doc.HasMember("server")) {
-            if ((ret = do_parse_server_related(doc["server"])) != ERROR_SUCCESS) {
-                rs_error(nullptr, "parse server part in configure file failed. ret=%d",
-                         ret);
-                return ret;
-            }
-        } else {
+        if (!doc.HasMember("server")) {
             ret = ERROR_CONFIGURE_NO_SERVER_PARTS;
             rs_error(nullptr, "no server parts in configure. ret=%d", ret);
             return ret;
         }
 
+        const rapidjson::Value &arrayVal = doc["server"];
+        if (!arrayVal.IsArray()) {
+            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
+            rs_error(nullptr, "configure: the server should be array. ret=%d", ret);
+            return ret;
+        }
+
+        auto array = arrayVal.GetArray();
+        for (auto i = 0; i < array.Size(); ++i) {
+            auto newServer = std::shared_ptr<RSConfigServerItem>(
+                    new RSConfigServerItem());
+            if ((ret = newServer->initialize(array[i])) != ERROR_SUCCESS) {
+                rs_error(nullptr, "parse one server item failed. ret=%d", ret);
+                return ret;
+            }
+            servers.insert(
+                    std::pair<std::string, std::shared_ptr<RSConfigServerItem>>(
+                            newServer->get_server_name(),
+                            newServer));
+        }
         return ret;
     }
 

@@ -45,7 +45,7 @@ int RsRtmpServer::initialize() {
 
     // create the listen socket
     string local_ip = rs_get_local_ip();
-    int rtmp_port = rs_config::RsConfig::getInstance()->get_rtmp_listen("");
+    int rtmp_port = rs_config::RsConfig::get_instance()->get_rtmp_listen("");
     if ((ret = sock->listen(local_ip, rtmp_port)) != ERROR_SUCCESS) {
         cout << "initialize socket for rtmp server failed. ret=" << ret << endl;
         return ret;
@@ -74,7 +74,7 @@ RsServer::~RsServer() {
 
 static RsServer *_instance = nullptr;
 
-RsServer *RsServer::getInstance() {
+RsServer *RsServer::get_instance() {
     if (_instance == nullptr) {
         _instance = new RsServer();
     }
@@ -85,7 +85,7 @@ int RsServer::run() {
     int ret = ERROR_SUCCESS;
 
     // initialize the all servers
-    if ((ret = _rtmp_server.initialize()) != ERROR_SUCCESS) {
+    if ((ret = rtmp_server.initialize()) != ERROR_SUCCESS) {
         cout << "initialize the rtmp server failed. ret=" << ret << endl;
         return ret;
     }
@@ -95,7 +95,7 @@ int RsServer::run() {
 
 int RsServer::exit() {
     int ret = ERROR_SUCCESS;
-    if ((ret = _rtmp_server.dispose()) != ERROR_SUCCESS) {
+    if ((ret = rtmp_server.dispose()) != ERROR_SUCCESS) {
         cout << "rtmp server dispose failed. ret=" << ret << endl;
         return ret;
     }

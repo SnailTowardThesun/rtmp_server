@@ -30,51 +30,71 @@ namespace rs_config {
 
     enum RS_LOG_TANK_TYPE {
         RS_LOG_TANK_TYPE_CONSOLE = 0,
-        RS_LOG_TANK_TYPE_FILE,
-        RS_LOG_TANK_TYPE_UNKNOWN
+        RS_LOG_TANK_TYPE_FILE
     };
 
-    const std::string DEFAULT_LOG_TANK_FILE_PATH = "./objs/log.log";
-    const RS_LOG_TANK_TYPE DEFAULT_LOG_TANK_TYPE = RS_LOG_TANK_TYPE_CONSOLE;
+    static const char *DEFAULT_LOG_TANK_FILE_PATH = "./objs/log.log";
+    static const RS_LOG_TANK_TYPE DEFAULT_LOG_TANK_TYPE = RS_LOG_TANK_TYPE_CONSOLE;
 
-    class LogConfig {
+    class RSConfigLogItem {
     private:
         std::string filePath;
         RS_LOG_TANK_TYPE type;
     public:
-        LogConfig() {
+        RSConfigLogItem() {
             filePath = DEFAULT_LOG_TANK_FILE_PATH;
-            type = RS_LOG_TANK_TYPE_UNKNOWN;
+            type = DEFAULT_LOG_TANK_TYPE;
         };
 
-        LogConfig(const std::string &p, RS_LOG_TANK_TYPE t) {
-            filePath = p;
-            type = t;
-        }
-
-        ~LogConfig() = default;
+        ~RSConfigLogItem() = default;
 
     public:
+        int initialize(const rapidjson::Value &logVal);
+
         std::string &get_path() { return filePath; }
 
         RS_LOG_TANK_TYPE get_type() { return type; }
     };
 
-    class ServerItem {
-    public:
+    enum RS_SERVER_TYPE {
+        RS_SERVER_TYPE_RTMP = 0
+    };
+
+    static const RS_SERVER_TYPE DEFAULT_SERVER_TYPE = RS_SERVER_TYPE_RTMP;
+    static const uint32_t DEFAULT_SERVER_PORT = 1935;
+    static const char *DEFAULT_SERVER_NAME = "default-rtmp-server";
+
+    class RSConfigServerItem {
+    private:
         uint32_t listenPort;
-        enum {
-            RS_SERVER_TYPE_RTMP = 0
-        } serverType;
+        RS_SERVER_TYPE serverType;
+        std::string name;
+    public:
+        RSConfigServerItem() {
+            listenPort = DEFAULT_SERVER_PORT;
+            serverType = DEFAULT_SERVER_TYPE;
+            name = DEFAULT_SERVER_NAME;
+        };
+
+        virtual ~RSConfigServerItem() = default;
+
+    public:
+        int initialize(const rapidjson::Value &obj);
+
+        std::string &get_server_name() { return name; }
+
+        int get_server_port() { return listenPort; }
+
+        RS_SERVER_TYPE get_server_type() { return serverType; }
     };
 
     class RsConfig {
     private:
         std::string conf;
 
-        LogConfig log;
+        RSConfigLogItem log;
 
-        std::map<std::string, std::shared_ptr<ServerItem>> servers;
+        std::map<std::string, std::shared_ptr<RSConfigServerItem>> servers;
 
     private:
         RsConfig() = default;
@@ -88,9 +108,6 @@ namespace rs_config {
         virtual ~RsConfig() = default;
 
     private:
-        int do_parse_log_related(const rapidjson::Value &obj);
-
-        int do_parse_server_related(const rapidjson::Value &array);
 
         int do_parse_configure_file(const rapidjson::Document &doc);
 
@@ -101,7 +118,7 @@ namespace rs_config {
         int get_rtmp_listen(std::string server);
 
     public:
-        static std::shared_ptr<RsConfig> getInstance() {
+        static std::shared_ptr<RsConfig> get_instance() {
             static std::shared_ptr<RsConfig> ins(new RsConfig());
             return ins;
         };
