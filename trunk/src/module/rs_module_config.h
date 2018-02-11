@@ -117,6 +117,8 @@ namespace rs_config {
     public:
         int get_rtmp_listen(std::string server);
 
+        RS_LOG_TANK_TYPE get_log_tank();
+
     public:
         static std::shared_ptr<RsConfig> get_instance() {
             static std::shared_ptr<RsConfig> ins(new RsConfig());

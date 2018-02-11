@@ -29,7 +29,7 @@ SOFTWARE.
 using namespace std;
 using namespace rs_log;
 
-class MockRsLog : public IRSLog {
+class MockRsLog : public RSLogManager {
 public:
     int64_t _cid;
     string _level;

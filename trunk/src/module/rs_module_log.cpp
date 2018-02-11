@@ -24,7 +24,6 @@ SOFTWARE.
 
 #include "rs_module_log.h"
 #include <sstream>
-#include <unistd.h>
 #include <sys/time.h>
 #include <cstdarg>
 #include "rs_kernel_context.h"
@@ -39,16 +38,16 @@ SOFTWARE.
 
 namespace rs_log {
 
-    IRSLog::IRSLog() : msg(nullptr) {
-        pid = getpid();
+    RSLogManager::RSLogManager() : msg(nullptr), log_interface(nullptr) {
         msg = new char[4096];
     }
 
-    IRSLog::~IRSLog() {
+    RSLogManager::~RSLogManager() {
         rs_free_p(msg);
+        rs_free_p(log_interface);
     }
 
-    void IRSLog::info(IRsReaderWriter *io, const char *fmt, ...) {
+    void RSLogManager::info(IRsReaderWriter *io, const char *fmt, ...) {
         va_list ap;
         va_start(ap, fmt);
         auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
@@ -59,7 +58,7 @@ namespace rs_log {
         log(cid, RS_LOG_LEVEL_INFO, std::string(msg, static_cast<unsigned long>(size)));
     }
 
-    void IRSLog::verbose(IRsReaderWriter *io, const char *fmt, ...) {
+    void RSLogManager::verbose(IRsReaderWriter *io, const char *fmt, ...) {
         va_list ap;
         va_start(ap, fmt);
         auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
@@ -71,7 +70,7 @@ namespace rs_log {
             std::string(msg, static_cast<unsigned long>(size)));
     }
 
-    void IRSLog::trace(IRsReaderWriter *io, const char *fmt, ...) {
+    void RSLogManager::trace(IRsReaderWriter *io, const char *fmt, ...) {
         va_list ap;
         va_start(ap, fmt);
         auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
@@ -82,7 +81,7 @@ namespace rs_log {
         log(cid, RS_LOG_LEVEL_TRACE, std::string(msg, static_cast<unsigned long>(size)));
     }
 
-    void IRSLog::warn(IRsReaderWriter *io, const char *fmt, ...) {
+    void RSLogManager::warn(IRsReaderWriter *io, const char *fmt, ...) {
         va_list ap;
         va_start(ap, fmt);
         auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
@@ -93,7 +92,7 @@ namespace rs_log {
         log(cid, RS_LOG_LEVEL_WARN, std::string(msg, static_cast<unsigned long>(size)));
     }
 
-    void IRSLog::error(IRsReaderWriter *io, const char *fmt, ...) {
+    void RSLogManager::error(IRsReaderWriter *io, const char *fmt, ...) {
         va_list ap;
         va_start(ap, fmt);
         auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
@@ -106,7 +105,7 @@ namespace rs_log {
 
     void RSConsoleLog::log(int64_t cid, std::string level, std::string message) {
         std::stringstream ss;
-        ss << "[" << pid << "]";
+        ss << "[" << get_pid() << "]";
         ss << "[" << cid << "]";
 
         // time

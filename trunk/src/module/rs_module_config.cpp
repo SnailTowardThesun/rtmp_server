@@ -207,7 +207,7 @@ namespace rs_config {
 
         rapidjson::Document doc;
         {
-            auto file = std::fopen(conf.c_str(), "rb");
+            std::FILE *file = std::fopen(path.c_str(), "rb");
             if (file == nullptr) {
                 rs_error(nullptr, "open configure file failed. errno=%d", errno);
                 ret = ERROR_CONFIGURE_OPEN_FILE_FAILED;
@@ -230,5 +230,9 @@ namespace rs_config {
     int RsConfig::get_rtmp_listen(std::string name) {
         // TODO:FIXME: implement this function
         return RTMP_DEFAULT_PORT;
+    }
+
+    RS_LOG_TANK_TYPE RsConfig::get_log_tank() {
+        return log.get_type();
     }
 }

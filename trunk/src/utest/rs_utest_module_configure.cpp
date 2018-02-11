@@ -25,7 +25,7 @@ SOFTWARE.
 #include "gtest/gtest.h"
 #include "rs_module_config.h"
 
-TEST(RS_CONFIGURE, demo) {
+TEST(RS_CONFIG, demo) {
     auto conf = rs_config::RsConfig::get_instance();
     EXPECT_TRUE(true);
 }
