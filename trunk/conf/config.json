@@ -1,6 +1,6 @@
 {
   "log":{
-    "tank":"file",
+    "tank":"console",
     "file":"./objs/log.log"
   },
   "server":[
