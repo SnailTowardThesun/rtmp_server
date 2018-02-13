@@ -44,7 +44,6 @@ namespace rs_log {
 
     RSLogManager::~RSLogManager() {
         rs_free_p(msg);
-        rs_free_p(log_interface);
     }
 
     void RSLogManager::info(IRsReaderWriter *io, const char *fmt, ...) {
@@ -129,6 +128,6 @@ namespace rs_log {
         ss << "[" << level << "]";
         ss << ": " << message;
 
-        std::cout << ss.str() << std::endl << std::flush;
+        printf("%s\n", ss.str().c_str());
     }
 }

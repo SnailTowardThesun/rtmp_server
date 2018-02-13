@@ -61,7 +61,7 @@ namespace rs_log {
     class RSLogManager {
     private:
         char *msg;
-        IRSLog *log_interface;
+        std::shared_ptr<IRSLog> log_interface;
     public:
         RSLogManager();
 
@@ -70,8 +70,7 @@ namespace rs_log {
     public:
 
         virtual void change_log_interface(IRSLog *inter) {
-            rs_free_p(log_interface);
-            log_interface = inter;
+            log_interface.reset(inter);
         }
 
         virtual void log(int64_t cid, std::string level, std::string message) {
