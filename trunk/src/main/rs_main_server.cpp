@@ -76,15 +76,15 @@ int main(int argc, char *argv[]) {
     }
 
     // initialize configure
-    auto config = rs_config::RsConfig::get_instance();
-    if ((ret = config->initialize(configure_file)) !=
+    auto config = rs_config::RsConfig();
+    if ((ret = config.initialize(configure_file)) !=
         ERROR_SUCCESS) {
         rs_error(nullptr, "initialize configure failed. ret=%d", ret);
         return ret;
     }
 
     // initialize log
-    switch (config->get_log_tank()) {
+    switch (config.get_log_tank()) {
         case rs_config::RS_LOG_TANK_TYPE_CONSOLE:
             rs_log::RSLogManager::get_instance()->change_log_interface(new rs_log::RSConsoleLog());
             break;
@@ -92,6 +92,23 @@ int main(int argc, char *argv[]) {
             ::exit(0);
     }
 
-    rs_info(nullptr, "ready to run!");
-    return RsServer::get_instance()->run();
+    rs_info(nullptr, "initialize the configure success");
+
+    RsServerManager manager;
+    if ((ret = manager.initialize()) != ERROR_SUCCESS) {
+        rs_error(nullptr, "initialize server manager failed. ret=%d", ret);
+        return ret;
+    }
+
+    auto serverConfigs = config.get_servers();
+    for (auto i : serverConfigs) {
+        auto serveConfigNode = i.second;
+        if ((ret = manager.create_new_server(serveConfigNode)) != ERROR_SUCCESS) {
+            rs_error(nullptr, "create one server=%s failed. ret=%d", i.first.c_str(), ret);
+            return ret;
+        }
+    }
+
+    rs_info(nullptr, "ready to run");
+    return manager.run();
 }

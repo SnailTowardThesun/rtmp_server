@@ -25,6 +25,8 @@ SOFTWARE.
 #include "rs_module_server.h"
 #include "rs_module_config.h"
 #include "rs_common_utility.h"
+#include "rs_module_config.h"
+#include "rs_module_log.h"
 
 using namespace std;
 
@@ -40,16 +42,9 @@ RsRtmpServer::~RsRtmpServer() {
     rs_free_p(sock);
 }
 
-int RsRtmpServer::initialize() {
+int
+RsRtmpServer::initialize(const std::shared_ptr<rs_config::RSConfigServerItem> &config) {
     int ret = ERROR_SUCCESS;
-
-    // create the listen socket
-    string local_ip = rs_get_local_ip();
-    int rtmp_port = rs_config::RsConfig::get_instance()->get_rtmp_listen("");
-    if ((ret = sock->listen(local_ip, rtmp_port)) != ERROR_SUCCESS) {
-        cout << "initialize socket for rtmp server failed. ret=" << ret << endl;
-        return ret;
-    }
 
     return ret;
 }
@@ -64,41 +59,44 @@ int RsRtmpServer::dispose() {
     return ret;
 }
 
-RsServer::RsServer() {
-
-}
-
-RsServer::~RsServer() {
-
-}
-
-static RsServer *_instance = nullptr;
-
-RsServer *RsServer::get_instance() {
-    if (_instance == nullptr) {
-        _instance = new RsServer();
-    }
-    return _instance;
-}
-
-int RsServer::run() {
+int RsServerManager::initialize() {
     int ret = ERROR_SUCCESS;
 
-    // initialize the all servers
-    if ((ret = rtmp_server.initialize()) != ERROR_SUCCESS) {
-        cout << "initialize the rtmp server failed. ret=" << ret << endl;
+    return ret;
+}
+
+// TODO:FIXME: implement other type of server
+int RsServerManager::create_new_server(
+        const std::shared_ptr<rs_config::RSConfigServerItem> &config) {
+    int ret = ERROR_SUCCESS;
+
+    if (config->get_server_type() != rs_config::RS_SERVER_TYPE_RTMP) {
+        rs_error(nullptr, "Sorry, we only support rtmp server now");
+        ::exit(-1);
+    }
+
+    std::shared_ptr<RsBaseServer> baseServer = nullptr;
+
+    auto rtmpServer = new RsRtmpServer();
+    baseServer.reset(rtmpServer);
+
+    if ((ret = rtmpServer->initialize(config)) != ERROR_SUCCESS) {
+        rs_error(nullptr, "initialize rtmp server=%s failed. ret=%d",
+                 config->get_server_name().c_str(), ret);
         return ret;
     }
 
+    container[config->get_server_name()] = baseServer;
+
+    return ret;
+}
+
+int RsServerManager::run() {
     return uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 }
 
-int RsServer::exit() {
+int RsServerManager::exit() {
     int ret = ERROR_SUCCESS;
-    if ((ret = rtmp_server.dispose()) != ERROR_SUCCESS) {
-        cout << "rtmp server dispose failed. ret=" << ret << endl;
-        return ret;
-    }
 
     // stop all loop
     uv_stop(uv_default_loop());

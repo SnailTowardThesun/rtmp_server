@@ -26,17 +26,10 @@ SOFTWARE.
 
 using namespace std;
 
-RsBufferLittleEndian::RsBufferLittleEndian() {
-
-}
-
-RsBufferLittleEndian::~RsBufferLittleEndian() {
-}
-
 int RsBufferLittleEndian::write_1_byte(uint8_t val) {
     int ret = ERROR_SUCCESS;
 
-    char *p = (char *) &val;
+    auto *p = (char *) &val;
 
     buffer += p[0];
 
@@ -46,7 +39,7 @@ int RsBufferLittleEndian::write_1_byte(uint8_t val) {
 int RsBufferLittleEndian::write_2_byte(unsigned long val) {
     int ret = ERROR_SUCCESS;
 
-    char *pVal = (char *) &val;
+    auto *pVal = (char *) &val;
 
     buffer += pVal[1];
     buffer += pVal[0];
@@ -57,7 +50,7 @@ int RsBufferLittleEndian::write_2_byte(unsigned long val) {
 int RsBufferLittleEndian::write_3_byte(uint32_t val) {
     int ret = ERROR_SUCCESS;
 
-    char *pVal = (char *) &val;
+    auto *pVal = (char *) &val;
 
     buffer += pVal[2];
     buffer += pVal[1];
@@ -69,7 +62,7 @@ int RsBufferLittleEndian::write_3_byte(uint32_t val) {
 int RsBufferLittleEndian::write_4_byte(uint32_t val) {
     int ret = ERROR_SUCCESS;
 
-    char *pVal = (char *) &val;
+    auto *pVal = (char *) &val;
 
     buffer += pVal[3];
     buffer += pVal[2];
@@ -82,7 +75,7 @@ int RsBufferLittleEndian::write_4_byte(uint32_t val) {
 int RsBufferLittleEndian::write_8_byte(uint64_t val) {
     int ret = ERROR_SUCCESS;
 
-    char *pVal = (char *) &val;
+    auto *pVal = (char *) &val;
 
     buffer += pVal[7];
     buffer += pVal[6];
@@ -104,7 +97,7 @@ int RsBufferLittleEndian::write_bytes(string buf) {
 int RsBufferLittleEndian::write_bytes(const char *buf, int size) {
     int ret = ERROR_SUCCESS;
 
-    buffer += string((const char *) buf, (unsigned long) size);
+    buffer += string(buf, (unsigned long) size);
 
     return ret;
 }
@@ -122,7 +115,7 @@ uint8_t RsBufferLittleEndian::read_1_byte() {
 uint16_t RsBufferLittleEndian::read_2_byte() {
     uint16_t val = 0;
 
-    char *pVal = (char *) &val;
+    auto *pVal = (char *) &val;
 
     for (int i = 1; i >= 0; --i) {
         pVal[i] = buffer.at(0);
@@ -135,7 +128,7 @@ uint16_t RsBufferLittleEndian::read_2_byte() {
 uint32_t RsBufferLittleEndian::read_3_byte() {
     uint32_t val = 0;
 
-    char *pVal = (char *) &val;
+    auto *pVal = (char *) &val;
 
     for (int i = 2; i >= 0; --i) {
         pVal[i] = buffer.at(0);
@@ -148,7 +141,7 @@ uint32_t RsBufferLittleEndian::read_3_byte() {
 uint32_t RsBufferLittleEndian::read_4_byte() {
     uint32_t val = 0;
 
-    char *pVal = (char *) &val;
+    auto *pVal = (char *) &val;
 
     for (int i = 3; i >= 0; --i) {
         pVal[i] = buffer.at(0);
@@ -161,7 +154,7 @@ uint32_t RsBufferLittleEndian::read_4_byte() {
 uint64_t RsBufferLittleEndian::read_8_byte() {
     uint64_t val = 0;
 
-    char *pVal = (char *) &val;
+    auto *pVal = (char *) &val;
 
     for (int i = 7; i >= 0; --i) {
         pVal[i] = buffer.at(0);

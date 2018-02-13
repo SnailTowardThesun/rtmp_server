@@ -32,9 +32,9 @@ class RsBufferLittleEndian : public IRsReaderWriter {
 private:
     std::string buffer;
 public:
-    RsBufferLittleEndian();
+    RsBufferLittleEndian() = default;
 
-    virtual ~RsBufferLittleEndian();
+    ~RsBufferLittleEndian() override = default;
 
 public:
     int write_1_byte(uint8_t val);
@@ -51,7 +51,7 @@ public:
 
     int write_bytes(const char *buf, int size);
 
-    int write(std::string buf, int size) { return write_bytes(buf.c_str(), size); }
+    int write(std::string buf, int size) override { return write_bytes(buf.c_str(), size); }
 
     uint8_t read_1_byte();
 
@@ -65,7 +65,7 @@ public:
 
     std::string read_bytes(int size);
 
-    int read(std::string &buf, int size) {
+    int read(std::string &buf, int size) override {
         buf = read_bytes(size);
         return ERROR_SUCCESS;
     }

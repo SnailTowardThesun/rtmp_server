@@ -88,24 +88,20 @@ namespace rs_config {
         RS_SERVER_TYPE get_server_type() { return serverType; }
     };
 
+    using ConfigServerContainer = std::map<std::string, std::shared_ptr<RSConfigServerItem>>;
+
     class RsConfig {
     private:
         std::string conf;
 
         RSConfigLogItem log;
 
-        std::map<std::string, std::shared_ptr<RSConfigServerItem>> servers;
-
-    private:
-        RsConfig() = default;
+        ConfigServerContainer servers;
 
     public:
+        RsConfig() = default;
 
-        RsConfig(RsConfig const &) = delete;
-
-        RsConfig &operator=(RsConfig const &) = delete;
-
-        virtual ~RsConfig() = default;
+        ~RsConfig() = default;
 
     private:
 
@@ -115,14 +111,10 @@ namespace rs_config {
         int initialize(const std::string &path);
 
     public:
-        int get_rtmp_listen(std::string server);
-
         RS_LOG_TANK_TYPE get_log_tank();
 
-    public:
-        static std::shared_ptr<RsConfig> get_instance() {
-            static std::shared_ptr<RsConfig> ins(new RsConfig());
-            return ins;
-        };
+        const std::string &get_log_file_path();
+
+        const ConfigServerContainer &get_servers() { return servers; };
     };
 }

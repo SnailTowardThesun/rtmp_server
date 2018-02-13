@@ -349,12 +349,10 @@ int RsAmf0ObjectProperty::initialize(IRsReaderWriter *reader) {
         // store the key-value
         set(key, value);
     }
-
-    return ret;
 }
 
 uint32_t RsAmf0ObjectProperty::count() {
-    return properties.size();
+    return static_cast<uint32_t>(properties.size());
 }
 
 string RsAmf0ObjectProperty::dump() {
@@ -540,7 +538,7 @@ RsAmf0Package *RsAmf0StrictArray::get(int index) {
 }
 
 string RsAmf0StrictArray::encode() {
-    count = array.size();
+    count = static_cast<uint32_t>(array.size());
     RsBufferLittleEndian rs_buf;
 
     rs_buf.write_1_byte(marker);

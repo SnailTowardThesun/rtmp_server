@@ -227,12 +227,11 @@ namespace rs_config {
         return ret;
     }
 
-    int RsConfig::get_rtmp_listen(std::string name) {
-        // TODO:FIXME: implement this function
-        return RTMP_DEFAULT_PORT;
-    }
-
     RS_LOG_TANK_TYPE RsConfig::get_log_tank() {
         return log.get_type();
+    }
+
+    const std::string &RsConfig::get_log_file_path() {
+        return log.get_path();
     }
 }

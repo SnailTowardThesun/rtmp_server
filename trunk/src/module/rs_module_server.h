@@ -25,39 +25,56 @@ SOFTWARE.
 
 #include "rs_kernel_io.h"
 #include "rs_module_rtmp_conn.h"
+#include "rs_module_config.h"
 
-class RsRtmpServer {
+class RsBaseServer {
+public:
+    RsBaseServer() = default;
+
+    virtual ~RsBaseServer() = default;
+
+public:
+    virtual int
+    initialize(const std::shared_ptr<rs_config::RSConfigServerItem> &config) = 0;
+
+    virtual int dispose() = 0;
+};
+
+class RsRtmpServer : public RsBaseServer {
 private:
     RsTCPSocketIO *sock;
+
 public:
     RsRtmpServer();
 
-    virtual ~RsRtmpServer();
+    ~RsRtmpServer() override;
 
 public:
-    int initialize();
+    int initialize(const std::shared_ptr<rs_config::RSConfigServerItem> &config) override;
 
     static void on_connection(IRsReaderWriter *io, void *param);
 
 private:
     std::vector<std::shared_ptr<RsRtmpConn>> conns;
 public:
-    int dispose();
+    int dispose() override;
 };
 
-class RsServer {
+using ServerContainer = std::map<std::string, std::shared_ptr<RsBaseServer>>;
+
+class RsServerManager {
 private:
-    RsRtmpServer rtmp_server;
+    ServerContainer container;
 public:
-    RsServer();
+    RsServerManager() = default;
 
-    virtual ~RsServer();
-
-public:
-    // the server is unique.
-    static RsServer *get_instance();
+    ~RsServerManager() = default;
 
 public:
+    int initialize();
+
+    int create_new_server(const std::shared_ptr<rs_config::RSConfigServerItem> &config);
+
     int run();
 
     int exit();

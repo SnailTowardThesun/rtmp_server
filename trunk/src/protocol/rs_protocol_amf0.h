@@ -125,7 +125,7 @@ public:
 public:
     RsAmf0Boolean();
 
-    RsAmf0Boolean(bool val);
+    explicit RsAmf0Boolean(bool val);
 
     virtual ~RsAmf0Boolean();
 
@@ -143,7 +143,7 @@ public:
 public:
     RsAmf0String();
 
-    RsAmf0String(std::string val);
+    explicit RsAmf0String(std::string val);
 
     virtual ~RsAmf0String();
 
