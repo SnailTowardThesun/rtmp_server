@@ -26,6 +26,5 @@ SOFTWARE.
 #include "rs_module_config.h"
 
 TEST(RS_CONFIG, demo) {
-    auto conf = rs_config::RsConfig::get_instance();
     EXPECT_TRUE(true);
 }
