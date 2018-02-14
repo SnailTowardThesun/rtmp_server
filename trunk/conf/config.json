@@ -1,13 +1,15 @@
 {
-  "log":{
-    "tank":"console",
-    "file":"./objs/log.log"
+  "log": {
+    "tank": "console",
+    "file": "./objs/log.log"
   },
-  "server":[
+  "server": [
     {
-      "name":"rtmp-server-1",
-      "type":"rtmp",
-      "listen":1935
+      "name": "rtmp-server-1",
+      "type": "rtmp",
+      "listen": 1935,
+      "rtmp-server": {
+      }
     }
   ]
 }

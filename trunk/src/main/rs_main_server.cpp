@@ -34,7 +34,7 @@ SOFTWARE.
  */
 void usage() {
     printf("useage:\n");
-    printf("\t-c\tpath of configure file. should no be empty\n");
+    printf("\t-c\tpath of configure file. should not be empty\n");
     printf("example:\n");
     printf("\t./objs/rs_server -c conf/default.json\n");
     ::exit(-1);

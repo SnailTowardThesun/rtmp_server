@@ -28,7 +28,7 @@ SOFTWARE.
 #include <cstdarg>
 #include "rs_kernel_context.h"
 
-#define RS_LOG_MAX_LENGTH 4096
+static const int32_t RS_LOG_MAX_LENGTH = 4096;
 
 #define RS_LOG_LEVEL_INFO "info"
 #define RS_LOG_LEVEL_VERBOSE "verbose"
@@ -39,67 +39,63 @@ SOFTWARE.
 namespace rs_log {
 
     RSLogManager::RSLogManager() : msg(nullptr), log_interface(nullptr) {
-        msg = new char[4096];
-    }
-
-    RSLogManager::~RSLogManager() {
-        rs_free_p(msg);
+        msg = std::shared_ptr<char>(new char[RS_LOG_MAX_LENGTH]);
     }
 
     void RSLogManager::info(IRsReaderWriter *io, const char *fmt, ...) {
         va_list ap;
         va_start(ap, fmt);
-        auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
+        auto size = vsnprintf(msg.get(), RS_LOG_MAX_LENGTH, fmt, ap);
         va_end(ap);
 
         auto cid = RsConnContext::getInstance()->get_id(io);
 
-        log(cid, RS_LOG_LEVEL_INFO, std::string(msg, static_cast<unsigned long>(size)));
+        log(cid, RS_LOG_LEVEL_INFO, std::string(msg.get(), static_cast<unsigned long>(size)));
     }
 
     void RSLogManager::verbose(IRsReaderWriter *io, const char *fmt, ...) {
         va_list ap;
         va_start(ap, fmt);
-        auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
+        auto size = vsnprintf(msg.get(), RS_LOG_MAX_LENGTH, fmt, ap);
         va_end(ap);
 
         auto cid = RsConnContext::getInstance()->get_id(io);
 
         log(cid, RS_LOG_LEVEL_VERBOSE,
-            std::string(msg, static_cast<unsigned long>(size)));
+            std::string(msg.get(), static_cast<unsigned long>(size)));
     }
 
     void RSLogManager::trace(IRsReaderWriter *io, const char *fmt, ...) {
         va_list ap;
         va_start(ap, fmt);
-        auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
+        auto size = vsnprintf(msg.get(), RS_LOG_MAX_LENGTH, fmt, ap);
         va_end(ap);
 
         auto cid = RsConnContext::getInstance()->get_id(io);
 
-        log(cid, RS_LOG_LEVEL_TRACE, std::string(msg, static_cast<unsigned long>(size)));
+        log(cid, RS_LOG_LEVEL_TRACE, std::string(msg.get(), static_cast<unsigned long>(size)));
     }
 
     void RSLogManager::warn(IRsReaderWriter *io, const char *fmt, ...) {
         va_list ap;
         va_start(ap, fmt);
-        auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
+        auto size = vsnprintf(msg.get(), RS_LOG_MAX_LENGTH, fmt, ap);
         va_end(ap);
 
         auto cid = RsConnContext::getInstance()->get_id(io);
 
-        log(cid, RS_LOG_LEVEL_WARN, std::string(msg, static_cast<unsigned long>(size)));
+        log(cid, RS_LOG_LEVEL_WARN, std::string(msg.get(), static_cast<unsigned long>(size)));
     }
 
     void RSLogManager::error(IRsReaderWriter *io, const char *fmt, ...) {
         va_list ap;
         va_start(ap, fmt);
-        auto size = vsnprintf(msg, RS_LOG_MAX_LENGTH, fmt, ap);
+        auto size = vsnprintf(msg.get(), RS_LOG_MAX_LENGTH, fmt, ap);
         va_end(ap);
 
         auto cid = RsConnContext::getInstance()->get_id(io);
 
-        log(cid, RS_LOG_LEVEL_ERROR, std::string(msg, static_cast<unsigned long>(size)));
+        log(cid, RS_LOG_LEVEL_ERROR, std::string(msg.get(), static_cast<unsigned long>(size)));
     }
 
     void RSConsoleLog::log(int64_t cid, std::string level, std::string message) {

@@ -29,9 +29,10 @@ SOFTWARE.
 
 class IRsReaderWriter {
 public:
-    IRsReaderWriter() {};
+    IRsReaderWriter() = default;
 
-    virtual ~IRsReaderWriter() {};
+    virtual ~IRsReaderWriter() = default;
+
 public:
     virtual int write(std::string buf, int size) = 0;
 
@@ -45,11 +46,10 @@ public:
     uv_tcp_t *sock;
     std::shared_ptr<char> base;
     std::string buffer;
-    std::shared_ptr<uv_sem_t> signal;
 public:
     RsTCPSocketIO();
 
-    virtual ~RsTCPSocketIO();
+    ~RsTCPSocketIO() override;
 
 public:
     connection_cb cb;
@@ -64,9 +64,9 @@ public:
     static void on_connected(uv_stream_t *server, int status);
 // implement IRsReaderWrite
 public:
-    int write(std::string buf, int size);
+    int write(std::string buf, int size) override;
 
-    int read(std::string &buf, int size);
+    int read(std::string &buf, int size) override;
 
     void close();
 };

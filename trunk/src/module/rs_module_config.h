@@ -64,31 +64,47 @@ namespace rs_config {
     static const uint32_t DEFAULT_SERVER_PORT = 1935;
     static const char *DEFAULT_SERVER_NAME = "default-rtmp-server";
 
-    class RSConfigServerItem {
+    class RSConfigBaseServer {
     private:
         uint32_t listenPort;
-        RS_SERVER_TYPE serverType;
         std::string name;
+        RS_SERVER_TYPE type;
     public:
-        RSConfigServerItem() {
+        RSConfigBaseServer() {
             listenPort = DEFAULT_SERVER_PORT;
-            serverType = DEFAULT_SERVER_TYPE;
             name = DEFAULT_SERVER_NAME;
+            type = DEFAULT_SERVER_TYPE;
         };
 
-        virtual ~RSConfigServerItem() = default;
+        virtual ~RSConfigBaseServer() = default;
 
     public:
-        int initialize(const rapidjson::Value &obj);
+        virtual const int get_port() { return listenPort; };
 
-        std::string &get_server_name() { return name; }
+        virtual RS_SERVER_TYPE const &get_type() { return type; };
 
-        int get_server_port() { return listenPort; }
+        virtual std::string const &get_server_name() { return name; };
+    public:
 
-        RS_SERVER_TYPE get_server_type() { return serverType; }
+        virtual int initialize(const rapidjson::Value &val) = 0;
+
+    public:
+        static RSConfigBaseServer *
+        create_server_config(const rapidjson::Value &obj, int &ret);
     };
 
-    using ConfigServerContainer = std::map<std::string, std::shared_ptr<RSConfigServerItem>>;
+    class RSConfigRTMPServer : public RSConfigBaseServer {
+        std::string name;
+    public:
+        RSConfigRTMPServer() = default;
+
+        ~RSConfigRTMPServer() override = default;
+
+    public:
+        int initialize(const rapidjson::Value &obj) override;
+    };
+
+    using ConfigServerContainer = std::map<std::string, std::shared_ptr<RSConfigBaseServer>>;
 
     class RsConfig {
     private:
@@ -113,8 +129,8 @@ namespace rs_config {
     public:
         RS_LOG_TANK_TYPE get_log_tank();
 
-        const std::string &get_log_file_path();
+        std::string const &get_log_file_path();
 
-        const ConfigServerContainer &get_servers() { return servers; };
+        ConfigServerContainer const &get_servers() const { return servers; };
     };
 }

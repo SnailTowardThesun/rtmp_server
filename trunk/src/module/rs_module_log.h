@@ -60,12 +60,18 @@ namespace rs_log {
 
     class RSLogManager {
     private:
-        char *msg;
+        std::shared_ptr<char> msg;
         std::shared_ptr<IRSLog> log_interface;
     public:
         RSLogManager();
 
-        virtual ~RSLogManager();
+        RSLogManager(RSLogManager const &) = delete;
+
+        RSLogManager(RSLogManager &&) = delete;
+
+        RSLogManager &operator=(RSLogManager const &) = delete;
+
+        virtual ~RSLogManager() = default;
 
     public:
 

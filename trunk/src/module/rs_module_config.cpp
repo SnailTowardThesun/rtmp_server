@@ -87,20 +87,36 @@ namespace rs_config {
         return ret;
     }
 
-    int RSConfigServerItem::initialize(const rapidjson::Value &obj) {
-        int ret = ERROR_SUCCESS;
-
+    RSConfigBaseServer *
+    RSConfigBaseServer::create_server_config(const rapidjson::Value &obj, int &ret) {
         if (!obj.IsObject()) {
             ret = ERROR_CONFIGURE_SYNTAX_INVALID;
             rs_error(nullptr, "configure: server item should be object. ret=%d", ret);
-            return ret;
+            return nullptr;
+        }
+
+        // get server type
+        const rapidjson::Value &typeVal = obj["type"];
+        if (!typeVal.IsString()) {
+            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
+            rs_error(nullptr,
+                     "configure: type of type in server item should be string. ret=%d",
+                     ret);
+            return nullptr;
+        }
+
+        std::string typeStr = typeVal.GetString();
+        RSConfigBaseServer *server = nullptr;
+        if (typeStr == "rtmp") {
+            server = new RSConfigRTMPServer();
+            server->type = RS_SERVER_TYPE_RTMP;
         }
 
         // server name
         if (!obj.HasMember("name")) {
             ret = ERROR_CONFIGURE_SYNTAX_INVALID;
             rs_error(nullptr, "configure: no name in server item. ret=%d", ret);
-            return ret;
+            return nullptr;
         }
         const rapidjson::Value &nameVal = obj["name"];
         if (!nameVal.IsString()) {
@@ -108,40 +124,15 @@ namespace rs_config {
             rs_error(nullptr,
                      "configure: type of name in server item should be string. ret=%d",
                      ret);
-            return ret;
+            return nullptr;
         }
-        name = nameVal.GetString();
-
-        // type
-        if (!obj.HasMember("type")) {
-            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
-            rs_error(nullptr, "configure: no type in server item. ret=%d", ret);
-            return ret;
-        }
-
-        const rapidjson::Value &typeVal = obj["type"];
-        if (!typeVal.IsString()) {
-            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
-            rs_error(nullptr,
-                     "configure: type of type in server item should be string. ret=%d",
-                     ret);
-            return ret;
-        }
-
-        std::string typeStr = typeVal.GetString();
-        if (typeStr == "rtmp") {
-            serverType = RS_SERVER_TYPE_RTMP;
-        } else {
-            ret = ERROR_CONFIGURE_SYNTAX_INVALID;
-            rs_error(nullptr, "Only support RTMP server. ret=%d", ret);
-            return ret;
-        }
+        server->name = nameVal.GetString();
 
         // port
         if (!obj.HasMember("listen")) {
             ret = ERROR_CONFIGURE_SYNTAX_INVALID;
             rs_error(nullptr, "configure: no listen in server item. ret=%d", ret);
-            return ret;
+            return nullptr;
         }
 
         const rapidjson::Value &listenVal = obj["listen"];
@@ -150,10 +141,21 @@ namespace rs_config {
             rs_error(nullptr,
                      "configure: type of listen in server item should be integer. ret=%d",
                      ret);
-            return ret;
+            return nullptr;
         }
 
-        listenPort = static_cast<uint32_t>(listenVal.GetInt());
+        server->listenPort = static_cast<uint32_t>(listenVal.GetInt());
+
+        if ((ret = server->initialize(obj)) != ERROR_SUCCESS) {
+            rs_error(nullptr, "initialize server=%s, type=%s, port=%d failed. ret=%d",
+                     server->name.c_str(), typeStr.c_str(), server->listenPort, ret);
+        }
+
+        return server;
+    }
+
+    int RSConfigRTMPServer::initialize(const rapidjson::Value &obj) {
+        int ret = ERROR_SUCCESS;
 
         return ret;
     }
@@ -186,14 +188,14 @@ namespace rs_config {
 
         auto array = arrayVal.GetArray();
         for (auto i = 0; i < array.Size(); ++i) {
-            auto newServer = std::shared_ptr<RSConfigServerItem>(
-                    new RSConfigServerItem());
-            if ((ret = newServer->initialize(array[i])) != ERROR_SUCCESS) {
+            auto newServer = std::shared_ptr<RSConfigBaseServer>(
+                    RSConfigBaseServer::create_server_config(array[i], ret));
+            if (ret != ERROR_SUCCESS) {
                 rs_error(nullptr, "parse one server item failed. ret=%d", ret);
                 return ret;
             }
             servers.insert(
-                    std::pair<std::string, std::shared_ptr<RSConfigServerItem>>(
+                    std::pair<std::string, std::shared_ptr<RSConfigBaseServer>>(
                             newServer->get_server_name(),
                             newServer));
         }

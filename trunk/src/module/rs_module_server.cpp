@@ -30,7 +30,36 @@ SOFTWARE.
 
 using namespace std;
 
-RsRtmpServer::RsRtmpServer() : sock(nullptr) {
+RsBaseServer *RsBaseServer::create_new_server(
+        const std::shared_ptr<rs_config::RSConfigBaseServer> &config, int &ret) {
+    RsBaseServer *base = nullptr;
+
+    switch (config->get_type()) {
+        case rs_config::RS_SERVER_TYPE_RTMP:
+            base = new RsRtmpServer();
+            break;
+        default:
+            ret = ERROR_CONFIGURE_TYPE_OF_SERVER_NOT_SUPPORT;
+            return nullptr;
+    }
+
+    auto fail = [&]() {
+        if (base != nullptr) {
+            delete base;
+        }
+
+        return static_cast<RsBaseServer *>(nullptr);
+    };
+
+    if ((ret = base->initialize(config)) != ERROR_SUCCESS) {
+        rs_error(nullptr, "initialzie server failed. ret=%d", ret);
+        return fail();
+    }
+
+    return base;
+}
+
+RsRtmpServer::RsRtmpServer() {
     sock = new RsTCPSocketIO();
     sock->cb = on_connection;
     sock->param = this;
@@ -43,8 +72,12 @@ RsRtmpServer::~RsRtmpServer() {
 }
 
 int
-RsRtmpServer::initialize(const std::shared_ptr<rs_config::RSConfigServerItem> &config) {
+RsRtmpServer::initialize(const std::shared_ptr<rs_config::RSConfigBaseServer> &config) {
     int ret = ERROR_SUCCESS;
+
+    rs_info(sock, "ready to initialize a new rtmp server, name=%s, port=%d",
+            config->get_server_name().c_str(), config->get_port());
+
 
     return ret;
 }
@@ -67,26 +100,20 @@ int RsServerManager::initialize() {
 
 // TODO:FIXME: implement other type of server
 int RsServerManager::create_new_server(
-        const std::shared_ptr<rs_config::RSConfigServerItem> &config) {
+        const std::shared_ptr<rs_config::RSConfigBaseServer> &config) {
     int ret = ERROR_SUCCESS;
 
-    if (config->get_server_type() != rs_config::RS_SERVER_TYPE_RTMP) {
+    if (config->get_type() != rs_config::RS_SERVER_TYPE_RTMP) {
         rs_error(nullptr, "Sorry, we only support rtmp server now");
         ::exit(-1);
     }
 
-    std::shared_ptr<RsBaseServer> baseServer = nullptr;
+    auto baseServer = std::shared_ptr<RsBaseServer>(
+            RsBaseServer::create_new_server(config, ret));
 
-    auto rtmpServer = new RsRtmpServer();
-    baseServer.reset(rtmpServer);
-
-    if ((ret = rtmpServer->initialize(config)) != ERROR_SUCCESS) {
-        rs_error(nullptr, "initialize rtmp server=%s failed. ret=%d",
-                 config->get_server_name().c_str(), ret);
-        return ret;
+    if (baseServer != nullptr && ret == ERROR_SUCCESS) {
+        container[config->get_server_name()] = baseServer;
     }
-
-    container[config->get_server_name()] = baseServer;
 
     return ret;
 }
@@ -103,10 +130,15 @@ int RsServerManager::exit() {
 
     if ((ret = uv_loop_close(uv_default_loop())) != ERROR_SUCCESS) {
         if (ret == UV_EBUSY) {
-            cout << "loop is busy" << endl;
+            rs_warn(nullptr, "uv loop is busy");
         }
-        cout << "close uv loop failed. ret=" << ret << endl;
+        rs_error(nullptr, "close uv loop failed. ret=%d", ret);
         return ret;
+    }
+
+    // release all servers
+    for (const auto &i : container) {
+        i.second->dispose();
     }
 
     return ret;

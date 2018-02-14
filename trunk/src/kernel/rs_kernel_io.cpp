@@ -29,8 +29,6 @@ using namespace std;
 #define MESSAGE_BUFFER_LENGTH 4096
 
 RsTCPSocketIO::RsTCPSocketIO() : sock(nullptr) {
-    signal = make_shared<uv_sem_t>();
-    uv_sem_init(signal.get(), 0);
     base = shared_ptr<char>(new char[MESSAGE_BUFFER_LENGTH]);
 }
 
@@ -38,7 +36,6 @@ RsTCPSocketIO::~RsTCPSocketIO() {
     if (sock) {
         close();
     }
-    uv_sem_destroy(signal.get());
 }
 
 int RsTCPSocketIO::listen(string ip, int port) {
