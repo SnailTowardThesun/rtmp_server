@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-Project(RtmpServer)
+Project(rtmp-server)
 
 # compile params
 set(CMAKE_CXX_FLAGS "-g -std=c++11 -pthread -Wall")
