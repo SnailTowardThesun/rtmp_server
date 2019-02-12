@@ -35,14 +35,14 @@ public:
 
 private:
     virtual int
-    initialize(const std::shared_ptr<rs_config::RSConfigBaseServer> &config) = 0;
+    initialize(const std::shared_ptr<rs_config::RsConfigBaseServer> &config) = 0;
 
 public:
     virtual int dispose() = 0;
 
 public:
     static RsBaseServer *
-    create_new_server(const std::shared_ptr<rs_config::RSConfigBaseServer> &config,
+    create_new_server(const std::shared_ptr<rs_config::RsConfigBaseServer> &config,
                       int &ret);
 };
 
@@ -56,7 +56,7 @@ public:
     ~RsRtmpServer() override;
 
 private:
-    int initialize(const std::shared_ptr<rs_config::RSConfigBaseServer> &config) override;
+    int initialize(const std::shared_ptr<rs_config::RsConfigBaseServer> &config) override;
 
     static void on_connection(IRsReaderWriter *io, void *param);
 
@@ -79,7 +79,7 @@ public:
 public:
     int initialize();
 
-    int create_new_server(const std::shared_ptr<rs_config::RSConfigBaseServer> &config);
+    int create_new_server(const std::shared_ptr<rs_config::RsConfigBaseServer> &config);
 
     int run();
 

@@ -31,7 +31,7 @@ SOFTWARE.
 using namespace std;
 
 RsBaseServer *RsBaseServer::create_new_server(
-        const std::shared_ptr<rs_config::RSConfigBaseServer> &config, int &ret) {
+        const std::shared_ptr<rs_config::RsConfigBaseServer> &config, int &ret) {
     RsBaseServer *base = nullptr;
 
     switch (config->get_type()) {
@@ -72,7 +72,7 @@ RsRtmpServer::~RsRtmpServer() {
 }
 
 int
-RsRtmpServer::initialize(const std::shared_ptr<rs_config::RSConfigBaseServer> &config) {
+RsRtmpServer::initialize(const std::shared_ptr<rs_config::RsConfigBaseServer> &config) {
     int ret = ERROR_SUCCESS;
 
     rs_info(sock, "ready to initialize a new rtmp server, name=%s, port=%d",
@@ -100,7 +100,7 @@ int RsServerManager::initialize() {
 
 // TODO:FIXME: implement other type of server
 int RsServerManager::create_new_server(
-        const std::shared_ptr<rs_config::RSConfigBaseServer> &config) {
+        const std::shared_ptr<rs_config::RsConfigBaseServer> &config) {
     int ret = ERROR_SUCCESS;
 
     if (config->get_type() != rs_config::RS_SERVER_TYPE_RTMP) {

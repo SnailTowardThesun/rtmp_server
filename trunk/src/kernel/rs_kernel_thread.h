@@ -26,24 +26,24 @@ SOFTWARE.
 
 #include "uv.h"
 
-class RSLocker {
+class RsLocker {
 private:
     uv_mutex_t *_locker;
 public:
-    RSLocker();
+    RsLocker();
 
-    virtual ~RSLocker();
+    virtual ~RsLocker();
 };
 
-class RSBaseThread {
+class RsBaseThread {
 private:
     uv_thread_t *_thread;
 public:
     bool interupt;
 public:
-    RSBaseThread();
+    RsBaseThread();
 
-    virtual ~RSBaseThread();
+    virtual ~RsBaseThread();
 
 private:
     static void cycle(void *param);

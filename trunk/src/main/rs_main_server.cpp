@@ -30,7 +30,7 @@ SOFTWARE.
 // TODO:FIXME: need to implement signal system
 
 /**
- * useage
+ * usage
  */
 void usage() {
     printf("useage:\n");
@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
     // initialize log
     switch (config.get_log_tank()) {
         case rs_config::RS_LOG_TANK_TYPE_CONSOLE:
-            rs_log::RSLogManager::get_instance()->change_log_interface(new rs_log::RSConsoleLog());
+            rs_log::RsLogManager::get_instance()->change_log_interface(new rs_log::RsConsoleLog());
             break;
         default:
             ::exit(0);
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
     }
 
     auto serverConfigs = config.get_servers();
-    for (auto i : serverConfigs) {
+    for (auto &i : serverConfigs) {
         auto serveConfigNode = i.second;
         if ((ret = manager.create_new_server(serveConfigNode)) != ERROR_SUCCESS) {
             rs_error(nullptr, "create one server=%s failed. ret=%d", i.first.c_str(), ret);

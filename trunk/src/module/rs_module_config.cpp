@@ -29,7 +29,7 @@ SOFTWARE.
 
 namespace rs_config {
 
-    int RSConfigLogItem::initialize(const rapidjson::Value &obj) {
+    int RsConfigLogItem::initialize(const rapidjson::Value &obj) {
 
         int ret = ERROR_SUCCESS;
 
@@ -87,8 +87,8 @@ namespace rs_config {
         return ret;
     }
 
-    RSConfigBaseServer *
-    RSConfigBaseServer::create_server_config(const rapidjson::Value &obj, int &ret) {
+    RsConfigBaseServer *
+    RsConfigBaseServer::create_server_config(const rapidjson::Value &obj, int &ret) {
         if (!obj.IsObject()) {
             ret = ERROR_CONFIGURE_SYNTAX_INVALID;
             rs_error(nullptr, "configure: server item should be object. ret=%d", ret);
@@ -106,9 +106,9 @@ namespace rs_config {
         }
 
         std::string typeStr = typeVal.GetString();
-        RSConfigBaseServer *server = nullptr;
+        RsConfigBaseServer *server = nullptr;
         if (typeStr == "rtmp") {
-            server = new RSConfigRTMPServer();
+            server = new RsConfigRTMPServer();
             server->type = RS_SERVER_TYPE_RTMP;
         }
 
@@ -154,7 +154,7 @@ namespace rs_config {
         return server;
     }
 
-    int RSConfigRTMPServer::initialize(const rapidjson::Value &obj) {
+    int RsConfigRTMPServer::initialize(const rapidjson::Value &obj) {
         int ret = ERROR_SUCCESS;
 
         return ret;
@@ -188,14 +188,14 @@ namespace rs_config {
 
         auto array = arrayVal.GetArray();
         for (auto i = 0; i < array.Size(); ++i) {
-            auto newServer = std::shared_ptr<RSConfigBaseServer>(
-                    RSConfigBaseServer::create_server_config(array[i], ret));
+            auto newServer = std::shared_ptr<RsConfigBaseServer>(
+                    RsConfigBaseServer::create_server_config(array[i], ret));
             if (ret != ERROR_SUCCESS) {
                 rs_error(nullptr, "parse one server item failed. ret=%d", ret);
                 return ret;
             }
             servers.insert(
-                    std::pair<std::string, std::shared_ptr<RSConfigBaseServer>>(
+                    std::pair<std::string, std::shared_ptr<RsConfigBaseServer>>(
                             newServer->get_server_name(),
                             newServer));
         }

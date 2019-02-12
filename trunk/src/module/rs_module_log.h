@@ -32,15 +32,15 @@ The log system for rtmp server
 
 namespace rs_log {
 
-    class IRSLog {
+    class IRsLog {
     private:
         int32_t pid;
     public:
-        IRSLog() {
+        IRsLog() {
             pid = getpid();
         };
 
-        virtual ~IRSLog() = default;
+        virtual ~IRsLog() = default;
 
     public:
         virtual void log(int64_t cid, std::string level, std::string message) = 0;
@@ -48,37 +48,48 @@ namespace rs_log {
         int32_t get_pid() { return pid; };
     };
 
-    class RSConsoleLog : public IRSLog {
+    class RsConsoleLog : public IRsLog {
     public:
-        RSConsoleLog() = default;
+        RsConsoleLog() = default;
 
-        ~RSConsoleLog() override = default;
+        ~RsConsoleLog() override = default;
 
     public:
         void log(int64_t cid, std::string level, std::string message) override;
     };
 
-    class RSLogManager {
+    class RsLogManager {
     private:
         std::shared_ptr<char> msg;
-        std::shared_ptr<IRSLog> log_interface;
+        std::shared_ptr<IRsLog> log_interface;
     public:
-        RSLogManager();
+        RsLogManager();
 
-        RSLogManager(RSLogManager const &) = delete;
+        RsLogManager(RsLogManager const &) = delete;
 
-        RSLogManager(RSLogManager &&) = delete;
+        RsLogManager(RsLogManager &&) = delete;
 
-        RSLogManager &operator=(RSLogManager const &) = delete;
+        RsLogManager &operator=(RsLogManager const &) = delete;
 
-        virtual ~RSLogManager() = default;
+        virtual ~RsLogManager() = default;
 
     public:
 
-        virtual void change_log_interface(IRSLog *inter) {
+        void change_log_interface(IRsLog *inter) {
             log_interface.reset(inter);
         }
 
+        void info(IRsReaderWriter *io, const char *fmt, ...);
+
+        void verbose(IRsReaderWriter *io, const char *fmt, ...);
+
+        void trace(IRsReaderWriter *io, const char *fmt, ...);
+
+        void warn(IRsReaderWriter *io, const char *fmt, ...);
+
+        void error(IRsReaderWriter *io, const char *fmt, ...);
+
+    public:
         virtual void log(int64_t cid, std::string level, std::string message) {
             if (log_interface == nullptr) {
                 printf("%s\n", message.c_str());
@@ -87,29 +98,21 @@ namespace rs_log {
             }
         };
 
-        virtual void info(IRsReaderWriter *io, const char *fmt, ...);
-
-        virtual void verbose(IRsReaderWriter *io, const char *fmt, ...);
-
-        virtual void trace(IRsReaderWriter *io, const char *fmt, ...);
-
-        virtual void warn(IRsReaderWriter *io, const char *fmt, ...);
-
-        virtual void error(IRsReaderWriter *io, const char *fmt, ...);
     public:
-        static std::shared_ptr<RSLogManager> get_instance() {
-            static std::shared_ptr<RSLogManager> ins = std::shared_ptr<RSLogManager>(new RSLogManager());
+        static std::shared_ptr<RsLogManager> get_instance() {
+            static std::shared_ptr<RsLogManager> ins = std::shared_ptr<RsLogManager>(
+                    new RsLogManager());
             return ins;
         }
     };
 
 }
 
-#define rs_info(io, fmt, ...) rs_log::RSLogManager::get_instance()->info(io, fmt, ##__VA_ARGS__)
+#define rs_info(io, fmt, ...) rs_log::RsLogManager::get_instance()->info(io, fmt, ##__VA_ARGS__)
 #define rs_verbose(io, fmt, ...) rs_log::RSLogManager::get_instance()->verbose(io, fmt, ##__VA_ARGS__)
 #define rs_trace(io, fmt, ...) rs_log::RSLogManager::get_instance()->trace(io, fmt, ##__VA_ARGS__)
-#define rs_warn(io, fmt, ...) rs_log::RSLogManager::get_instance()->warn(io, fmt, ##__VA_ARGS__)
-#define rs_error(io, fmt, ...) rs_log::RSLogManager::get_instance()->error(io, fmt, ##__VA_ARGS__)
+#define rs_warn(io, fmt, ...) rs_log::RsLogManager::get_instance()->warn(io, fmt, ##__VA_ARGS__)
+#define rs_error(io, fmt, ...) rs_log::RsLogManager::get_instance()->error(io, fmt, ##__VA_ARGS__)
 
 // TODO:FIXME: implement the log using disk.
 

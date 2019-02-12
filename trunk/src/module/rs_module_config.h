@@ -36,17 +36,17 @@ namespace rs_config {
     static const char *DEFAULT_LOG_TANK_FILE_PATH = "./objs/log.log";
     static const RS_LOG_TANK_TYPE DEFAULT_LOG_TANK_TYPE = RS_LOG_TANK_TYPE_CONSOLE;
 
-    class RSConfigLogItem {
+    class RsConfigLogItem {
     private:
         std::string filePath;
         RS_LOG_TANK_TYPE type;
     public:
-        RSConfigLogItem() {
+        RsConfigLogItem() {
             filePath = DEFAULT_LOG_TANK_FILE_PATH;
             type = DEFAULT_LOG_TANK_TYPE;
         };
 
-        ~RSConfigLogItem() = default;
+        ~RsConfigLogItem() = default;
 
     public:
         int initialize(const rapidjson::Value &logVal);
@@ -64,19 +64,19 @@ namespace rs_config {
     static const uint32_t DEFAULT_SERVER_PORT = 1935;
     static const char *DEFAULT_SERVER_NAME = "default-rtmp-server";
 
-    class RSConfigBaseServer {
+    class RsConfigBaseServer {
     private:
         uint32_t listenPort;
         std::string name;
         RS_SERVER_TYPE type;
     public:
-        RSConfigBaseServer() {
+        RsConfigBaseServer() {
             listenPort = DEFAULT_SERVER_PORT;
             name = DEFAULT_SERVER_NAME;
             type = DEFAULT_SERVER_TYPE;
         };
 
-        virtual ~RSConfigBaseServer() = default;
+        virtual ~RsConfigBaseServer() = default;
 
     public:
         virtual const int get_port() { return listenPort; };
@@ -89,28 +89,28 @@ namespace rs_config {
         virtual int initialize(const rapidjson::Value &val) = 0;
 
     public:
-        static RSConfigBaseServer *
+        static RsConfigBaseServer *
         create_server_config(const rapidjson::Value &obj, int &ret);
     };
 
-    class RSConfigRTMPServer : public RSConfigBaseServer {
+    class RsConfigRTMPServer : public RsConfigBaseServer {
         std::string name;
     public:
-        RSConfigRTMPServer() = default;
+        RsConfigRTMPServer() = default;
 
-        ~RSConfigRTMPServer() override = default;
+        ~RsConfigRTMPServer() override = default;
 
     public:
         int initialize(const rapidjson::Value &obj) override;
     };
 
-    using ConfigServerContainer = std::map<std::string, std::shared_ptr<RSConfigBaseServer>>;
+    using ConfigServerContainer = std::map<std::string, std::shared_ptr<RsConfigBaseServer>>;
 
     class RsConfig {
     private:
         std::string conf;
 
-        RSConfigLogItem log;
+        RsConfigLogItem log;
 
         ConfigServerContainer servers;
 
