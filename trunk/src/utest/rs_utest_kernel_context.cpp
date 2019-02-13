@@ -29,7 +29,7 @@ TEST(RsConnContext, regist_unregist) {
     RsConnContext context;
     RsTCPSocketIO io[10];
     for (int i = 0; i < 10; i++) {
-        context.regist(&io[i]);
+        context.do_register(&io[i]);
     }
 
     for (int i = 0; i < 10; i++) {

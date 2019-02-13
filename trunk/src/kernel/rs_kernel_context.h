@@ -38,11 +38,11 @@ public:
     virtual ~RsConnContext();
 
 public:
-    virtual int32_t regist(IRsReaderWriter *io);
+    int32_t do_register(IRsReaderWriter *io);
 
-    virtual void unregist(IRsReaderWriter *io);
+    void do_deregister(IRsReaderWriter *io);
 
-    virtual uint64_t get_id(IRsReaderWriter *io);
+    uint64_t get_id(IRsReaderWriter *io);
 
     static RsConnContext *getInstance();
 };

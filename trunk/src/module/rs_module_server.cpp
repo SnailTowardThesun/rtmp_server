@@ -71,23 +71,26 @@ RsRtmpServer::~RsRtmpServer() {
     rs_free_p(sock);
 }
 
-int
-RsRtmpServer::initialize(const std::shared_ptr<rs_config::RsConfigBaseServer> &config) {
+int RsRtmpServer::initialize(const std::shared_ptr<rs_config::RsConfigBaseServer> &config) {
     int ret = ERROR_SUCCESS;
 
     rs_info(sock, "ready to initialize a new rtmp server, name=%s, port=%d",
             config->get_server_name().c_str(), config->get_port());
 
+    sock->listen("0.0.0.0", config->get_port());
 
     return ret;
 }
 
 void RsRtmpServer::on_connection(IRsReaderWriter *io, void *param) {
-    cout << "got on connection for rtmp" << endl;
+    rs_info(io, "get one connection for rtmp");
 }
 
 int RsRtmpServer::dispose() {
     int ret = ERROR_SUCCESS;
+
+    sock->close();
+    rs_free_p(sock);
 
     return ret;
 }
@@ -125,21 +128,12 @@ int RsServerManager::run() {
 int RsServerManager::exit() {
     int ret = ERROR_SUCCESS;
 
-    // stop all loop
-    uv_stop(uv_default_loop());
-
-    if ((ret = uv_loop_close(uv_default_loop())) != ERROR_SUCCESS) {
-        if (ret == UV_EBUSY) {
-            rs_warn(nullptr, "uv loop is busy");
-        }
-        rs_error(nullptr, "close uv loop failed. ret=%d", ret);
-        return ret;
-    }
-
-    // release all servers
-    for (const auto &i : container) {
+    for (auto &i : container) {
         i.second->dispose();
     }
+
+    // stop all loop
+    uv_stop(uv_default_loop());
 
     return ret;
 }

@@ -49,7 +49,7 @@ public:
 
 TEST (RsLog, IRSLog_info) {
     RsTCPSocketIO *io = new RsTCPSocketIO();
-    RsConnContext::getInstance()->regist(io);
+    RsConnContext::getInstance()->do_register(io);
     MockRsLog *log = new MockRsLog();
 
     log->info(io, "this is for info test %d", 10);
@@ -57,14 +57,14 @@ TEST (RsLog, IRSLog_info) {
     ASSERT_EQ(log->_level, "info");
     ASSERT_EQ(log->_msg, "this is for info test 10");
 
-    RsConnContext::getInstance()->unregist(io);
+    RsConnContext::getInstance()->do_deregister(io);
     rs_free_p(io);
     rs_free_p(log);
 }
 
 TEST (RsLog, IRSLog_verbose) {
     RsTCPSocketIO *io = new RsTCPSocketIO();
-    RsConnContext::getInstance()->regist(io);
+    RsConnContext::getInstance()->do_register(io);
     MockRsLog *log = new MockRsLog();
 
     log->verbose(io, "this is for verbose test %d", 10);
@@ -72,14 +72,14 @@ TEST (RsLog, IRSLog_verbose) {
     ASSERT_EQ(log->_level, "verbose");
     ASSERT_EQ(log->_msg, "this is for verbose test 10");
 
-    RsConnContext::getInstance()->unregist(io);
+    RsConnContext::getInstance()->do_deregister(io);
     rs_free_p(io);
     rs_free_p(log);
 }
 
 TEST (RsLog, IRSLog_trace) {
     RsTCPSocketIO *io = new RsTCPSocketIO();
-    RsConnContext::getInstance()->regist(io);
+    RsConnContext::getInstance()->do_register(io);
     MockRsLog *log = new MockRsLog();
 
     log->trace(io, "this is for trace test %d", 10);
@@ -87,14 +87,14 @@ TEST (RsLog, IRSLog_trace) {
     ASSERT_EQ(log->_level, "trace");
     ASSERT_EQ(log->_msg, "this is for trace test 10");
 
-    RsConnContext::getInstance()->unregist(io);
+    RsConnContext::getInstance()->do_deregister(io);
     rs_free_p(io);
     rs_free_p(log);
 }
 
 TEST (RsLog, IRSLog_warn) {
     RsTCPSocketIO *io = new RsTCPSocketIO();
-    RsConnContext::getInstance()->regist(io);
+    RsConnContext::getInstance()->do_register(io);
     MockRsLog *log = new MockRsLog();
 
     log->warn(io, "this is for warn test %d", 10);
@@ -102,14 +102,14 @@ TEST (RsLog, IRSLog_warn) {
     ASSERT_EQ(log->_level, "warn");
     ASSERT_EQ(log->_msg, "this is for warn test 10");
 
-    RsConnContext::getInstance()->unregist(io);
+    RsConnContext::getInstance()->do_deregister(io);
     rs_free_p(io);
     rs_free_p(log);
 }
 
 TEST (RsLog, IRSLog_error) {
     RsTCPSocketIO *io = new RsTCPSocketIO();
-    RsConnContext::getInstance()->regist(io);
+    RsConnContext::getInstance()->do_register(io);
     MockRsLog *log = new MockRsLog();
 
     log->error(io, "this is for error test %d", 10);
@@ -117,7 +117,7 @@ TEST (RsLog, IRSLog_error) {
     ASSERT_EQ(log->_level, "error");
     ASSERT_EQ(log->_msg, "this is for error test 10");
 
-    RsConnContext::getInstance()->unregist(io);
+    RsConnContext::getInstance()->do_deregister(io);
     rs_free_p(io);
     rs_free_p(log);
 }

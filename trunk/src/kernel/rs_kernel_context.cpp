@@ -35,7 +35,7 @@ RsConnContext::RsConnContext() {
 RsConnContext::~RsConnContext() {
 }
 
-int32_t RsConnContext::regist(IRsReaderWriter *io) {
+int32_t RsConnContext::do_register(IRsReaderWriter *io) {
     int32_t ret = ERROR_SUCCESS;
 
     if (connection_ids.find(io) != connection_ids.end()) {
@@ -49,7 +49,7 @@ int32_t RsConnContext::regist(IRsReaderWriter *io) {
 }
 
 
-void RsConnContext::unregist(IRsReaderWriter *io) {
+void RsConnContext::do_deregister(IRsReaderWriter *io) {
     connection_ids.erase(io);
 }
 
