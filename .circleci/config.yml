@@ -1,15 +1,16 @@
 version: 2
 jobs:
-    build-job:
+    build_and_test:
         machine:
             enabled: true
         steps:
             - checkout
             - run: echo "build rtmp-server"
-            - run: cd trunk && cmake . && make
+            - run: cd trunk && cmake . && make && ./objs/utest_rs_server
+
 
 workflows:
     version: 2
     build:
         jobs:
-            - build-job
+            - build_and_test

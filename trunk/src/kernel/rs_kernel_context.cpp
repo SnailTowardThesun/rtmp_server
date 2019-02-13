@@ -26,10 +26,9 @@ SOFTWARE.
 
 using namespace std;
 
-uint64_t RsConnContext::current_ID = 200;
-
 RsConnContext::RsConnContext() {
     DEFAULT_ID = 100;
+    current_ID = 200;
 }
 
 RsConnContext::~RsConnContext() {

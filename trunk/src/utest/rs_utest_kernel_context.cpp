@@ -32,7 +32,16 @@ TEST(RsConnContext, regist_unregist) {
         context.do_register(&io[i]);
     }
 
+    std::vector<uint64_t> array;
+    array.reserve(10);
+
+    for (auto &i : io) {
+        array.push_back(context.get_id(&i));
+    }
+
+    std::sort(array.begin(), array.end());
+
     for (int i = 0; i < 10; i++) {
-        ASSERT_EQ(context.get_id(&io[i]), 200 + i);
+        ASSERT_EQ(array[i], 200+i);
     }
 }

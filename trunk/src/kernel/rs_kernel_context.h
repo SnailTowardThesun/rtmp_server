@@ -29,9 +29,9 @@ SOFTWARE.
 class RsConnContext {
 private:
     uint64_t DEFAULT_ID;
+    uint64_t current_ID;
+
     std::map<IRsReaderWriter *, uint64_t> connection_ids;
-public:
-    static uint64_t current_ID;
 public:
     RsConnContext();
 
