@@ -24,32 +24,32 @@ SOFTWARE.
 
 /**
  * The Error Number for rtmp server.
- * 0 for success
- * Begin with 1000
  */
 
 #ifndef RS_COMMON_ERRNO_H
 #define RS_COMMON_ERRNO_H
 
-static const uint64_t ERROR_SUCCESS = 0;
+// 0 for success
+static const int ERROR_SUCCESS = 0;
 
 // error number for signal
-static const uint64_t ERROR_SIGNAL_INITIALIZE = 1000;
-
+static const int ERROR_SIGNAL_INITIALIZE = 1000;
 
 // error number for protocol
-static const uint64_t ERROR_RTMP_PROTOCOL_VERSION_ERROR = 2000;
-static const uint64_t ERROR_RTMP_PROTOCOL_C0C1_ZERO_NOT_ZERO = 2001;
-static const uint64_t ERROR_RTMP_PROTOCOL_C0C1_LENGTH_ERROR = 2002;
-static const uint64_t ERROR_RTMP_PROTOCOL_CHUNK_MESSAGE_FMT_ERROR = 2003;
-static const uint64_t ERROR_RTMP_PROTOCOL_AMF0_DECODE_ERROR = 2004;
+static const int ERROR_RTMP_PROTOCOL_VERSION_ERROR = 2000;
+static const int ERROR_RTMP_PROTOCOL_C0C1_ZERO_NOT_ZERO = 2001;
+static const int ERROR_RTMP_PROTOCOL_C0C1_LENGTH_ERROR = 2002;
+static const int ERROR_RTMP_PROTOCOL_CHUNK_MESSAGE_FMT_ERROR = 2003;
+static const int ERROR_RTMP_PROTOCOL_AMF0_DECODE_ERROR = 2004;
+static const int ERROR_RTMP_PROTOCOL_FMT_BEYOND_LIMIT = 2005;
 
-
-static const uint64_t ERROR_CONTEXT_CONN_ID_EXISTS = 3000;
+// error number for context
+static const int ERROR_CONTEXT_CONN_ID_EXISTS = 3000;
 
 // error number for configure
-static const uint64_t ERROR_CONFIGURE_OPEN_FILE_FAILED = 4000;
-static const uint64_t ERROR_CONFIGURE_NO_SERVER_PARTS = 4001;
-static const uint64_t ERROR_CONFIGURE_SYNTAX_INVALID = 4002;
-static const uint64_t ERROR_CONFIGURE_TYPE_OF_SERVER_NOT_SUPPORT = 4003;
+static const int ERROR_CONFIGURE_OPEN_FILE_FAILED = 4000;
+static const int ERROR_CONFIGURE_NO_SERVER_PARTS = 4001;
+static const int ERROR_CONFIGURE_SYNTAX_INVALID = 4002;
+static const int ERROR_CONFIGURE_TYPE_OF_SERVER_NOT_SUPPORT = 4003;
+
 #endif

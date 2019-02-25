@@ -31,7 +31,7 @@ SOFTWARE.
  * usage
  */
 void usage() {
-    printf("useage:\n");
+    printf("usage:\n");
     printf("\t-c\tpath of configure file. should not be empty\n");
     printf("example:\n");
     printf("\t./objs/rs_server -c conf/default.json\n");
@@ -75,8 +75,7 @@ int main(int argc, char *argv[]) {
 
     // initialize configure
     auto config = rs_config::RsConfig();
-    if ((ret = config.initialize(configure_file)) !=
-        ERROR_SUCCESS) {
+    if ((ret = config.initialize(configure_file)) != ERROR_SUCCESS) {
         rs_error(nullptr, "initialize configure failed. ret=%d", ret);
         return ret;
     }
@@ -138,10 +137,11 @@ int main(int argc, char *argv[]) {
 
         if ((ret = uv_signal_start(&signal1, signal_handler, i)) != 0) {
             rs_error(nullptr, "hook SIGHUP failed. error=%d", ret);
-            ::exit(ret);
+            ::exit(ERROR_SIGNAL_INITIALIZE);
         }
     }
 
     rs_info(nullptr, "ready to run");
+
     return manager.run();
 }

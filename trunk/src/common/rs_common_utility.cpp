@@ -22,14 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "rs_common_utility.h"
 #include <math.h>
 #include <sys/time.h>
+#include <rs_common_utility.h>
 
-using namespace std;
-
-string rs_get_random(int size) {
-    string rd;
+std::string rs_get_random(int size) {
+    std::string rd;
 
     for (int i = 0; i < size; ++i) {
         rd.push_back(rand() % 128 + 32);
@@ -43,7 +41,6 @@ int64_t rs_get_system_time_ms() {
 
     timeval now;
     if (gettimeofday(&now, NULL) < 0) {
-        cout << "get time of day failed." << endl;
         return -1;
     }
 
@@ -51,7 +48,7 @@ int64_t rs_get_system_time_ms() {
     return now_us / 1000;
 }
 
-string rs_get_local_ip() {
+std::string rs_get_local_ip() {
     // TODO:FIXME: implement this function
     return "127.0.0.1";
 }
