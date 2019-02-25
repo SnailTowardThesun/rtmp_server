@@ -83,5 +83,5 @@ public:
 
     int run();
 
-    int exit();
+    int stop();
 };

@@ -25,9 +25,7 @@ SOFTWARE.
 #include <rs_module_log.h>
 #include <getopt.h>
 #include <rs_module_config.h>
-#include "rs_module_server.h"
-
-// TODO:FIXME: need to implement signal system
+#include <rs_module_server.h>
 
 /**
  * usage
@@ -43,7 +41,7 @@ void usage() {
 /**
  * Output the server info
  */
-void _server_info() {
+void print_server_info() {
     printf("rs-server version: %d.%d.%d.%d\n", VERSION_MAJOR, VERSION_MINOR,
            VERSION_REVISION, VERSION_BUILD);
     printf("Copyright (c) 2016 ME_Kun_Han hanvskun@hotmail.com\n");
@@ -52,7 +50,7 @@ void _server_info() {
 int main(int argc, char *argv[]) {
     int ret = ERROR_SUCCESS;
     // print server info
-    _server_info();
+    print_server_info();
 
     // parse params
     std::string configure_file;
@@ -128,7 +126,7 @@ int main(int argc, char *argv[]) {
 
                 auto tmp_manager = static_cast<RsServerManager*>(handle->data);
                 if (tmp_manager != nullptr) {
-                    tmp_manager->exit();
+                    tmp_manager->stop();
                 }
                 break;
         }

@@ -22,13 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "rs_module_server.h"
-#include "rs_module_config.h"
-#include "rs_common_utility.h"
-#include "rs_module_config.h"
-#include "rs_module_log.h"
-
-using namespace std;
+#include <rs_module_server.h>
+#include <rs_module_config.h>
+#include <rs_common_utility.h>
+#include <rs_module_config.h>
+#include <rs_module_log.h>
 
 RsBaseServer *RsBaseServer::create_new_server(
         const std::shared_ptr<rs_config::RsConfigBaseServer> &config, int &ret) {
@@ -52,7 +50,7 @@ RsBaseServer *RsBaseServer::create_new_server(
     };
 
     if ((ret = base->initialize(config)) != ERROR_SUCCESS) {
-        rs_error(nullptr, "initialzie server failed. ret=%d", ret);
+        rs_error(nullptr, "initialize server failed. ret=%d", ret);
         return fail();
     }
 
@@ -125,7 +123,7 @@ int RsServerManager::run() {
     return uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 }
 
-int RsServerManager::exit() {
+int RsServerManager::stop() {
     int ret = ERROR_SUCCESS;
 
     for (auto &i : container) {
