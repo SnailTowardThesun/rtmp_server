@@ -22,9 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "rs_kernel_context.h"
-
-using namespace std;
+#include <rs_kernel_context.h>
 
 RsConnContext::RsConnContext() {
     DEFAULT_ID = 100;

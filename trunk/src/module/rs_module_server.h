@@ -66,10 +66,9 @@ public:
     int dispose() override;
 };
 
-using ServerContainer = std::map<std::string, std::shared_ptr<RsBaseServer>>;
-
 class RsServerManager {
 private:
+    using ServerContainer = std::map<std::string, std::shared_ptr<RsBaseServer>>;
     ServerContainer container;
 public:
     RsServerManager() = default;

@@ -22,9 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "rs_kernel_buffer.h"
-
-using namespace std;
+#include <rs_kernel_buffer.h>
 
 int RsBufferLittleEndian::write_1_byte(uint8_t val) {
     int ret = ERROR_SUCCESS;
@@ -89,7 +87,7 @@ int RsBufferLittleEndian::write_8_byte(uint64_t val) {
     return ret;
 }
 
-int RsBufferLittleEndian::write_bytes(string buf) {
+int RsBufferLittleEndian::write_bytes(std::string buf) {
     buffer.append(buf);
     return ERROR_SUCCESS;
 }
@@ -97,7 +95,7 @@ int RsBufferLittleEndian::write_bytes(string buf) {
 int RsBufferLittleEndian::write_bytes(const char *buf, int size) {
     int ret = ERROR_SUCCESS;
 
-    buffer += string(buf, (unsigned long) size);
+    buffer += std::string(buf, (unsigned long) size);
 
     return ret;
 }
@@ -164,19 +162,18 @@ uint64_t RsBufferLittleEndian::read_8_byte() {
     return val;
 }
 
-string RsBufferLittleEndian::read_bytes(int size) {
-    string buf;
+std::string RsBufferLittleEndian::read_bytes(int size) {
+    std::string buf;
     buf = buffer.substr(0, size);
     buffer.erase(0, size);
     return buf;
 }
 
-string RsBufferLittleEndian::dump() {
+std::string RsBufferLittleEndian::dump() {
     if (!buffer.empty()) {
         return buffer;
     }
 
-    cout << "the buffer is empty" << endl;
     return "";
 }
 

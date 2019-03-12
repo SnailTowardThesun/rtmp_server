@@ -26,8 +26,6 @@ SOFTWARE.
 #include "rs_kernel_thread.h"
 #include "rs_common.h"
 
-using namespace std;
-
 RsLocker::RsLocker() : _locker(nullptr) {
     _locker = new uv_mutex_t();
     if (uv_mutex_init(_locker) == 0) {
@@ -70,14 +68,12 @@ int RsBaseThread::start() {
 
     if (_thread != nullptr && (ret = stop()) != ERROR_SUCCESS) {
         // TODO:FIXME implement log module
-        cout << "fail to stop thread" << endl;
         return ret;
     }
 
     _thread = new uv_thread_t();
     if ((ret = uv_thread_create(_thread, cycle, this) != ERROR_SUCCESS)) {
         // TODO:FIXME implement log module
-        cout << "create uv thread failed. ret=" << ret << endl;
         return ret;
     }
 
@@ -95,17 +91,14 @@ int RsBaseThread::stop() {
 
     if ((ret = uv_thread_join(_thread)) != ERROR_SUCCESS) {
         // TODO:FIXME implement log module
-        cout << "join uv thread failed. ret=" << ret << endl;
         return ret;
     }
     rs_free_p(_thread);
-    cout << "stop thread successfully" << endl;
 
     return ret;
 }
 
 int RsBaseThread::do_cycle() {
     // TODO:FIXME implement log module
-    cout << "this is base thread do cycle function" << endl;
     return ERROR_SUCCESS;
 }

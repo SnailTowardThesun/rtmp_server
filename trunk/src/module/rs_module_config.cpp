@@ -22,10 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <fstream>
 #include <rs_module_config.h>
 #include <rs_module_log.h>
 #include <rapidjson/filereadstream.h>
-#include <fstream>
 
 namespace rs_config {
 
