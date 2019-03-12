@@ -44,7 +44,7 @@ void usage() {
 void print_server_info() {
     printf("rs-server version: %d.%d.%d.%d\n", VERSION_MAJOR, VERSION_MINOR,
            VERSION_REVISION, VERSION_BUILD);
-    printf("Copyright (c) 2016 ME_Kun_Han hanvskun@hotmail.com\n");
+    printf("Copyright (c) 2019 ME_Kun_Han %s\n", AUTHOR);
 }
 
 int main(int argc, char *argv[]) {

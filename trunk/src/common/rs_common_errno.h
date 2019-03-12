@@ -26,8 +26,7 @@ SOFTWARE.
  * The Error Number for rtmp server.
  */
 
-#ifndef RS_COMMON_ERRNO_H
-#define RS_COMMON_ERRNO_H
+#pragma once
 
 // 0 for success
 static const int ERROR_SUCCESS = 0;
@@ -51,5 +50,3 @@ static const int ERROR_CONFIGURE_OPEN_FILE_FAILED = 4000;
 static const int ERROR_CONFIGURE_NO_SERVER_PARTS = 4001;
 static const int ERROR_CONFIGURE_SYNTAX_INVALID = 4002;
 static const int ERROR_CONFIGURE_TYPE_OF_SERVER_NOT_SUPPORT = 4003;
-
-#endif

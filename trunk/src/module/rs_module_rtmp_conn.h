@@ -23,10 +23,10 @@ SOFTWARE.
 */
 #pragma once
 
-#include "rs_common.h"
-#include "uv.h"
-#include "rs_kernel_io.h"
-#include "rs_protocol_amf0.h"
+#include <uv.h>
+#include <rs_common.h>
+#include <rs_kernel_io.h>
+#include <rs_protocol_amf0.h>
 
 class RsRtmpConn {
 private:
@@ -39,7 +39,7 @@ public:
 public:
     int initialize(uv_stream_t *server);
 
-public:
+private:
     // for rtmp protocol
     int simple_handshake_with_server();
 
@@ -49,6 +49,7 @@ public:
 
     int complex_handshake_witout_client();
 
+public:
     int connect();
 
     int play_stream();
