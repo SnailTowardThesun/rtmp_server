@@ -28,15 +28,12 @@ SOFTWARE.
 
 #define MESSAGE_BUFFER_LENGTH 4096
 
-RsTCPSocketIO::RsTCPSocketIO() : sock(nullptr) {
+RsTCPSocketIO::RsTCPSocketIO() {
     base = std::shared_ptr<char>(new char[MESSAGE_BUFFER_LENGTH]);
     RsConnContext::getInstance()->do_register(this);
 }
 
 RsTCPSocketIO::~RsTCPSocketIO() {
-    if (sock) {
-        close();
-    }
 
     RsConnContext::getInstance()->do_deregister(this);
 }
@@ -44,11 +41,9 @@ RsTCPSocketIO::~RsTCPSocketIO() {
 int RsTCPSocketIO::listen(std::string ip, int port) {
     int ret = ERROR_SUCCESS;
 
-    assert(sock == nullptr);
-    sock = new uv_tcp_t();
-    sock->data = this;
+    sock.data = this;
 
-    if ((ret = uv_tcp_init(uv_default_loop(), sock)) != ERROR_SUCCESS) {
+    if ((ret = uv_tcp_init(uv_default_loop(), &sock)) != ERROR_SUCCESS) {
         rs_error(this, "create socket using libuv failed. ret=%d", ret);
         return ret;
     }
@@ -59,12 +54,12 @@ int RsTCPSocketIO::listen(std::string ip, int port) {
         return ret;
     }
 
-    if ((ret = uv_tcp_bind(sock, (const struct sockaddr *) &addr, 0)) != ERROR_SUCCESS) {
+    if ((ret = uv_tcp_bind(&sock, (const struct sockaddr *) &addr, 0)) != ERROR_SUCCESS) {
         rs_error(this, "bind socket failed. ret=%d", ret);
         return ret;
     }
 
-    if ((ret = uv_listen((uv_stream_t *) sock, 128, on_connected)) != ERROR_SUCCESS) {
+    if ((ret = uv_listen((uv_stream_t *) &sock, 128, on_connected)) != ERROR_SUCCESS) {
         rs_error(this, "socket listen failed. ret=%d", ret);
         return ret;
     }
@@ -76,11 +71,9 @@ int RsTCPSocketIO::connect(std::string ip, int port) {
     // TODO:FIXME: implement this function
     int ret = ERROR_SUCCESS;
 
-    assert(sock == nullptr);
-    sock = new uv_tcp_t();
-    sock->data = this;
+    sock.data = this;
 
-    if ((ret = uv_tcp_init(uv_default_loop(), sock)) != ERROR_SUCCESS) {
+    if ((ret = uv_tcp_init(uv_default_loop(), &sock)) != ERROR_SUCCESS) {
         rs_error(this, "create socket using libuv failed. ret=%d", ret);
         return ret;
     }
@@ -102,7 +95,7 @@ int RsTCPSocketIO::connect(std::string ip, int port) {
         rs_error(nullptr, "connect failed.");
     };
 
-    if ((ret = uv_tcp_connect(req.get(), sock, (const struct sockaddr *) &addr,
+    if ((ret = uv_tcp_connect(req.get(), &sock, (const struct sockaddr *) &addr,
                               conn_cb)) != ERROR_SUCCESS) {
         rs_error(nullptr, "connected failed. ret=%d", ret);
         return ret;
@@ -114,9 +107,7 @@ int RsTCPSocketIO::connect(std::string ip, int port) {
 int RsTCPSocketIO::initialize(uv_tcp_t *stream) {
     int ret = ERROR_SUCCESS;
 
-    assert(sock == nullptr);
-    sock = stream;
-    sock->data = this;
+    sock.data = this;
 
     // start to read
     auto alloc_cb = [](uv_handle_t *handle,
@@ -139,7 +130,7 @@ int RsTCPSocketIO::initialize(uv_tcp_t *stream) {
         rs_info(nullptr, "get message: \n%s\n, nread=%d", buf->base, nread);
     };
 
-    if ((ret = uv_read_start((uv_stream_t *) sock, alloc_cb, read_cb)) != ERROR_SUCCESS) {
+    if ((ret = uv_read_start((uv_stream_t *) &sock, alloc_cb, read_cb)) != ERROR_SUCCESS) {
         rs_error(this, "start to read failed. ret=%d", ret);
         return ret;
     }
@@ -188,7 +179,7 @@ int RsTCPSocketIO::write(std::string buf, int size) {
     uv_write_t write_req;
     uv_buf_t test_buf = {(char *) buf.c_str(), (size_t) size};
 
-    if ((ret = uv_write(&write_req, (uv_stream_t *) sock, &test_buf, 1, write_cb)) !=
+    if ((ret = uv_write(&write_req, (uv_stream_t *) &sock, &test_buf, 1, write_cb)) !=
         ERROR_SUCCESS) {
         rs_error(this, "write failed. ret=%d", ret);
         return ret;
@@ -210,9 +201,11 @@ int RsTCPSocketIO::read(std::string &buf, int size) {
 }
 
 void RsTCPSocketIO::close() {
-    uv_close((uv_handle_t *) sock, [](uv_handle_t *handle) {
-        rs_info(nullptr, "socket has been closed");
+    uv_shutdown_t uvShutdown;
+    uv_shutdown(&uvShutdown, (uv_stream_t*)&sock, [](uv_shutdown_t *req, int status) {
+        rs_info(nullptr, "shut down");
     });
-
-    sock = nullptr;
+    uv_close((uv_handle_t *) &sock, [](uv_handle_t *handle) {
+        rs_info(nullptr, "close");
+    });
 }

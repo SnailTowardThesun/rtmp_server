@@ -92,56 +92,16 @@ int main(int argc, char *argv[]) {
     rs_info(nullptr, "initialize the configure success");
 
     RsServerManager manager;
-    if ((ret = manager.initialize()) != ERROR_SUCCESS) {
+    if ((ret = manager.initialize(config.get_servers())) != ERROR_SUCCESS) {
         rs_error(nullptr, "initialize server manager failed. ret=%d", ret);
         return ret;
     }
 
-    auto serverConfigs = config.get_servers();
-    for (auto &i : serverConfigs) {
-        auto serveConfigNode = i.second;
-        if ((ret = manager.create_new_server(serveConfigNode)) != ERROR_SUCCESS) {
-            rs_error(nullptr, "create one server=%s failed. ret=%d", i.first.c_str(), ret);
-            return ret;
-        }
-    }
-
-    // initialize signal handler
-    uv_signal_t signal1;
-    if ((ret = uv_signal_init(uv_default_loop(), &signal1)) != 0) {
-        rs_error(nullptr, "initialize signal failed. error=%d", ret);
-        ::exit(ret);
-    }
-
-    signal1.data = static_cast<void *>(&manager);
-
-    auto signal_handler = [](uv_signal_t *handle, int signum) {
-        switch (signum) {
-            case SIGHUP:
-                rs_info(nullptr, "get SIGHUP signal");
-                break;
-            case SIGTERM:
-                rs_info(nullptr, "get SIGTERM signal");
-
-                auto tmp_manager = static_cast<RsServerManager*>(handle->data);
-                if (tmp_manager != nullptr) {
-                    tmp_manager->stop();
-                }
-                break;
-        }
-    };
-
-    auto signals = {SIGHUP, SIGTERM};
-
-    for (auto &i : signals) {
-
-        if ((ret = uv_signal_start(&signal1, signal_handler, i)) != 0) {
-            rs_error(nullptr, "hook SIGHUP failed. error=%d", ret);
-            ::exit(ERROR_SIGNAL_INITIALIZE);
-        }
-    }
-
     rs_info(nullptr, "ready to run");
 
-    return manager.run();
+    ret = manager.run();
+
+    rs_info(nullptr, "ready to exit rtmp server, ret=%d", ret);
+
+    return ERROR_SUCCESS;
 }

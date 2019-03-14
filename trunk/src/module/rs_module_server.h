@@ -27,58 +27,49 @@ SOFTWARE.
 #include "rs_module_rtmp_conn.h"
 #include "rs_module_config.h"
 
+
 class RsBaseServer {
 public:
     RsBaseServer() = default;
 
     virtual ~RsBaseServer() = default;
 
-private:
-    virtual int
-    initialize(const std::shared_ptr<rs_config::RsConfigBaseServer> &config) = 0;
-
 public:
+    virtual int initialize(rs_config::RsConfigBaseServer *config) = 0;
+
     virtual int dispose() = 0;
-
-public:
-    static RsBaseServer *
-    create_new_server(const std::shared_ptr<rs_config::RsConfigBaseServer> &config,
-                      int &ret);
 };
 
 class RsRtmpServer : public RsBaseServer {
 private:
-    RsTCPSocketIO *sock;
+    RsTCPSocketIO *listen_sock;
 
+    std::vector<std::shared_ptr<RsRtmpConn>> conns;
 public:
     RsRtmpServer();
 
     ~RsRtmpServer() override;
 
 private:
-    int initialize(const std::shared_ptr<rs_config::RsConfigBaseServer> &config) override;
-
     static void on_connection(IRsReaderWriter *io, void *param);
 
-private:
-    std::vector<std::shared_ptr<RsRtmpConn>> conns;
 public:
+    int initialize(rs_config::RsConfigBaseServer *config) override;
+
     int dispose() override;
 };
 
 class RsServerManager {
 private:
     using ServerContainer = std::map<std::string, std::shared_ptr<RsBaseServer>>;
-    ServerContainer container;
+    ServerContainer server_container;
 public:
     RsServerManager() = default;
 
     ~RsServerManager() = default;
 
 public:
-    int initialize();
-
-    int create_new_server(const std::shared_ptr<rs_config::RsConfigBaseServer> &config);
+    int initialize(const rs_config::ConfigServerContainer &servers);
 
     int run();
 

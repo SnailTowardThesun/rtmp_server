@@ -1,3 +1,5 @@
+#include <memory>
+
 /*
 MIT License
 
@@ -28,92 +30,66 @@ SOFTWARE.
 #include <rs_module_config.h>
 #include <rs_module_log.h>
 
-RsBaseServer *RsBaseServer::create_new_server(
-        const std::shared_ptr<rs_config::RsConfigBaseServer> &config, int &ret) {
-    RsBaseServer *base = nullptr;
-
-    switch (config->get_type()) {
-        case rs_config::RS_SERVER_TYPE_RTMP:
-            base = new RsRtmpServer();
-            break;
-        default:
-            ret = ERROR_CONFIGURE_TYPE_OF_SERVER_NOT_SUPPORT;
-            return nullptr;
-    }
-
-    auto fail = [&]() {
-        if (base != nullptr) {
-            delete base;
-        }
-
-        return static_cast<RsBaseServer *>(nullptr);
-    };
-
-    if ((ret = base->initialize(config)) != ERROR_SUCCESS) {
-        rs_error(nullptr, "initialize server failed. ret=%d", ret);
-        return fail();
-    }
-
-    return base;
-}
-
 RsRtmpServer::RsRtmpServer() {
-    sock = new RsTCPSocketIO();
-    sock->cb = on_connection;
-    sock->param = this;
+    listen_sock = new RsTCPSocketIO();
+    listen_sock->cb = on_connection;
+    listen_sock->param = this;
 }
 
 RsRtmpServer::~RsRtmpServer() {
     dispose();
     conns.clear();
-    rs_free_p(sock);
-}
-
-int RsRtmpServer::initialize(const std::shared_ptr<rs_config::RsConfigBaseServer> &config) {
-    int ret = ERROR_SUCCESS;
-
-    rs_info(sock, "ready to initialize a new rtmp server, name=%s, port=%d",
-            config->get_server_name().c_str(), config->get_port());
-
-    sock->listen("0.0.0.0", config->get_port());
-
-    return ret;
+    rs_free_p(listen_sock);
 }
 
 void RsRtmpServer::on_connection(IRsReaderWriter *io, void *param) {
     rs_info(io, "get one connection for rtmp");
 }
 
+int RsRtmpServer::initialize(rs_config::RsConfigBaseServer *config) {
+    int ret = ERROR_SUCCESS;
+
+    rs_info(listen_sock, "ready to initialize a new rtmp server, name=%s, port=%d",
+            config->get_server_name().c_str(), config->get_port());
+
+    listen_sock->listen("0.0.0.0", config->get_port());
+
+    return ret;
+}
+
 int RsRtmpServer::dispose() {
     int ret = ERROR_SUCCESS;
 
-    sock->close();
-    rs_free_p(sock);
+    listen_sock->close();
 
     return ret;
 }
 
-int RsServerManager::initialize() {
+int RsServerManager::initialize(const rs_config::ConfigServerContainer &servers) {
     int ret = ERROR_SUCCESS;
 
-    return ret;
-}
+    for (auto &i : servers) {
+        auto config = i.second.get();
 
-// TODO:FIXME: implement other type of server
-int RsServerManager::create_new_server(
-        const std::shared_ptr<rs_config::RsConfigBaseServer> &config) {
-    int ret = ERROR_SUCCESS;
+        std::shared_ptr<RsBaseServer> baseServer = nullptr;
+        switch (config->get_type()) {
+            case rs_config::RS_SERVER_TYPE_RTMP:
+                baseServer = std::make_shared<RsRtmpServer>();
+                break;
+            default:
+                rs_error(nullptr, "Sorry, we only support rtmp server now");
+                return ERROR_CONFIGURE_TYPE_OF_SERVER_NOT_SUPPORT;
+        }
 
-    if (config->get_type() != rs_config::RS_SERVER_TYPE_RTMP) {
-        rs_error(nullptr, "Sorry, we only support rtmp server now");
-        ::exit(-1);
-    }
+        assert(baseServer != nullptr);
 
-    auto baseServer = std::shared_ptr<RsBaseServer>(
-            RsBaseServer::create_new_server(config, ret));
+        if ((ret = baseServer->initialize(config)) != ERROR_SUCCESS) {
+            rs_error(nullptr, "initialize server failed. name=%s, type=%d, ret=%d",
+                     config->get_server_name().c_str(), config->get_type(), ret);
+            return ret;
+        }
 
-    if (baseServer != nullptr && ret == ERROR_SUCCESS) {
-        container[config->get_server_name()] = baseServer;
+        server_container[config->get_server_name()] = baseServer;
     }
 
     return ret;
@@ -126,11 +102,12 @@ int RsServerManager::run() {
 int RsServerManager::stop() {
     int ret = ERROR_SUCCESS;
 
-    for (auto &i : container) {
+    for (auto &i : server_container) {
         i.second->dispose();
     }
 
-    // stop all loop
+    server_container.clear();
+
     uv_stop(uv_default_loop());
 
     return ret;

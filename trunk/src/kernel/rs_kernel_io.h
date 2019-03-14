@@ -43,7 +43,7 @@ using connection_cb = void (*)(IRsReaderWriter *io, void *param);
 
 class RsTCPSocketIO : public IRsReaderWriter {
 public:
-    uv_tcp_t *sock;
+    uv_tcp_t sock;
     std::shared_ptr<char> base;
     std::string buffer;
 public:
