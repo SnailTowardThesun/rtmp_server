@@ -35,6 +35,12 @@ private:
 public:
     RsConnContext();
 
+    RsConnContext(RsConnContext const &) = delete;
+
+    RsConnContext(RsConnContext &&) = delete;
+
+    RsConnContext &operator=(RsConnContext const &) = delete;
+
     virtual ~RsConnContext();
 
 public:
@@ -44,6 +50,9 @@ public:
 
     uint64_t get_id(IRsIO *io);
 
-    static RsConnContext *getInstance();
+    static std::shared_ptr<RsConnContext> getInstance() {
+        static auto ins = std::shared_ptr<RsConnContext>(new RsConnContext());
+        return ins;
+    };
 };
 
