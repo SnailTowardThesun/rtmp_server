@@ -31,18 +31,18 @@ private:
     uint64_t DEFAULT_ID;
     uint64_t current_ID;
 
-    std::map<IRsReaderWriter *, uint64_t> connection_ids;
+    std::map<IRsIO *, uint64_t> connection_ids;
 public:
     RsConnContext();
 
     virtual ~RsConnContext();
 
 public:
-    int32_t do_register(IRsReaderWriter *io);
+    int32_t do_register(IRsIO *io);
 
-    void do_deregister(IRsReaderWriter *io);
+    void do_deregister(IRsIO *io);
 
-    uint64_t get_id(IRsReaderWriter *io);
+    uint64_t get_id(IRsIO *io);
 
     static RsConnContext *getInstance();
 };

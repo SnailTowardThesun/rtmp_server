@@ -42,7 +42,7 @@ public:
 
 class RsRtmpServer : public RsBaseServer {
 private:
-    RsTCPSocketIO *listen_sock;
+    RsTCPListener *listen_sock;
 
     std::vector<std::shared_ptr<RsRtmpConn>> conns;
 public:
@@ -51,7 +51,7 @@ public:
     ~RsRtmpServer() override;
 
 private:
-    static void on_connection(IRsReaderWriter *io, void *param);
+    static void on_new_connection(IRsReaderWriter *io, void *param);
 
 public:
     int initialize(rs_config::RsConfigBaseServer *config) override;
@@ -66,12 +66,12 @@ private:
 public:
     RsServerManager() = default;
 
-    ~RsServerManager() = default;
+    ~RsServerManager() { stop(); };
 
 public:
     int initialize(const rs_config::ConfigServerContainer &servers);
 
     int run();
 
-    int stop();
+    void stop();
 };

@@ -42,7 +42,7 @@ namespace rs_log {
         msg = std::shared_ptr<char>(new char[RS_LOG_MAX_LENGTH]);
     }
 
-    void RsLogManager::info(IRsReaderWriter *io, const char *fmt, ...) {
+    void RsLogManager::info(IRsIO *io, const char *fmt, ...) {
         va_list ap;
         va_start(ap, fmt);
         auto size = vsnprintf(msg.get(), RS_LOG_MAX_LENGTH, fmt, ap);
@@ -53,7 +53,7 @@ namespace rs_log {
         log(cid, RS_LOG_LEVEL_INFO, std::string(msg.get(), static_cast<unsigned long>(size)));
     }
 
-    void RsLogManager::verbose(IRsReaderWriter *io, const char *fmt, ...) {
+    void RsLogManager::verbose(IRsIO *io, const char *fmt, ...) {
         va_list ap;
         va_start(ap, fmt);
         auto size = vsnprintf(msg.get(), RS_LOG_MAX_LENGTH, fmt, ap);
@@ -65,7 +65,7 @@ namespace rs_log {
             std::string(msg.get(), static_cast<unsigned long>(size)));
     }
 
-    void RsLogManager::trace(IRsReaderWriter *io, const char *fmt, ...) {
+    void RsLogManager::trace(IRsIO *io, const char *fmt, ...) {
         va_list ap;
         va_start(ap, fmt);
         auto size = vsnprintf(msg.get(), RS_LOG_MAX_LENGTH, fmt, ap);
@@ -76,7 +76,7 @@ namespace rs_log {
         log(cid, RS_LOG_LEVEL_TRACE, std::string(msg.get(), static_cast<unsigned long>(size)));
     }
 
-    void RsLogManager::warn(IRsReaderWriter *io, const char *fmt, ...) {
+    void RsLogManager::warn(IRsIO *io, const char *fmt, ...) {
         va_list ap;
         va_start(ap, fmt);
         auto size = vsnprintf(msg.get(), RS_LOG_MAX_LENGTH, fmt, ap);
@@ -87,7 +87,7 @@ namespace rs_log {
         log(cid, RS_LOG_LEVEL_WARN, std::string(msg.get(), static_cast<unsigned long>(size)));
     }
 
-    void RsLogManager::error(IRsReaderWriter *io, const char *fmt, ...) {
+    void RsLogManager::error(IRsIO *io, const char *fmt, ...) {
         va_list ap;
         va_start(ap, fmt);
         auto size = vsnprintf(msg.get(), RS_LOG_MAX_LENGTH, fmt, ap);

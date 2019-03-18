@@ -1,5 +1,3 @@
-#include <memory>
-
 /*
 MIT License
 
@@ -24,16 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <rs_module_server.h>
-#include <rs_module_config.h>
-#include <rs_common_utility.h>
-#include <rs_module_config.h>
-#include <rs_module_log.h>
+#include <memory>
+#include "rs_module_server.h"
+#include "rs_module_config.h"
+#include "rs_common_utility.h"
+#include "rs_module_config.h"
+#include "rs_module_log.h"
 
 RsRtmpServer::RsRtmpServer() {
-    listen_sock = new RsTCPSocketIO();
-    listen_sock->cb = on_connection;
-    listen_sock->param = this;
+    listen_sock = new RsTCPListener();
 }
 
 RsRtmpServer::~RsRtmpServer() {
@@ -42,8 +39,11 @@ RsRtmpServer::~RsRtmpServer() {
     rs_free_p(listen_sock);
 }
 
-void RsRtmpServer::on_connection(IRsReaderWriter *io, void *param) {
+void RsRtmpServer::on_new_connection(IRsReaderWriter *io, void *param) {
     rs_info(io, "get one connection for rtmp");
+
+    RsRtmpServer *pr_this = (RsRtmpServer *) param;
+    assert(pr_this != nullptr);
 }
 
 int RsRtmpServer::initialize(rs_config::RsConfigBaseServer *config) {
@@ -52,15 +52,13 @@ int RsRtmpServer::initialize(rs_config::RsConfigBaseServer *config) {
     rs_info(listen_sock, "ready to initialize a new rtmp server, name=%s, port=%d",
             config->get_server_name().c_str(), config->get_port());
 
-    listen_sock->listen("0.0.0.0", config->get_port());
+    listen_sock->initialize("0.0.0.0", config->get_port(), on_new_connection, this);
 
     return ret;
 }
 
 int RsRtmpServer::dispose() {
     int ret = ERROR_SUCCESS;
-
-    listen_sock->close();
 
     return ret;
 }
@@ -99,16 +97,10 @@ int RsServerManager::run() {
     return uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 }
 
-int RsServerManager::stop() {
-    int ret = ERROR_SUCCESS;
-
+void RsServerManager::stop() {
     for (auto &i : server_container) {
         i.second->dispose();
     }
 
     server_container.clear();
-
-    uv_stop(uv_default_loop());
-
-    return ret;
 }

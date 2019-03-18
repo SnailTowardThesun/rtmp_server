@@ -97,11 +97,6 @@ int main(int argc, char *argv[]) {
         return ret;
     }
 
-    rs_info(nullptr, "ready to run");
 
-    ret = manager.run();
-
-    rs_info(nullptr, "ready to exit rtmp server, ret=%d", ret);
-
-    return ERROR_SUCCESS;
+    return manager.run();
 }

@@ -23,9 +23,9 @@ SOFTWARE.
 */
 
 #include <fstream>
-#include <rs_module_config.h>
-#include <rs_module_log.h>
 #include <rapidjson/filereadstream.h>
+#include "rs_module_config.h"
+#include "rs_module_log.h"
 
 namespace rs_config {
 

@@ -79,15 +79,15 @@ namespace rs_log {
             log_interface.reset(inter);
         }
 
-        void info(IRsReaderWriter *io, const char *fmt, ...);
+        void info(IRsIO *io, const char *fmt, ...);
 
-        void verbose(IRsReaderWriter *io, const char *fmt, ...);
+        void verbose(IRsIO *io, const char *fmt, ...);
 
-        void trace(IRsReaderWriter *io, const char *fmt, ...);
+        void trace(IRsIO *io, const char *fmt, ...);
 
-        void warn(IRsReaderWriter *io, const char *fmt, ...);
+        void warn(IRsIO *io, const char *fmt, ...);
 
-        void error(IRsReaderWriter *io, const char *fmt, ...);
+        void error(IRsIO *io, const char *fmt, ...);
 
     public:
         virtual void log(int64_t cid, std::string level, std::string message) {

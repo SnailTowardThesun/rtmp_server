@@ -24,10 +24,17 @@ SOFTWARE.
 
 #pragma once
 
+#include <uv.h>
 #include "rs_common.h"
-#include "uv.h"
 
-class IRsReaderWriter {
+class IRsIO {
+public:
+    IRsIO() = default;
+
+    virtual ~IRsIO() = default;
+};
+
+class IRsReaderWriter : virtual public IRsIO {
 public:
     IRsReaderWriter() = default;
 
@@ -37,14 +44,32 @@ public:
     virtual int write(std::string buf, int size) = 0;
 
     virtual int read(std::string &buf, int size) = 0;
+
 };
 
-using connection_cb = void (*)(IRsReaderWriter *io, void *param);
+using on_new_connection_cb = std::function<void(IRsReaderWriter *, void *)>;
+
+class RsTCPListener : public IRsIO {
+private:
+    uv_tcp_t _listen_sock{};
+    void *_extra_param;
+    on_new_connection_cb _cb;
+public:
+    RsTCPListener() : _extra_param(nullptr) {};
+
+    ~RsTCPListener() override = default;
+
+private:
+    static void on_connection(uv_stream_t *s, int status);
+
+public:
+    int initialize(std::string ip, int port, on_new_connection_cb, void *param);
+};
 
 class RsTCPSocketIO : public IRsReaderWriter {
 public:
-    uv_tcp_t sock;
-    std::shared_ptr<char> base;
+    uv_tcp_t *_uv_tcp_socket;
+    std::vector<char> _base;
     std::string buffer;
 public:
     RsTCPSocketIO();
@@ -52,21 +77,14 @@ public:
     ~RsTCPSocketIO() override;
 
 public:
-    connection_cb cb;
-    void *param;
-public:
-    int listen(std::string ip, int port);
-
-    int connect(std::string ip, int port);
-
     int initialize(uv_tcp_t *stream);
 
-    static void on_connected(uv_stream_t *server, int status);
 // implement IRsReaderWrite
 public:
     int write(std::string buf, int size) override;
 
     int read(std::string &buf, int size) override;
 
+private:
     void close();
 };

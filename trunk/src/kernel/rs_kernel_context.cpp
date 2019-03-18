@@ -32,7 +32,7 @@ RsConnContext::RsConnContext() {
 RsConnContext::~RsConnContext() {
 }
 
-int32_t RsConnContext::do_register(IRsReaderWriter *io) {
+int32_t RsConnContext::do_register(IRsIO *io) {
     int32_t ret = ERROR_SUCCESS;
 
     if (connection_ids.find(io) != connection_ids.end()) {
@@ -46,11 +46,11 @@ int32_t RsConnContext::do_register(IRsReaderWriter *io) {
 }
 
 
-void RsConnContext::do_deregister(IRsReaderWriter *io) {
+void RsConnContext::do_deregister(IRsIO *io) {
     connection_ids.erase(io);
 }
 
-uint64_t RsConnContext::get_id(IRsReaderWriter *io) {
+uint64_t RsConnContext::get_id(IRsIO *io) {
     auto id = connection_ids.find(io);
     if (id == connection_ids.end()) {
         return DEFAULT_ID;
