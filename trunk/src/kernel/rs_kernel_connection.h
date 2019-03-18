@@ -22,7 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#ifndef RS_KERNEL_CONNECTION_HEADER_H_
+#define RS_KERNEL_CONNECTION_HEADER_H_
 
 class RsConnection {
 public:
@@ -34,3 +35,5 @@ public:
 
     virtual int initialize(IRsIO *io) = 0;
 };
+
+#endif

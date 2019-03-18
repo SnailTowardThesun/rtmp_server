@@ -22,7 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#ifndef RS_KERNEL_THREAD_H_
+#define RS_KERNEL_THREAD_H_
+
 
 #include "uv.h"
 
@@ -55,3 +57,5 @@ public:
 
     virtual int do_cycle();
 };
+
+#endif

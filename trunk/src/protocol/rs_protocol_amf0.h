@@ -22,7 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#ifndef RS_PROTOCOL_AMF0_H_
+#define RS_PROTOCOL_AMF0_H_
 
 #include "rs_kernel_io.h"
 #include "rs_common.h"
@@ -287,3 +288,5 @@ protected:
 public:
     int initialize(IRsReaderWriter *reader);
 };
+
+#endif

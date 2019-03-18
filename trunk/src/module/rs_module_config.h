@@ -21,7 +21,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#pragma once
+
+#ifndef RS_MODULE_CONFIG_H_
+#define RS_MODULE_CONFIG_H_
 
 #include <rapidjson/document.h>
 #include "rs_common.h"
@@ -133,4 +135,6 @@ namespace rs_config {
 
         ConfigServerContainer const &get_servers() const { return servers; };
     };
-}
+};
+
+#endif

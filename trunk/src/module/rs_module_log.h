@@ -24,7 +24,8 @@ SOFTWARE.
 The log system for rtmp server
 */
 
-#pragma once
+#ifndef RS_MODULE_LOG_H_
+#define RS_MODULE_LOG_H_
 
 #include <unistd.h>
 #include "rs_common.h"
@@ -116,3 +117,4 @@ namespace rs_log {
 
 // TODO:FIXME: implement the log using disk.
 
+#endif

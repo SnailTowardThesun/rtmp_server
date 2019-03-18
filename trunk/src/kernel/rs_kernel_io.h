@@ -22,10 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#ifndef RS_KERNEL_IO_HEADER_H_
+#define RS_KERNEL_IO_HEADER_H_
 
 #include <uv.h>
 #include "rs_common.h"
+#include "rs_kernel_context.h"
 
 class IRsIO {
 public:
@@ -34,7 +36,7 @@ public:
     virtual ~IRsIO() = default;
 };
 
-class IRsReaderWriter : virtual public IRsIO {
+class IRsReaderWriter : public IRsIO {
 public:
     IRsReaderWriter() = default;
 
@@ -55,15 +57,18 @@ private:
     void *_extra_param;
     on_new_connection_cb _cb;
 public:
-    RsTCPListener() : _extra_param(nullptr) {};
+    RsTCPListener();
 
-    ~RsTCPListener() override = default;
+    ~RsTCPListener() override;
 
 private:
     static void on_connection(uv_stream_t *s, int status);
 
 public:
     int initialize(std::string ip, int port, on_new_connection_cb, void *param);
+
+private:
+    void close();
 };
 
 class RsTCPSocketIO : public IRsReaderWriter {
@@ -88,3 +93,5 @@ public:
 private:
     void close();
 };
+
+#endif

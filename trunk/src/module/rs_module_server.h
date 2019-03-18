@@ -21,7 +21,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#pragma once
+
+#ifndef RS_MODULE_SERVER_H_
+#define RS_MODULE_SERVER_H_
 
 #include "rs_kernel_io.h"
 #include "rs_module_rtmp_conn.h"
@@ -75,3 +77,5 @@ public:
 
     void stop();
 };
+
+#endif

@@ -22,7 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+
+#ifndef RS_COMMON_UTILITY_H_
+#define RS_COMMON_UTILITY_H_
 
 #include "rs_common.h"
 
@@ -49,3 +51,5 @@ extern std::string rs_get_random(int size);
 extern int64_t rs_get_system_time_ms();
 
 extern std::string rs_get_local_ip();
+
+#endif

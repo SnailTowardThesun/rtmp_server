@@ -21,10 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#pragma once
+
+#ifndef RS_KERNEL_CONTEXT_HEADER_H_
+#define RS_KERNEL_CONTEXT_HEADER_H_
 
 #include "rs_common.h"
-#include "rs_kernel_io.h"
+
+class IRsIO;
 
 class RsConnContext {
 private:
@@ -56,3 +59,4 @@ public:
     };
 };
 
+#endif

@@ -22,6 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#ifndef RS_PROTOCOL_AMF3_H_
+#define RS_PROTOCOL_AMF3_H_
+
 #include "rs_common.h"
 // TODO:FIXME implement amf3
+
+#endif

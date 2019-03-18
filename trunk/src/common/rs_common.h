@@ -24,7 +24,8 @@ SOFTWARE.
 The common value for rtmp server
 */
 
-#pragma once
+#ifndef RS_COMMON_H_
+#define RS_COMMON_H_
 
 #define AUTHOR "hanvskun@hotmail.com"
 
@@ -45,3 +46,5 @@ The common value for rtmp server
 
 #include <rs_common_errno.h>
 #include <rs_common_utility.h>
+
+#endif

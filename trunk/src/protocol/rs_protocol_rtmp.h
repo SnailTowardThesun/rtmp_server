@@ -22,7 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#ifndef RS_PROTOCOL_RTMP_H_
+#define RS_PROTOCOL_RTMP_H_
 
 #include "rs_common.h"
 #include "rs_kernel_io.h"
@@ -136,3 +137,5 @@ public:
     create_chunk_messages(uint32_t ts, std::string msg, uint8_t msg_type,
                           uint32_t msg_stream_id, uint32_t cs);
 };
+
+#endif

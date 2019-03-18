@@ -22,7 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#ifndef RS_KERNEL_BUFFER_HEADER_H_
+#define RS_KERNEL_BUFFER_HEADER_H_
+
 
 #include "rs_common.h"
 #include "rs_kernel_io.h"
@@ -81,3 +83,5 @@ public:
 
     static uint64_t convert_8bytes_into_uint64(std::string buf);
 };
+
+#endif
