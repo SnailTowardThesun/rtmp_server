@@ -24,6 +24,7 @@ SOFTWARE.
 
 #include "gtest/gtest.h"
 #include "rs_kernel_context.h"
+#include "rs_kernel_io.h"
 
 TEST(RsConnContext, regist_unregist) {
     RsConnContext context;

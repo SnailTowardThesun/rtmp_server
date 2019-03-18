@@ -28,6 +28,18 @@ SOFTWARE.
 
 #define MESSAGE_BUFFER_LENGTH 4096
 
+RsTCPListener::RsTCPListener() {
+    _extra_param = nullptr;
+
+    // RsConnContext::getInstance()->do_register(this);
+}
+
+RsTCPListener::~RsTCPListener() {
+    close();
+
+    // RsConnContext::getInstance()->do_deregister(this);
+}
+
 void RsTCPListener::on_connection(uv_stream_t *s, int status) {
     assert(status == 0);
 
@@ -85,6 +97,33 @@ int RsTCPListener::initialize(std::string ip, int port, on_new_connection_cb cb,
     }
 
     return ret;
+}
+
+void RsTCPListener::close() {
+    uv_shutdown_t uv_shutdown_req;
+    uv_shutdown_req.data = this;
+
+    int ret = ERROR_SUCCESS;
+
+    auto shutdown_cb = [](uv_shutdown_t *req, int status) {
+        auto io = (RsTCPListener *) req->data;
+        rs_info(io, "do shutdown!");
+    };
+
+    if ((ret = uv_shutdown(&uv_shutdown_req, (uv_stream_t *) &_listen_sock, shutdown_cb)) != 0) {
+        rs_error(this, "shutdown tcp listener failed. ret=%d", ret);
+        return;
+    }
+
+    /*
+    auto close_cb = [](uv_handle_t *handle) {
+
+    };
+    if ((ret = uv_close((uv_handle_t *) &_listen_sock, close_cb)) != ERROR_SUCCESS) {
+        rs_error(this, "close tcp listener failed. ret=%d", ret);
+        return;
+    }
+     */
 }
 
 RsTCPSocketIO::RsTCPSocketIO() {

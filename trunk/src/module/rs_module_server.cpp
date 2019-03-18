@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #include <memory>
+#include "rs_kernel_io.h"
 #include "rs_module_server.h"
 #include "rs_module_config.h"
 #include "rs_common_utility.h"
