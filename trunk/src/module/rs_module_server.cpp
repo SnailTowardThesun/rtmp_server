@@ -36,14 +36,25 @@ RsRtmpServer::RsRtmpServer() {
 RsRtmpServer::~RsRtmpServer() {
     dispose();
     conns.clear();
+
     rs_free_p(listen_sock);
 }
 
 void RsRtmpServer::on_new_connection(IRsReaderWriter *io, void *param) {
     rs_info(io, "get one connection for rtmp");
 
-    RsRtmpServer *pr_this = (RsRtmpServer *) param;
-    assert(pr_this != nullptr);
+    auto *pt_this = (RsRtmpServer *) param;
+    assert(pt_this != nullptr);
+
+    int ret = ERROR_SUCCESS;
+
+    auto conn = std::shared_ptr<RsRtmpConn>(new RsRtmpConn());
+    if ((ret = conn->initialize(io)) != ERROR_SUCCESS) {
+        rs_error(io, "initialize the rtmp connection failed. ret=%d", ret);
+        return ;
+    }
+
+    pt_this->conns.push_back(conn);
 }
 
 int RsRtmpServer::initialize(rs_config::RsConfigBaseServer *config) {

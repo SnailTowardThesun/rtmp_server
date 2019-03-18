@@ -26,17 +26,22 @@ SOFTWARE.
 
 #include "rs_common.h"
 
-#define rs_free_p(p) \
-if (p != nullptr) { \
-    delete p;\
-    p = nullptr;\
+template<typename T>
+inline void rs_free_p(T *p) {
+    if (p != nullptr) {
+        delete p;
+        p = nullptr;
+    }
 }
 
-#define rs_free_array(p) \
-if (p != nullptr)\
-{\
-    delete[] p;\
-    p = nullptr;\
+// #define rs_free_array(p)
+template<typename T>
+inline void rs_free_array(T *p) {
+    if (p != nullptr) {
+        delete[] p;
+        p = nullptr;
+
+    }
 }
 
 extern std::string rs_get_random(int size);
