@@ -1,3 +1,5 @@
+#include <utility>
+
 /*
 MIT License
 
@@ -49,19 +51,8 @@ void RsTCPListener::on_connection(uv_stream_t *s, int status) {
 
     rs_info(pt_this, "get one tcp connection");
 
-    auto in_conn = new uv_tcp_t();
-    if ((ret = uv_tcp_init(uv_default_loop(), in_conn)) != ERROR_SUCCESS) {
-        rs_error(nullptr, "initialize the client socket from loop failed. ret=%d", ret);
-        return;
-    }
-
-    if ((ret = uv_accept(s, (uv_stream_t *) in_conn)) != ERROR_SUCCESS) {
-        rs_error(nullptr, "accept one connection failed. ret=%d", ret);
-        return;
-    }
-
     RsTCPSocketIO io;
-    if ((ret = io.initialize(in_conn)) != ERROR_SUCCESS) {
+    if ((ret = io.initialize(s)) != ERROR_SUCCESS) {
         rs_error(pt_this, "accept one connection for tcp failed. ret=%d", ret);
         return;
     }
@@ -132,19 +123,29 @@ void RsTCPListener::close() {
 
 RsTCPSocketIO::RsTCPSocketIO() {
     _base.reserve(MESSAGE_BUFFER_LENGTH);
-    _uv_tcp_socket = nullptr;
+    _uv_tcp_socket = new uv_tcp_t();
 
     RsConnContext::getInstance()->do_register(this);
 }
 
 RsTCPSocketIO::~RsTCPSocketIO() {
+    rs_free_p(_uv_tcp_socket);
+
     RsConnContext::getInstance()->do_deregister(this);
 }
 
-int RsTCPSocketIO::initialize(uv_tcp_t *stream) {
+int RsTCPSocketIO::initialize(uv_stream_t *stream) {
     int ret = ERROR_SUCCESS;
 
-    _uv_tcp_socket = stream;
+    if ((ret = uv_tcp_init(uv_default_loop(), _uv_tcp_socket)) != ERROR_SUCCESS) {
+        rs_error(nullptr, "initialize the client socket from loop failed. ret=%d", ret);
+        return ret;
+    }
+
+    if ((ret = uv_accept(stream, (uv_stream_t *) _uv_tcp_socket)) != ERROR_SUCCESS) {
+        rs_error(nullptr, "accept one connection failed. ret=%d", ret);
+        return ret;
+    }
 
     _uv_tcp_socket->data = this;
 
@@ -219,6 +220,4 @@ int RsTCPSocketIO::read(std::string &buf, int size) {
 
 void RsTCPSocketIO::close() {
     uv_close((uv_handle_t *) _uv_tcp_socket, NULL);
-    rs_free_p(_uv_tcp_socket);
-    rs_info(this, "close one tcp io");
 }

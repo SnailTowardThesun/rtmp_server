@@ -82,7 +82,7 @@ public:
     ~RsTCPSocketIO() override;
 
 public:
-    int initialize(uv_tcp_t *stream);
+    int initialize(uv_stream_t *stream);
 
 // implement IRsReaderWrite
 public:
