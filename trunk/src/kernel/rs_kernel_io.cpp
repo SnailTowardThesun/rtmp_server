@@ -31,13 +31,13 @@ SOFTWARE.
 RsTCPListener::RsTCPListener() {
     _extra_param = nullptr;
 
-    // RsConnContext::getInstance()->do_register(this);
+    RsConnContext::getInstance()->do_register(this);
 }
 
 RsTCPListener::~RsTCPListener() {
     close();
 
-    // RsConnContext::getInstance()->do_deregister(this);
+    RsConnContext::getInstance()->do_deregister(this);
 }
 
 void RsTCPListener::on_connection(uv_stream_t *s, int status) {
@@ -45,9 +45,11 @@ void RsTCPListener::on_connection(uv_stream_t *s, int status) {
 
     int ret = ERROR_SUCCESS;
 
-    auto pr_this = static_cast<RsTCPListener *>(s->data);
+    auto pt_this = static_cast<RsTCPListener *>(s->data);
 
-    uv_tcp_t *in_conn = new uv_tcp_t();
+    rs_info(pt_this, "get one tcp connection");
+
+    auto in_conn = new uv_tcp_t();
     if ((ret = uv_tcp_init(uv_default_loop(), in_conn)) != ERROR_SUCCESS) {
         rs_error(nullptr, "initialize the client socket from loop failed. ret=%d", ret);
         return;
@@ -60,11 +62,11 @@ void RsTCPListener::on_connection(uv_stream_t *s, int status) {
 
     RsTCPSocketIO io;
     if ((ret = io.initialize(in_conn)) != ERROR_SUCCESS) {
-        rs_error(pr_this, "accept one connection for tcp failed. ret=%d", ret);
+        rs_error(pt_this, "accept one connection for tcp failed. ret=%d", ret);
         return;
     }
 
-    pr_this->_cb(&io, pr_this->_extra_param);
+    pt_this->_cb(&io, pt_this->_extra_param);
 }
 
 int RsTCPListener::initialize(std::string ip, int port, on_new_connection_cb cb, void *param) {
@@ -95,6 +97,8 @@ int RsTCPListener::initialize(std::string ip, int port, on_new_connection_cb cb,
         rs_error(this, "socket listen failed. ret=%d", ret);
         return ret;
     }
+
+    rs_info(this, "initialize one tcp listener success!");
 
     return ret;
 }
@@ -128,6 +132,8 @@ void RsTCPListener::close() {
 
 RsTCPSocketIO::RsTCPSocketIO() {
     _base.reserve(MESSAGE_BUFFER_LENGTH);
+    _uv_tcp_socket = nullptr;
+
     RsConnContext::getInstance()->do_register(this);
 }
 
@@ -138,8 +144,8 @@ RsTCPSocketIO::~RsTCPSocketIO() {
 int RsTCPSocketIO::initialize(uv_tcp_t *stream) {
     int ret = ERROR_SUCCESS;
 
-    assert(_uv_tcp_socket == nullptr);
     _uv_tcp_socket = stream;
+
     _uv_tcp_socket->data = this;
 
     // start to read
@@ -160,11 +166,11 @@ int RsTCPSocketIO::initialize(uv_tcp_t *stream) {
             return;
         }
 
-        io->buffer.append(buf->base, (unsigned long) num_read);
         rs_info(io, "get message: \n%s\n, number of read=%d", buf->base, num_read);
     };
 
-    if ((ret = uv_read_start((uv_stream_t *) _uv_tcp_socket, alloc_cb, read_cb)) != ERROR_SUCCESS) {
+    if ((ret = uv_read_start((uv_stream_t *) _uv_tcp_socket, alloc_cb, read_cb)) !=
+        ERROR_SUCCESS) {
         rs_error(this, "start to read failed. ret=%d", ret);
         return ret;
     }
@@ -189,7 +195,8 @@ int RsTCPSocketIO::write(std::string buf, int size) {
     uv_write_t write_req;
     uv_buf_t test_buf = {(char *) buf.c_str(), (size_t) size};
 
-    if ((ret = uv_write(&write_req, (uv_stream_t *) &_uv_tcp_socket, &test_buf, 1, write_cb)) !=
+    if ((ret = uv_write(&write_req, (uv_stream_t *) _uv_tcp_socket, &test_buf, 1,
+                        write_cb)) !=
         ERROR_SUCCESS) {
         rs_error(this, "write failed. ret=%d", ret);
         return ret;
@@ -211,11 +218,7 @@ int RsTCPSocketIO::read(std::string &buf, int size) {
 }
 
 void RsTCPSocketIO::close() {
-    uv_shutdown_t uvShutdown;
-    uv_shutdown(&uvShutdown, (uv_stream_t *) &_uv_tcp_socket, [](uv_shutdown_t *req, int status) {
-        rs_info(nullptr, "shut down");
-    });
-    uv_close((uv_handle_t *) &_uv_tcp_socket, [](uv_handle_t *handle) {
-        rs_info(nullptr, "close");
-    });
+    uv_close((uv_handle_t *) _uv_tcp_socket, NULL);
+    rs_free_p(_uv_tcp_socket);
+    rs_info(this, "close one tcp io");
 }
