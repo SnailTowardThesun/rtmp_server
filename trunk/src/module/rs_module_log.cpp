@@ -24,8 +24,9 @@ SOFTWARE.
 
 #include "rs_module_log.h"
 #include <sstream>
-#include <sys/time.h>
 #include <cstdarg>
+#include <time.h>
+#include <sys/time.h>
 #include "rs_kernel_context.h"
 
 const char *RS_LOG_LEVEL_INFO = "info";
@@ -105,21 +106,19 @@ namespace rs_log {
 
         // time
         timeval tv = {0, 0};
-        struct tm *time;
         if (gettimeofday(&tv, nullptr) == -1) {
             return;
         }
 
-        if ((time = localtime(&tv.tv_sec)) == nullptr) {
-            return;
-        }
+        auto ptr_time = gmtime(&tv.tv_sec);
 
         // [2017-08-01 14:23:32.893]
-        ss << "[" << 1900 + time->tm_year << "-" << 1 + time->tm_mon << "-"
-           << time->tm_mday
+        ss << "[" << 1900 + ptr_time->tm_year << "-" << 1 + ptr_time->tm_mon << "-"
+           << ptr_time->tm_mday
            << " ";
-        ss << time->tm_hour << ":" << time->tm_min << ":" << time->tm_sec << "."
+        ss << ptr_time->tm_hour << ":" << ptr_time->tm_min << ":" << ptr_time->tm_sec << "."
            << (int) (tv.tv_usec / 1000.0) << "]";
+
 
         ss << "[" << level << "]";
         ss << ": " << message;

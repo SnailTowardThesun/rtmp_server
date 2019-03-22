@@ -31,7 +31,7 @@ SOFTWARE.
 #include "rs_kernel_connection.h"
 #include "rs_protocol_amf0.h"
 
-class RsRtmpConn : public RsConnection{
+class RsRtmpConn : public RsConnection {
 private:
     RsTCPSocketIO *io;
 public:

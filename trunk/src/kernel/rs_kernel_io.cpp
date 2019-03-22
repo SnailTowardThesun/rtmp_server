@@ -51,13 +51,13 @@ void RsTCPListener::on_connection(uv_stream_t *s, int status) {
 
     rs_info(pt_this, "get one tcp connection");
 
-    RsTCPSocketIO io;
-    if ((ret = io.initialize(s)) != ERROR_SUCCESS) {
+    auto io = new RsTCPSocketIO();
+    if ((ret = io->initialize(s)) != ERROR_SUCCESS) {
         rs_error(pt_this, "accept one connection for tcp failed. ret=%d", ret);
         return;
     }
 
-    pt_this->_cb(&io, pt_this->_extra_param);
+    pt_this->_cb(io, pt_this->_extra_param);
 }
 
 int RsTCPListener::initialize(std::string ip, int port, on_new_connection_cb cb, void *param) {
@@ -129,6 +129,7 @@ RsTCPSocketIO::RsTCPSocketIO() {
 }
 
 RsTCPSocketIO::~RsTCPSocketIO() {
+    rs_info(this, "tcp io deconstructor");
     rs_free_p(_uv_tcp_socket);
 
     RsConnContext::getInstance()->do_deregister(this);
@@ -219,5 +220,6 @@ int RsTCPSocketIO::read(std::string &buf, int size) {
 }
 
 void RsTCPSocketIO::close() {
+    rs_info(this, "do close one tcp connection");
     uv_close((uv_handle_t *) _uv_tcp_socket, NULL);
 }
