@@ -29,11 +29,33 @@ SOFTWARE.
 #include "rs_common.h"
 #include "rs_kernel_context.h"
 
+
 class IRsIO {
+protected:
+    typedef enum {
+        rs_io_uninitialized = 0,
+        rs_io_open,
+        rs_io_close
+    } RS_IO_STATUS;
+
+private:
+    RS_IO_STATUS _status;
 public:
-    IRsIO() = default;
+    IRsIO() { _status = rs_io_uninitialized; };
 
     virtual ~IRsIO() = default;
+
+protected:
+    void change_status(RS_IO_STATUS status) {
+        _status = status;
+    }
+
+public:
+    bool is_initialized() { return _status != rs_io_uninitialized; }
+
+    bool is_open() { return _status != rs_io_open; }
+
+    bool is_stop() { return _status != rs_io_close; }
 };
 
 class IRsReaderWriter : public IRsIO {
@@ -55,7 +77,7 @@ class RsTCPListener : public IRsIO {
 private:
     uv_tcp_t _listen_sock{};
     void *_extra_param;
-    on_new_connection_cb _cb;
+    on_new_connection_cb _on_conn_cb;
 public:
     RsTCPListener();
 

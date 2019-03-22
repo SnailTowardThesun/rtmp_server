@@ -57,13 +57,13 @@ void RsTCPListener::on_connection(uv_stream_t *s, int status) {
         return;
     }
 
-    pt_this->_cb(io, pt_this->_extra_param);
+    pt_this->_on_conn_cb(io, pt_this->_extra_param);
 }
 
 int RsTCPListener::initialize(std::string ip, int port, on_new_connection_cb cb, void *param) {
     int ret = ERROR_SUCCESS;
 
-    _cb = cb;
+    _on_conn_cb = cb;
     _extra_param = param;
 
     if ((ret = uv_tcp_init(uv_default_loop(), &_listen_sock)) != ERROR_SUCCESS) {
@@ -89,6 +89,7 @@ int RsTCPListener::initialize(std::string ip, int port, on_new_connection_cb cb,
         return ret;
     }
 
+    change_status(rs_io_open);
     rs_info(this, "initialize one tcp listener success!");
 
     return ret;
@@ -100,6 +101,8 @@ void RsTCPListener::close() {
 
     int ret = ERROR_SUCCESS;
 
+    change_status(rs_io_close);
+
     auto shutdown_cb = [](uv_shutdown_t *req, int status) {
         auto io = (RsTCPListener *) req->data;
         rs_info(io, "do shutdown!");
@@ -110,15 +113,11 @@ void RsTCPListener::close() {
         return;
     }
 
-    /*
     auto close_cb = [](uv_handle_t *handle) {
-
+        rs_info(nullptr, "uv close handle function");
     };
-    if ((ret = uv_close((uv_handle_t *) &_listen_sock, close_cb)) != ERROR_SUCCESS) {
-        rs_error(this, "close tcp listener failed. ret=%d", ret);
-        return;
-    }
-     */
+
+    uv_close((uv_handle_t *) &_listen_sock, close_cb);
 }
 
 RsTCPSocketIO::RsTCPSocketIO() {
@@ -177,6 +176,7 @@ int RsTCPSocketIO::initialize(uv_stream_t *stream) {
         return ret;
     }
 
+    change_status(rs_io_open);
     rs_info(this, "ready to read message");
     return ret;
 }
@@ -220,6 +220,7 @@ int RsTCPSocketIO::read(std::string &buf, int size) {
 }
 
 void RsTCPSocketIO::close() {
+    change_status(rs_io_close);
     rs_info(this, "do close one tcp connection");
     uv_close((uv_handle_t *) _uv_tcp_socket, NULL);
 }
