@@ -40,8 +40,6 @@ public:
     ~RsRtmpConn() override;
 
 public:
-    int initialize(uv_stream_t *server);
-
     int initialize(IRsIO *io) override {
         return ERROR_SUCCESS;
     };

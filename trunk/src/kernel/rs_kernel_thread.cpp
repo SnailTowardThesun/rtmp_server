@@ -45,7 +45,7 @@ RsLocker::~RsLocker() {
 }
 
 RsBaseThread::RsBaseThread() : _thread(nullptr),
-                               interupt(false) {
+                               _interrupt(false) {
 
 }
 
@@ -64,7 +64,7 @@ void RsBaseThread::cycle(void *param) {
 int RsBaseThread::start() {
     int ret = ERROR_SUCCESS;
 
-    interupt = false;
+    _interrupt = false;
 
     if (_thread != nullptr && (ret = stop()) != ERROR_SUCCESS) {
         // TODO:FIXME implement log module
@@ -87,7 +87,7 @@ int RsBaseThread::stop() {
         return ret;
     }
 
-    interupt = true;
+    _interrupt = true;
 
     if ((ret = uv_thread_join(_thread)) != ERROR_SUCCESS) {
         // TODO:FIXME implement log module

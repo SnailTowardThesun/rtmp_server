@@ -40,13 +40,15 @@ public:
     virtual int initialize(rs_config::RsConfigBaseServer *config) = 0;
 
     virtual int dispose() = 0;
+
+    virtual int update_status() = 0;
 };
 
 class RsRtmpServer : public RsBaseServer {
 private:
-    RsTCPListener *listen_sock;
+    RsTCPListener *_listen_sock;
 
-    std::vector<std::shared_ptr<RsRtmpConn>> conns;
+    std::vector<std::shared_ptr<RsRtmpConn>> _connections;
 public:
     RsRtmpServer();
 
@@ -59,12 +61,15 @@ public:
     int initialize(rs_config::RsConfigBaseServer *config) override;
 
     int dispose() override;
+
+    int update_status() override;
 };
 
 class RsServerManager {
 private:
     using ServerContainer = std::map<std::string, std::shared_ptr<RsBaseServer>>;
     ServerContainer server_container;
+    uv_timer_t _timer;
 public:
     RsServerManager() = default;
 
@@ -76,6 +81,9 @@ public:
     int run();
 
     void stop();
+
+public:
+    static void timer_handle_cb(uv_timer_t *timer);
 };
 
 #endif

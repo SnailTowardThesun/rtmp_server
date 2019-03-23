@@ -41,7 +41,7 @@ class RsBaseThread {
 private:
     uv_thread_t *_thread;
 public:
-    bool interupt;
+    bool _interrupt;
 public:
     RsBaseThread();
 

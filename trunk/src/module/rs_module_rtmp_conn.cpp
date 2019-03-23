@@ -35,10 +35,6 @@ RsRtmpConn::~RsRtmpConn() {
     rs_free_p(io);
 }
 
-int RsRtmpConn::initialize(uv_stream_t *server) {
-    return ERROR_SUCCESS;
-}
-
 int RsRtmpConn::simple_handshake_with_server() {
     assert(io != nullptr);
 

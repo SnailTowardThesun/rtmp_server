@@ -31,14 +31,14 @@ SOFTWARE.
 #include "rs_module_log.h"
 
 RsRtmpServer::RsRtmpServer() {
-    listen_sock = new RsTCPListener();
+    _listen_sock = new RsTCPListener();
 }
 
 RsRtmpServer::~RsRtmpServer() {
     dispose();
-    conns.clear();
+    _connections.clear();
 
-    rs_free_p(listen_sock);
+    rs_free_p(_listen_sock);
 }
 
 void RsRtmpServer::on_new_connection(IRsReaderWriter *io, void *param) {
@@ -52,25 +52,36 @@ void RsRtmpServer::on_new_connection(IRsReaderWriter *io, void *param) {
     auto conn = std::shared_ptr<RsRtmpConn>(new RsRtmpConn());
     if ((ret = conn->initialize(io)) != ERROR_SUCCESS) {
         rs_error(io, "initialize the rtmp connection failed. ret=%d", ret);
-        return ;
+        return;
     }
 
-    pt_this->conns.push_back(conn);
+    pt_this->_connections.push_back(conn);
 }
 
 int RsRtmpServer::initialize(rs_config::RsConfigBaseServer *config) {
     int ret = ERROR_SUCCESS;
 
-    rs_info(listen_sock, "ready to initialize a new rtmp server, name=%s, port=%d",
+    rs_info(_listen_sock, "ready to initialize a new rtmp server, name=%s, port=%d",
             config->get_server_name().c_str(), config->get_port());
 
-    listen_sock->initialize("0.0.0.0", config->get_port(), on_new_connection, this);
+    _listen_sock->initialize("0.0.0.0", config->get_port(), on_new_connection, this);
 
     return ret;
 }
 
 int RsRtmpServer::dispose() {
     int ret = ERROR_SUCCESS;
+
+    return ret;
+}
+
+int RsRtmpServer::update_status() {
+    int ret = ERROR_SUCCESS;
+
+    rs_info(_listen_sock, "update status of rtmp server");
+    for (auto &i : _connections) {
+        
+    }
 
     return ret;
 }
@@ -102,6 +113,18 @@ int RsServerManager::initialize(const rs_config::ConfigServerContainer &servers)
         server_container[config->get_server_name()] = baseServer;
     }
 
+    if ((ret = uv_timer_init(uv_default_loop(), &_timer)) != 0) {
+        rs_error(nullptr, "initialize timer for servers manager failed.");
+        return ret;
+    }
+
+    _timer.data = this;
+
+    if ((ret = uv_timer_start(&_timer, timer_handle_cb, 100, 100)) != 0) {
+        rs_error(nullptr, "start timer failed.");
+        return ret;
+    }
+
     return ret;
 }
 
@@ -115,4 +138,18 @@ void RsServerManager::stop() {
     }
 
     server_container.clear();
+}
+
+void RsServerManager::timer_handle_cb(uv_timer_t *timer) {
+    auto manager = (RsServerManager *) timer->data;
+
+    assert(manager != nullptr);
+
+    int ret = ERROR_SUCCESS;
+    for (auto &i : manager->server_container) {
+        if ((ret = i.second->update_status()) != ERROR_SUCCESS) {
+            rs_error(nullptr, "update status of server=%s failed. ret=%d", i.first.c_str(), ret);
+        }
+    }
+
 }
