@@ -26,14 +26,37 @@ SOFTWARE.
 #define RS_KERNEL_CONNECTION_HEADER_H_
 
 class RsConnection {
-public:
-    RsConnection() = default;
+protected:
+    typedef enum {
+        rs_connection_uninitialized = 0,
+        rs_connection_running,
+        rs_connection_stopped
+    } RS_CONNECTION_STATUS;
 
-    virtual ~RsConnection() = default;
+private:
+    RS_CONNECTION_STATUS _status;
+
+public:
+    RsConnection() : _status(rs_connection_uninitialized) {};
+
+    virtual ~RsConnection() { _status = rs_connection_stopped; };
+
+public:
+    void change_status(RS_CONNECTION_STATUS status) {
+        _status = status;
+    };
+
+    bool is_initialized() { return _status == rs_connection_uninitialized; }
+
+    bool is_running() { return _status == rs_connection_running; }
+
+    bool is_stopped() { return _status == rs_connection_stopped; }
 
 public:
 
     virtual int initialize(IRsIO *io) = 0;
+
+    virtual void update_status() = 0;
 };
 
 #endif

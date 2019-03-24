@@ -22,21 +22,43 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "rs_module_log.h"
 #include "rs_module_rtmp_conn.h"
 #include "rs_protocol_rtmp.h"
 
 using namespace std;
 
-RsRtmpConn::RsRtmpConn() : io(nullptr) {
+RsRtmpConn::RsRtmpConn() {
 
 }
 
 RsRtmpConn::~RsRtmpConn() {
-    rs_free_p(io);
+    rs_info(_tcp_io.get(), "rtmp deconstruction");
+
+    change_status(rs_connection_stopped);
+}
+
+int RsRtmpConn::initialize(IRsIO *io) {
+    int ret = ERROR_SUCCESS;
+
+    auto ptr = dynamic_cast<RsTCPSocketIO *>(io);
+    assert(ptr != nullptr);
+
+    _tcp_io.reset(ptr);
+
+    change_status(rs_connection_running);
+
+    return ret;
+}
+
+void RsRtmpConn::update_status() {
+    if(_tcp_io->is_stop()) {
+        change_status(rs_connection_stopped);
+    }
 }
 
 int RsRtmpConn::simple_handshake_with_server() {
-    assert(io != nullptr);
+    assert(_tcp_io != nullptr);
 
     int ret = ERROR_SUCCESS;
 
@@ -49,14 +71,14 @@ int RsRtmpConn::simple_handshake_with_server() {
 
     // send c0c1
     string str = c.dump();
-    if ((ret = io->write(str, (int) str.length())) != ERROR_SUCCESS) {
+    if ((ret = _tcp_io->write(str, (int) str.length())) != ERROR_SUCCESS) {
         cout << "send c0c1 failed. ret=" << ret << endl;
         return ret;
     }
 
     // read s0s1s2
     string s0s1s2;
-    if ((ret = io->read(s0s1s2, 3073)) != ERROR_SUCCESS) {
+    if ((ret = _tcp_io->read(s0s1s2, 3073)) != ERROR_SUCCESS) {
         cout << "read s0s1s2 package failed. ret=" << ret << endl;
         return ret;
     }
@@ -73,7 +95,7 @@ int RsRtmpConn::simple_handshake_with_server() {
     }
 
     str = c211.dump();
-    if ((ret = io->write(str, (int) str.length())) != ERROR_SUCCESS) {
+    if ((ret = _tcp_io->write(str, (int) str.length())) != ERROR_SUCCESS) {
         cout << "send c2 failed. ret=" << ret << endl;
         return ret;
     }
@@ -82,13 +104,13 @@ int RsRtmpConn::simple_handshake_with_server() {
 }
 
 int RsRtmpConn::simple_handshake_with_client() {
-    assert(io != nullptr);
+    assert(_tcp_io != nullptr);
 
     int ret = ERROR_SUCCESS;
 
     // read c0c1
     string str;
-    if ((ret = io->read(str, 1538)) != ERROR_SUCCESS) {
+    if ((ret = _tcp_io->read(str, 1538)) != ERROR_SUCCESS) {
         cout << "get c0c1 failed. ret=" << ret << endl;
         return ret;
     }
@@ -113,13 +135,13 @@ int RsRtmpConn::simple_handshake_with_client() {
     }
 
     str = s0s11.dump() + s21.dump();
-    if ((ret = io->write(str, (int) str.length())) != ERROR_SUCCESS) {
+    if ((ret = _tcp_io->write(str, (int) str.length())) != ERROR_SUCCESS) {
         cout << "send s0s1s2 failed. ret=" << ret << endl;
         return ret;
     }
 
     // get s2
-    if ((ret = io->read(str, 1536)) != ERROR_SUCCESS) {
+    if ((ret = _tcp_io->read(str, 1536)) != ERROR_SUCCESS) {
         cout << "get s2 failed. ret=" << ret << endl;
         return ret;
     }

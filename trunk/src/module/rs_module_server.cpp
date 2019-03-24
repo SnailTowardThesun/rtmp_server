@@ -78,9 +78,16 @@ int RsRtmpServer::dispose() {
 int RsRtmpServer::update_status() {
     int ret = ERROR_SUCCESS;
 
-    rs_info(_listen_sock, "update status of rtmp server");
-    for (auto &i : _connections) {
-        
+    for (auto i = _connections.begin(); i != _connections.end();) {
+        auto conn = *i;
+        conn->update_status();
+
+        if (conn->is_stopped()) {
+            i = _connections.erase(i);
+            continue;
+        }
+
+        i++;
     }
 
     return ret;

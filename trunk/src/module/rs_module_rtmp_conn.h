@@ -33,16 +33,16 @@ SOFTWARE.
 
 class RsRtmpConn : public RsConnection {
 private:
-    RsTCPSocketIO *io;
+    std::shared_ptr<RsTCPSocketIO> _tcp_io;
 public:
     RsRtmpConn();
 
     ~RsRtmpConn() override;
 
 public:
-    int initialize(IRsIO *io) override {
-        return ERROR_SUCCESS;
-    };
+    int initialize(IRsIO *io) override;
+
+    void update_status() override;
 
 private:
     // for rtmp protocol

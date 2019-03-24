@@ -53,9 +53,9 @@ protected:
 public:
     bool is_initialized() { return _status != rs_io_uninitialized; }
 
-    bool is_open() { return _status != rs_io_open; }
+    bool is_open() { return _status == rs_io_open; }
 
-    bool is_stop() { return _status != rs_io_close; }
+    bool is_stop() { return _status == rs_io_close; }
 };
 
 class IRsReaderWriter : public IRsIO {
