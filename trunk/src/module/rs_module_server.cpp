@@ -31,14 +31,13 @@ SOFTWARE.
 #include "rs_module_log.h"
 
 RsRtmpServer::RsRtmpServer() {
-    _listen_sock = new RsTCPListener();
+    _listen_sock = std::unique_ptr<RsTCPListener>(new RsTCPListener());
 }
 
 RsRtmpServer::~RsRtmpServer() {
     dispose();
     _connections.clear();
 
-    rs_free_p(_listen_sock);
 }
 
 void RsRtmpServer::on_new_connection(IRsReaderWriter *io, void *param) {
@@ -61,7 +60,7 @@ void RsRtmpServer::on_new_connection(IRsReaderWriter *io, void *param) {
 int RsRtmpServer::initialize(rs_config::RsConfigBaseServer *config) {
     int ret = ERROR_SUCCESS;
 
-    rs_info(_listen_sock, "ready to initialize a new rtmp server, name=%s, port=%d",
+    rs_info(_listen_sock.get(), "ready to initialize a new rtmp server, name=%s, port=%d",
             config->get_server_name().c_str(), config->get_port());
 
     _listen_sock->initialize("0.0.0.0", config->get_port(), on_new_connection, this);
@@ -127,7 +126,8 @@ int RsServerManager::initialize(const rs_config::ConfigServerContainer &servers)
 
     _timer.data = this;
 
-    if ((ret = uv_timer_start(&_timer, timer_handle_cb, 100, 100)) != 0) {
+    // TODO:FIXME: use configure items to set timeout and repeat
+    if ((ret = uv_timer_start(&_timer, do_update_status, 100, 100)) != 0) {
         rs_error(nullptr, "start timer failed.");
         return ret;
     }
@@ -147,7 +147,7 @@ void RsServerManager::stop() {
     server_container.clear();
 }
 
-void RsServerManager::timer_handle_cb(uv_timer_t *timer) {
+void RsServerManager::do_update_status(uv_timer_t *timer) {
     auto manager = (RsServerManager *) timer->data;
 
     assert(manager != nullptr);

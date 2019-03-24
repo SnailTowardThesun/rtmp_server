@@ -46,6 +46,17 @@ int RsRtmpConn::initialize(IRsIO *io) {
 
     _tcp_io.reset(ptr);
 
+    auto cb = [](char *buf, ssize_t size, void *param) {
+        auto pt = (RsRtmpConn*) param;
+
+        rs_info(pt->_tcp_io.get(), "get message from tcp io, msg=%s, size=%d", buf, size);
+    };
+
+    if ((ret = _tcp_io->start_read(cb, this)) != ERROR_SUCCESS) {
+        rs_error(_tcp_io.get(), "start reading failed. ret=%d", ret);
+        return ret;
+    }
+
     change_status(rs_connection_running);
 
     return ret;

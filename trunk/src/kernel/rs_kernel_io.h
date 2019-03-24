@@ -58,6 +58,8 @@ public:
     bool is_stop() { return _status == rs_io_close; }
 };
 
+using read_cb = std::function<void(char *buf, ssize_t size, void *param)>;
+
 class IRsReaderWriter : public IRsIO {
 public:
     IRsReaderWriter() = default;
@@ -67,8 +69,7 @@ public:
 public:
     virtual int write(std::string buf, int size) = 0;
 
-    virtual int read(std::string &buf, int size) = 0;
-
+    virtual int start_read(read_cb, void *param) = 0;
 };
 
 using on_new_connection_cb = std::function<void(IRsReaderWriter *, void *)>;
@@ -93,11 +94,15 @@ private:
     void close();
 };
 
+
 class RsTCPSocketIO : public IRsReaderWriter {
 public:
     uv_tcp_t *_uv_tcp_socket;
     std::vector<char> _base;
     std::string buffer;
+
+    void *_extra_data;
+    read_cb _read_cb;
 public:
     RsTCPSocketIO();
 
@@ -108,9 +113,9 @@ public:
 
 // implement IRsReaderWrite
 public:
-    int write(std::string buf, int size) override;
+    int start_read(read_cb, void *param) override;
 
-    int read(std::string &buf, int size) override;
+    int write(std::string buf, int size) override;
 
 private:
     void close();

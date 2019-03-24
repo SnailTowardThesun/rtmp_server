@@ -46,7 +46,7 @@ public:
 
 class RsRtmpServer : public RsBaseServer {
 private:
-    RsTCPListener *_listen_sock;
+    std::unique_ptr<RsTCPListener> _listen_sock;
 
     std::vector<std::shared_ptr<RsRtmpConn>> _connections;
 public:
@@ -71,7 +71,7 @@ private:
     ServerContainer server_container;
     uv_timer_t _timer;
 public:
-    RsServerManager() = default;
+    RsServerManager() : _timer(uv_timer_t()) {};
 
     ~RsServerManager() { stop(); };
 
@@ -83,7 +83,7 @@ public:
     void stop();
 
 public:
-    static void timer_handle_cb(uv_timer_t *timer);
+    static void do_update_status(uv_timer_t *timer);
 };
 
 #endif

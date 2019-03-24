@@ -123,12 +123,12 @@ void RsTCPListener::close() {
 RsTCPSocketIO::RsTCPSocketIO() {
     _base.reserve(MESSAGE_BUFFER_LENGTH);
     _uv_tcp_socket = new uv_tcp_t();
+    _extra_data = nullptr;
 
     RsConnContext::getInstance()->do_register(this);
 }
 
 RsTCPSocketIO::~RsTCPSocketIO() {
-    rs_info(this, "tcp io deconstructor");
     rs_free_p(_uv_tcp_socket);
 
     RsConnContext::getInstance()->do_deregister(this);
@@ -149,6 +149,19 @@ int RsTCPSocketIO::initialize(uv_stream_t *stream) {
 
     _uv_tcp_socket->data = this;
 
+    change_status(rs_io_open);
+    rs_info(this, "ready to read message");
+    return ret;
+}
+
+int RsTCPSocketIO::start_read(read_cb cb, void *param) {
+    int ret = ERROR_SUCCESS;
+
+    assert(_extra_data == nullptr);
+
+    _read_cb = cb;
+    _extra_data = param;
+
     // start to read
     auto alloc_cb = [](uv_handle_t *handle,
                        size_t suggested_size,
@@ -167,6 +180,8 @@ int RsTCPSocketIO::initialize(uv_stream_t *stream) {
             return;
         }
 
+        io->_read_cb(buf->base, num_read, io->_extra_data);
+
         rs_info(io, "get message: \n%s\n, number of read=%d", buf->base, num_read);
     };
 
@@ -176,8 +191,6 @@ int RsTCPSocketIO::initialize(uv_stream_t *stream) {
         return ret;
     }
 
-    change_status(rs_io_open);
-    rs_info(this, "ready to read message");
     return ret;
 }
 
@@ -204,18 +217,6 @@ int RsTCPSocketIO::write(std::string buf, int size) {
         return ret;
     }
 
-    return ret;
-}
-
-int RsTCPSocketIO::read(std::string &buf, int size) {
-    int ret = ERROR_SUCCESS;
-
-    while (buffer.size() < size) {
-        rs_info(this, "wait for new message from client");
-    }
-
-    buf = buffer.substr(0, (unsigned long) size);
-    buffer.erase(0, (unsigned long) size);
     return ret;
 }
 
