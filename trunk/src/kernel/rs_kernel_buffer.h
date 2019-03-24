@@ -72,6 +72,10 @@ public:
         return ERROR_SUCCESS;
     }
 
+    int start_read(read_cb, void *param) override {
+        return ERROR_SUCCESS;
+    }
+
     std::string dump();
 
 public:

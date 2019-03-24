@@ -69,6 +69,8 @@ public:
 public:
     virtual int write(std::string buf, int size) = 0;
 
+    virtual int read(std::string &buf, int size) = 0;
+
     virtual int start_read(read_cb, void *param) = 0;
 };
 
@@ -114,6 +116,8 @@ public:
 // implement IRsReaderWrite
 public:
     int start_read(read_cb, void *param) override;
+
+    int read(std::string &buf, int size) override { return ERROR_SUCCESS; }
 
     int write(std::string buf, int size) override;
 
