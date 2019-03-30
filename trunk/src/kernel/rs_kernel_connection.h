@@ -34,23 +34,23 @@ protected:
     } RS_CONNECTION_STATUS;
 
 private:
-    RS_CONNECTION_STATUS _status;
+    RS_CONNECTION_STATUS _connection_status;
 
 public:
-    RsConnection() : _status(rs_connection_uninitialized) {};
+    RsConnection() : _connection_status(rs_connection_uninitialized) {};
 
-    virtual ~RsConnection() { _status = rs_connection_stopped; };
+    virtual ~RsConnection() { _connection_status = rs_connection_stopped; };
 
 public:
-    void change_status(RS_CONNECTION_STATUS status) {
-        _status = status;
+    void change_connection_status(RS_CONNECTION_STATUS status) {
+        _connection_status = status;
     };
 
-    bool is_initialized() { return _status == rs_connection_uninitialized; }
+    bool is_initialized() { return _connection_status == rs_connection_uninitialized; }
 
-    bool is_running() { return _status == rs_connection_running; }
+    bool is_running() { return _connection_status == rs_connection_running; }
 
-    bool is_stopped() { return _status == rs_connection_stopped; }
+    bool is_stopped() { return _connection_status == rs_connection_stopped; }
 
 public:
 

@@ -78,6 +78,8 @@ public:
 
     std::string dump();
 
+    size_t length() { return buffer.size(); }
+
 public:
     static uint16_t convert_2bytes_into_uint16(std::string buf);
 

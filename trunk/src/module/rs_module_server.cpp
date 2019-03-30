@@ -48,7 +48,7 @@ void RsRtmpServer::on_new_connection(IRsReaderWriter *io, void *param) {
 
     int ret = ERROR_SUCCESS;
 
-    auto conn = std::shared_ptr<RsRtmpConn>(new RsRtmpConn());
+    auto conn = std::shared_ptr<RsServerRtmpConn>(new RsServerRtmpConn());
     if ((ret = conn->initialize(io)) != ERROR_SUCCESS) {
         rs_error(io, "initialize the rtmp connection failed. ret=%d", ret);
         return;

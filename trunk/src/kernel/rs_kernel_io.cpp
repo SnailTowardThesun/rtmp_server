@@ -182,7 +182,6 @@ int RsTCPSocketIO::start_read(read_cb cb, void *param) {
 
         io->_read_cb(buf->base, num_read, io->_extra_data);
 
-        rs_info(io, "get message: \n%s\n, number of read=%d", buf->base, num_read);
     };
 
     if ((ret = uv_read_start((uv_stream_t *) _uv_tcp_socket, alloc_cb, read_cb)) !=
@@ -207,10 +206,10 @@ int RsTCPSocketIO::write(std::string buf, int size) {
         rs_info(nullptr, "write finished, status=%d", status);
     };
 
-    uv_write_t write_req;
+    uv_write_t *write_req = new uv_write_t();
     uv_buf_t test_buf = {(char *) buf.c_str(), (size_t) size};
 
-    if ((ret = uv_write(&write_req, (uv_stream_t *) _uv_tcp_socket, &test_buf, 1,
+    if ((ret = uv_write(write_req, (uv_stream_t *) _uv_tcp_socket, &test_buf, 1,
                         write_cb)) !=
         ERROR_SUCCESS) {
         rs_error(this, "write failed. ret=%d", ret);

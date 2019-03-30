@@ -26,23 +26,48 @@ SOFTWARE.
 #define RS_MODULE_RTMP_CONN_H_
 
 #include <uv.h>
+#include <rs_kernel_buffer.h>
 #include "rs_common.h"
 #include "rs_kernel_io.h"
 #include "rs_kernel_connection.h"
-#include "rs_protocol_amf0.h"
+#include "rs_protocol_rtmp.h"
 
+/**
+ * the basic rtmp connection class
+ * @remark, can not be allocated
+ */
 class RsRtmpConn : public RsConnection {
-private:
-    std::shared_ptr<RsTCPSocketIO> _tcp_io;
-public:
-    RsRtmpConn();
+protected:
+    enum {
+        rs_rtmp_connection_uninitialized = 0,
+        rs_rtmp_connection_c0c1_received,
+        rs_rtmp_connection_c2_received,
+        rs_rtmp_connection_established,
+    } _rtmp_status;
 
-    ~RsRtmpConn() override;
+public:
+    RsRtmpConn() : _rtmp_status(rs_rtmp_connection_uninitialized) {};
+
+    ~RsRtmpConn() override = default;
 
 public:
     int initialize(IRsIO *io) override;
 
     void update_status() override;
+};
+
+/**
+ * the connection from client whether publishing or playing stream
+ */
+class RsServerRtmpConn : public RsRtmpConn {
+private:
+    std::shared_ptr<RsTCPSocketIO> _tcp_io;
+
+    std::shared_ptr<RsBufferLittleEndian> _rs_buffer;
+public:
+    RsServerRtmpConn();
+
+    ~RsServerRtmpConn() override;
 
 private:
     // for rtmp protocol
@@ -54,12 +79,49 @@ private:
 
     int complex_handshake_witout_client();
 
+private:
+    static void on_message(char *, ssize_t, void *);
+
 public:
-    int connect();
+    int initialize(IRsIO *io) override;
 
-    int play_stream();
+    void update_status() override;
 
-    int publish_stream();
 };
 
+/**
+ * the connection to publishing or playing rtmp stream from other server
+ * TODO:FIXME: implement this function
+ *
+ * class RsClientRtmpConn : public RsRtmpConn {
+ * public:
+ *     RsClientRtmpConn() = default;
+ *
+ *     ~RsClientRtmpConn() override = default;
+ *
+ * public:
+ *     int initialize(IRsIO *io) override {
+ *         assert(false);
+ *         return ERROR_SUCCESS;
+ *     };
+ *
+ *     void update_status() override { assert(false); };
+ * public:
+ *     int connect() {
+ *         assert(false);
+ *         return ERROR_SUCCESS;
+ *     };
+ *
+ *     int play_stream() {
+ *         assert(false);
+ *         return ERROR_SUCCESS;
+ *     };
+ *
+ *     int publish_stream() {
+ *         assert(false);
+ *         return ERROR_SUCCESS;
+ *     };
+ *
+ * };
+*/
 #endif

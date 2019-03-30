@@ -48,7 +48,7 @@ class RsRtmpServer : public RsBaseServer {
 private:
     std::unique_ptr<RsTCPListener> _listen_sock;
 
-    std::vector<std::shared_ptr<RsRtmpConn>> _connections;
+    std::vector<std::shared_ptr<RsServerRtmpConn>> _connections;
 public:
     RsRtmpServer();
 

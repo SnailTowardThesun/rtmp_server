@@ -29,34 +29,38 @@ SOFTWARE.
 #include "rs_kernel_io.h"
 #include "uv.h"
 
-class c0c1 {
+class RsBufferLittleEndian;
+
+class RtmpHandshakeC0C1 {
 public:
     uint8_t version;
     uint32_t timestamp;
     uint32_t zero;
     std::string random_data;
 public:
-    c0c1();
+    RtmpHandshakeC0C1();
 
-    virtual ~c0c1();
+    virtual ~RtmpHandshakeC0C1();
 
 public:
     int initialize();
 
     int initialize(std::string buf);
 
+    int initialize(RsBufferLittleEndian *buffer);
+
     std::string dump();
 };
 
-class c2 {
+class RtmpHandshakeC2 {
 public:
     uint32_t timestamp;
     uint32_t timestamp2;
     std::string random_data;
 public:
-    c2();
+    RtmpHandshakeC2();
 
-    virtual ~c2();
+    virtual ~RtmpHandshakeC2();
 
 public:
     int initialize();
@@ -67,18 +71,18 @@ public:
 
 };
 
-class s0s1 : public c0c1 {
+class RtmpHandshakeS0S1 : public RtmpHandshakeC0C1 {
 public:
-    s0s1() {};
+    RtmpHandshakeS0S1() {};
 
-    virtual ~s0s1() {};
+    virtual ~RtmpHandshakeS0S1() {};
 };
 
-class s2 : public c2 {
+class RtmpHandshakeS2 : public RtmpHandshakeC2 {
 public:
-    s2() {};
+    RtmpHandshakeS2() {};
 
-    virtual ~s2() {};
+    virtual ~RtmpHandshakeS2() {};
 };
 
 class RsRtmpChunkMessage;

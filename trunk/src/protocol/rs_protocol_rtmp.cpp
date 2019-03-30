@@ -28,15 +28,15 @@ SOFTWARE.
 
 #define CHUNK_MESSAGE_TIMESTAMP_MAX 16777215
 
-c0c1::c0c1() {
+RtmpHandshakeC0C1::RtmpHandshakeC0C1() {
 
 }
 
-c0c1::~c0c1() {
+RtmpHandshakeC0C1::~RtmpHandshakeC0C1() {
 
 }
 
-int c0c1::initialize() {
+int RtmpHandshakeC0C1::initialize() {
     int ret = ERROR_SUCCESS;
 
     version = 0x03;
@@ -46,7 +46,7 @@ int c0c1::initialize() {
     return ret;
 }
 
-int c0c1::initialize(std::string buf) {
+int RtmpHandshakeC0C1::initialize(std::string buf) {
     int ret = ERROR_SUCCESS;
 
     if (buf.size() < 1537) {
@@ -64,17 +64,28 @@ int c0c1::initialize(std::string buf) {
 
     timestamp = buffer.read_4_byte();
     zero = buffer.read_4_byte();
-    if (zero != 0) {
-        ret = ERROR_RTMP_PROTOCOL_C0C1_ZERO_NOT_ZERO;
-        return ret;
-    }
 
     random_data = buffer.read_bytes(1528);
 
     return ret;
 }
 
-std::string c0c1::dump() {
+int RtmpHandshakeC0C1::initialize(RsBufferLittleEndian *buffer) {
+    int ret = ERROR_SUCCESS;
+
+    if (buffer->length() < 1537) {
+        ret = ERROR_RTMP_PROTOCOL_C0C1_LENGTH_ERROR;
+        return ret;
+    }
+
+    std::string c0c1_body;
+
+    buffer->read(c0c1_body, 1537);
+
+    return initialize(c0c1_body);
+}
+
+std::string RtmpHandshakeC0C1::dump() {
     RsBufferLittleEndian buf;
 
     buf.write_1_byte(version);
@@ -85,15 +96,15 @@ std::string c0c1::dump() {
     return std::string(buf.dump());
 }
 
-c2::c2() {
+RtmpHandshakeC2::RtmpHandshakeC2() {
 
 }
 
-c2::~c2() {
+RtmpHandshakeC2::~RtmpHandshakeC2() {
 
 }
 
-int c2::initialize() {
+int RtmpHandshakeC2::initialize() {
     int ret = ERROR_SUCCESS;
     timestamp = (uint32_t) rs_get_system_time_ms();
     timestamp2 = 0;
@@ -101,7 +112,7 @@ int c2::initialize() {
     return ret;
 }
 
-int c2::initialize(uint32_t ts, std::string rd) {
+int RtmpHandshakeC2::initialize(uint32_t ts, std::string rd) {
     int ret = ERROR_SUCCESS;
 
     timestamp = (uint32_t) rs_get_system_time_ms();
@@ -111,7 +122,7 @@ int c2::initialize(uint32_t ts, std::string rd) {
     return ret;
 }
 
-std::string c2::dump() {
+std::string RtmpHandshakeC2::dump() {
     RsBufferLittleEndian buf;
 
     buf.write_4_byte(timestamp);
