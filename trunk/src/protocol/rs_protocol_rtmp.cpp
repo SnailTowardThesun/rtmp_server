@@ -480,3 +480,68 @@ RsRtmpChunkMessage::create_chunk_messages(uint32_t ts, std::string msg, uint8_t 
 
     return msgs;
 }
+
+RsRtmpChunkHeaderAsync::RsRtmpChunkHeaderAsync() : _status(rs_rtmp_chunk_header_uninitialized) {
+
+}
+
+RsRtmpChunkHeaderAsync::~RsRtmpChunkHeaderAsync() {
+
+}
+
+bool RsRtmpChunkHeaderAsync::is_completed() {
+    return _status == rs_rtmp_chunk_header_completed;
+}
+
+int RsRtmpChunkHeaderAsync::on_rtmp_msg(RsBufferLittleEndian &buf) {
+    int ret = ERROR_SUCCESS;
+
+    return ret;
+}
+
+RsRtmpChunkMsgAsync::RsRtmpChunkMsgAsync() : _status(rs_rtmp_chunk_message_uninitialized) {
+
+}
+
+RsRtmpChunkMsgAsync::~RsRtmpChunkMsgAsync() {
+
+}
+
+bool RsRtmpChunkMsgAsync::is_completed() {
+    return _status == rs_rtmp_chunk_message_completed;
+}
+
+int RsRtmpChunkMsgAsync::on_rtmp_msg(std::vector<uint8_t> &buf) {
+    int ret = ERROR_SUCCESS;
+
+    std::string str_buf(buf.begin(), buf.end());
+
+    _cache_buffer.write_bytes(str_buf);
+
+    do {
+        // parse header
+        if (_status == rs_rtmp_chunk_message_uninitialized) {
+            _header.on_rtmp_msg(_cache_buffer);
+
+            if (_header.is_completed()) {
+                _status = rs_rtmp_chunk_message_header_created;
+            }
+
+            break;
+        }
+
+        // get whole message
+        if (_status == rs_rtmp_chunk_message_header_created) {
+            break;
+        }
+
+        // can not get any data when the message is completed
+        if (_status == rs_rtmp_chunk_message_completed) {
+            assert(false);
+        }
+
+    } while (0);
+
+
+    return ret;
+}

@@ -27,9 +27,8 @@ SOFTWARE.
 
 #include "rs_common.h"
 #include "rs_kernel_io.h"
+#include "rs_kernel_buffer.h"
 #include "uv.h"
-
-class RsBufferLittleEndian;
 
 class RtmpHandshakeC0C1 {
 public:
@@ -103,7 +102,7 @@ public:
     uint32_t message_stream_id;
     // type 1, 2
     uint32_t timestamp_delta;
-    // extened timestamp
+    // extended timestamp
     uint32_t extended_timestamp;
     // chunk data
     std::string chunk_data;
@@ -140,6 +139,66 @@ public:
     static RTMP_CHUNK_MESSAGES
     create_chunk_messages(uint32_t ts, std::string msg, uint8_t msg_type,
                           uint32_t msg_stream_id, uint32_t cs);
+};
+
+class RsRtmpChunkHeaderAsync {
+private:
+    enum {
+        rs_rtmp_chunk_header_uninitialized = 0,
+        rs_rtmp_chunk_header_completed
+    }_status;
+    // chunk size
+    uint32_t _chunk_size;
+    // basic header
+    uint8_t _fmt;
+    uint32_t _cs_id;
+    // message header
+    uint32_t _timestamp;
+    uint32_t _message_length;
+    uint8_t _message_type_id;
+    uint32_t _message_stream_id;
+    // type 1, 2
+    uint32_t _timestamp_delta;
+    // extended timestamp
+    uint32_t _extended_timestamp;
+public:
+    RsRtmpChunkHeaderAsync();
+
+    virtual ~RsRtmpChunkHeaderAsync();
+
+public:
+    bool is_completed();
+
+public:
+    int on_rtmp_msg(RsBufferLittleEndian &buf);
+};
+
+class RsRtmpChunkMsgAsync {
+private:
+    enum {
+        rs_rtmp_chunk_message_uninitialized = 0,
+        rs_rtmp_chunk_message_header_created,
+        rs_rtmp_chunk_message_completed
+    } _status;
+
+    RsRtmpChunkHeaderAsync _header;
+
+    // chunk data
+    std::vector<uint8_t> _chunked_data;
+
+    // for cache
+    // std::vector<uint8_t> _cache_buffer;
+    RsBufferLittleEndian _cache_buffer;
+public:
+    RsRtmpChunkMsgAsync();
+
+    virtual ~RsRtmpChunkMsgAsync();
+
+public:
+
+    bool is_completed();
+
+    int on_rtmp_msg(std::vector<uint8_t> &buf);
 };
 
 #endif

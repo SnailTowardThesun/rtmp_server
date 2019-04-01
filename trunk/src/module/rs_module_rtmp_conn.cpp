@@ -179,6 +179,7 @@ void RsServerRtmpConn::on_message(char *buf, ssize_t size, void *param) {
 
     auto io = pt->_tcp_io;
     auto buffer = pt->_rs_buffer;
+    auto cache_msg = pt->_cache_message;
 
     rs_info(io.get(), "get message from tcp io, size=%d", size);
 
@@ -218,8 +219,8 @@ void RsServerRtmpConn::on_message(char *buf, ssize_t size, void *param) {
         return ;
     }
 
+    // get c2
     if (pt->_rtmp_status == rs_rtmp_connection_c0c1_received) {
-        // get c2
         if (buffer->length() < 1536) {
             return;
         }
@@ -230,10 +231,26 @@ void RsServerRtmpConn::on_message(char *buf, ssize_t size, void *param) {
         // change status
         pt->_rtmp_status = rs_rtmp_connection_c2_received;
 
-        pt->_rtmp_status = rs_rtmp_connection_established;
+
+        rs_info(io.get(), "get c2 successfully");
         return ;
     }
 
-    //
     rs_info(io.get(), "msg: %s", buf);
+
+    // reset cache message
+    cache_msg = cache_msg == nullptr ? new RsRtmpChunkMsgAsync() : cache_msg;
+    std::vector<uint8_t > msg(buf, buf + size);
+
+    // receive connect cmd
+    if (pt->_rtmp_status == rs_rtmp_connection_c2_received) {
+        cache_msg->on_rtmp_msg(msg);
+    }
+
+    pt->_rtmp_status = rs_rtmp_connection_established;
+
+    // TODO:FIXME: remove the code below
+    if (cache_msg->is_completed()) {
+        rs_free_p(cache_msg);
+    }
 }

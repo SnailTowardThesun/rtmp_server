@@ -45,8 +45,9 @@ protected:
         rs_rtmp_connection_established,
     } _rtmp_status;
 
+    RsRtmpChunkMsgAsync *_cache_message;
 public:
-    RsRtmpConn() : _rtmp_status(rs_rtmp_connection_uninitialized) {};
+    RsRtmpConn() : _rtmp_status(rs_rtmp_connection_uninitialized), _cache_message(nullptr) {};
 
     ~RsRtmpConn() override = default;
 
