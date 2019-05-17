@@ -511,6 +511,11 @@ bool RsRtmpChunkMsgAsync::is_completed() {
     return _status == rs_rtmp_chunk_message_completed;
 }
 
+void RsRtmpChunkMsgAsync::clear() {
+    _cache_buffer.clear();
+    _status = rs_rtmp_chunk_message_uninitialized;
+}
+
 int RsRtmpChunkMsgAsync::on_rtmp_msg(std::vector<uint8_t> &buf) {
     int ret = ERROR_SUCCESS;
 

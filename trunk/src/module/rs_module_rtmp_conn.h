@@ -38,18 +38,19 @@ SOFTWARE.
  */
 class RsRtmpConn : public RsConnection {
 protected:
-    enum {
-        rs_rtmp_connection_uninitialized = 0,
-        rs_rtmp_connection_c0c1_received,
-        rs_rtmp_connection_c2_received,
-        rs_rtmp_connection_established,
+    enum class RS_RTMP_CONN_STATUS {
+        uninitialized = 0,
+        c0c1_received,
+        c2_received,
+        established,
     } _rtmp_status;
 
-    RsRtmpChunkMsgAsync *_cache_message;
-public:
-    RsRtmpConn() : _rtmp_status(rs_rtmp_connection_uninitialized), _cache_message(nullptr) {};
+    std::shared_ptr<RsRtmpChunkMsgAsync> _cached_message;
 
-    ~RsRtmpConn() override = default;
+public:
+    RsRtmpConn();
+
+    ~RsRtmpConn() override;
 
 public:
     int initialize(IRsIO *io) override;
@@ -71,16 +72,6 @@ public:
     ~RsServerRtmpConn() override;
 
 private:
-    // for rtmp protocol
-    int simple_handshake_with_server();
-
-    int simple_handshake_with_client();
-
-    int complex_handshake_with_server();
-
-    int complex_handshake_witout_client();
-
-private:
     static void on_message(char *, ssize_t, void *);
 
 public:
@@ -90,39 +81,4 @@ public:
 
 };
 
-/**
- * the connection to publishing or playing rtmp stream from other server
- * TODO:FIXME: implement this function
- *
- * class RsClientRtmpConn : public RsRtmpConn {
- * public:
- *     RsClientRtmpConn() = default;
- *
- *     ~RsClientRtmpConn() override = default;
- *
- * public:
- *     int initialize(IRsIO *io) override {
- *         assert(false);
- *         return ERROR_SUCCESS;
- *     };
- *
- *     void update_status() override { assert(false); };
- * public:
- *     int connect() {
- *         assert(false);
- *         return ERROR_SUCCESS;
- *     };
- *
- *     int play_stream() {
- *         assert(false);
- *         return ERROR_SUCCESS;
- *     };
- *
- *     int publish_stream() {
- *         assert(false);
- *         return ERROR_SUCCESS;
- *     };
- *
- * };
-*/
 #endif

@@ -101,8 +101,6 @@ namespace rs_log {
 
     void RsConsoleLog::log(int64_t cid, std::string level, std::string message) {
         std::stringstream ss;
-        ss << "[" << get_pid() << "]";
-        ss << "[" << cid << "]";
 
         // time
         timeval tv = {0, 0};
@@ -118,6 +116,9 @@ namespace rs_log {
            << " ";
         ss << ptr_time->tm_hour << ":" << ptr_time->tm_min << ":" << ptr_time->tm_sec << "."
            << (int) (tv.tv_usec / 1000.0) << "]";
+
+        ss << "[" << get_pid() << "]";
+        ss << "[" << cid << "]";
 
 
         ss << "[" << level << "]";

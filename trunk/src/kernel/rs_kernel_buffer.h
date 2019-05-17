@@ -80,6 +80,8 @@ public:
 
     size_t length() { return buffer.size(); }
 
+    void clear() { buffer.clear(); };
+
 public:
     static uint16_t convert_2bytes_into_uint16(std::string buf);
 

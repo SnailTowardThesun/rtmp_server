@@ -198,6 +198,8 @@ public:
 
     bool is_completed();
 
+    void clear();
+
     int on_rtmp_msg(std::vector<uint8_t> &buf);
 };
 
