@@ -28,6 +28,7 @@ SOFTWARE.
 #include "rs_common.h"
 #include "rs_kernel_io.h"
 #include "rs_kernel_buffer.h"
+#include "rs_protocol_async_interface.h"
 #include "uv.h"
 
 class RtmpHandshakeC0C1 {
@@ -37,14 +38,14 @@ public:
     uint32_t zero;
     std::string random_data;
 public:
-    RtmpHandshakeC0C1();
+    RtmpHandshakeC0C1() = default;
 
-    virtual ~RtmpHandshakeC0C1();
+    virtual ~RtmpHandshakeC0C1() = default;
 
 public:
     int initialize();
 
-    int initialize(std::string buf);
+    int initialize(std::string &buf);
 
     int initialize(RsBufferLittleEndian *buffer);
 
@@ -57,14 +58,14 @@ public:
     uint32_t timestamp2;
     std::string random_data;
 public:
-    RtmpHandshakeC2();
+    RtmpHandshakeC2() = default;
 
-    virtual ~RtmpHandshakeC2();
+    virtual ~RtmpHandshakeC2() = default;
 
 public:
     int initialize();
 
-    int initialize(uint32_t ts, std::string rd);
+    int initialize(uint32_t ts, const std::string &rd);
 
     std::string dump();
 
@@ -72,16 +73,26 @@ public:
 
 class RtmpHandshakeS0S1 : public RtmpHandshakeC0C1 {
 public:
-    RtmpHandshakeS0S1() {};
+    RtmpHandshakeS0S1() = default;
 
-    virtual ~RtmpHandshakeS0S1() {};
+    virtual ~RtmpHandshakeS0S1() override = default;
 };
 
 class RtmpHandshakeS2 : public RtmpHandshakeC2 {
 public:
-    RtmpHandshakeS2() {};
+    RtmpHandshakeS2() = default;
 
-    virtual ~RtmpHandshakeS2() {};
+    virtual ~RtmpHandshakeS2() override = default;
+};
+
+class RtmpHandshakeAsync : public IRsAsyncMsg {
+public:
+    RtmpHandshakeAsync() = default;
+
+    virtual ~RtmpHandshakeAsync() override = default;
+
+public:
+    int on_msg(std::vector<uint8_t> &buf) override;
 };
 
 class RsRtmpChunkMessage;
@@ -107,9 +118,9 @@ public:
     // chunk data
     std::string chunk_data;
 public:
-    RsRtmpChunkMessage();
+    RsRtmpChunkMessage() = default;
 
-    virtual ~RsRtmpChunkMessage();
+    ~RsRtmpChunkMessage() = default;
 
 private:
     int type_0_decode(IRsReaderWriter *reader);
@@ -141,12 +152,12 @@ public:
                           uint32_t msg_stream_id, uint32_t cs);
 };
 
-class RsRtmpChunkHeaderAsync {
+class RsRtmpChunkHeaderAsync : public IRsAsyncMsg {
 private:
     enum {
         rs_rtmp_chunk_header_uninitialized = 0,
         rs_rtmp_chunk_header_completed
-    }_status;
+    } _status;
     // chunk size
     uint32_t _chunk_size;
     // basic header
@@ -162,18 +173,18 @@ private:
     // extended timestamp
     uint32_t _extended_timestamp;
 public:
-    RsRtmpChunkHeaderAsync();
+    RsRtmpChunkHeaderAsync() : _status(rs_rtmp_chunk_header_uninitialized) {};
 
-    virtual ~RsRtmpChunkHeaderAsync();
+    virtual ~RsRtmpChunkHeaderAsync() override = default;
 
 public:
     bool is_completed();
 
 public:
-    int on_rtmp_msg(RsBufferLittleEndian &buf);
+    int on_msg(std::vector<uint8_t> &buf) override;
 };
 
-class RsRtmpChunkMsgAsync {
+class RsRtmpChunkMsgAsync : public IRsAsyncMsg {
 private:
     enum {
         rs_rtmp_chunk_message_uninitialized = 0,
@@ -190,9 +201,9 @@ private:
     // std::vector<uint8_t> _cache_buffer;
     RsBufferLittleEndian _cache_buffer;
 public:
-    RsRtmpChunkMsgAsync();
+    RsRtmpChunkMsgAsync() : _status(rs_rtmp_chunk_message_uninitialized) {};
 
-    virtual ~RsRtmpChunkMsgAsync();
+    virtual ~RsRtmpChunkMsgAsync() override = default;
 
 public:
 
@@ -200,7 +211,7 @@ public:
 
     void clear();
 
-    int on_rtmp_msg(std::vector<uint8_t> &buf);
+    int on_msg(std::vector<uint8_t> &buf) override;
 };
 
 #endif

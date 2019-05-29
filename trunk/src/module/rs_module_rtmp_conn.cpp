@@ -150,7 +150,7 @@ void RsServerRtmpConn::on_message(char *buf, ssize_t size, void *param) {
 
     // receive connect cmd
     if (pt->_rtmp_status == RS_RTMP_CONN_STATUS::c2_received) {
-        cache_msg->on_rtmp_msg(msg);
+        cache_msg->on_msg(msg);
     }
 
     pt->_rtmp_status = RS_RTMP_CONN_STATUS::established;

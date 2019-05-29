@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2016 ME_Kun_Han
+Copyright (c) 2019 ME_Kun_Han
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,40 +22,4 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef RS_KERNEL_THREAD_H_
-#define RS_KERNEL_THREAD_H_
-
-
-#include "uv.h"
-
-class RsLocker {
-private:
-    uv_mutex_t *_locker;
-public:
-    RsLocker();
-
-    virtual ~RsLocker();
-};
-
-class RsBaseThread {
-private:
-    uv_thread_t *_thread;
-public:
-    bool _interrupt;
-public:
-    RsBaseThread();
-
-    virtual ~RsBaseThread();
-
-private:
-    static void cycle(void *param);
-
-public:
-    virtual int start();
-
-    virtual int stop();
-
-    virtual int do_cycle();
-};
-
-#endif
+#include "rs_protocol_async_interface.h"

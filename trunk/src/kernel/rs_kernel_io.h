@@ -29,7 +29,6 @@ SOFTWARE.
 #include "rs_common.h"
 #include "rs_kernel_context.h"
 
-
 class IRsIO {
 protected:
     typedef enum {

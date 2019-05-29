@@ -22,19 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <rs_kernel_buffer.h>
-#include <rs_protocol_rtmp.h>
-#include <rs_module_log.h>
+#include "rs_kernel_buffer.h"
+#include "rs_protocol_rtmp.h"
+#include "rs_module_log.h"
 
 #define CHUNK_MESSAGE_TIMESTAMP_MAX 16777215
-
-RtmpHandshakeC0C1::RtmpHandshakeC0C1() {
-
-}
-
-RtmpHandshakeC0C1::~RtmpHandshakeC0C1() {
-
-}
 
 int RtmpHandshakeC0C1::initialize() {
     int ret = ERROR_SUCCESS;
@@ -46,7 +38,7 @@ int RtmpHandshakeC0C1::initialize() {
     return ret;
 }
 
-int RtmpHandshakeC0C1::initialize(std::string buf) {
+int RtmpHandshakeC0C1::initialize(std::string &buf) {
     int ret = ERROR_SUCCESS;
 
     if (buf.size() < 1537) {
@@ -96,14 +88,6 @@ std::string RtmpHandshakeC0C1::dump() {
     return std::string(buf.dump());
 }
 
-RtmpHandshakeC2::RtmpHandshakeC2() {
-
-}
-
-RtmpHandshakeC2::~RtmpHandshakeC2() {
-
-}
-
 int RtmpHandshakeC2::initialize() {
     int ret = ERROR_SUCCESS;
     timestamp = (uint32_t) rs_get_system_time_ms();
@@ -112,7 +96,7 @@ int RtmpHandshakeC2::initialize() {
     return ret;
 }
 
-int RtmpHandshakeC2::initialize(uint32_t ts, std::string rd) {
+int RtmpHandshakeC2::initialize(uint32_t ts, const std::string &rd) {
     int ret = ERROR_SUCCESS;
 
     timestamp = (uint32_t) rs_get_system_time_ms();
@@ -132,10 +116,10 @@ std::string RtmpHandshakeC2::dump() {
     return std::string(buf.dump());
 }
 
-RsRtmpChunkMessage::RsRtmpChunkMessage() {
-}
+int RtmpHandshakeAsync::on_msg(std::vector<uint8_t> &buf) {
+    auto ret = ERROR_SUCCESS;
 
-RsRtmpChunkMessage::~RsRtmpChunkMessage() {
+    return ret;
 }
 
 int RsRtmpChunkMessage::type_0_decode(IRsReaderWriter *reader) {
@@ -277,18 +261,17 @@ int RsRtmpChunkMessage::type_3_decode(IRsReaderWriter *reader, uint32_t size) {
 std::string RsRtmpChunkMessage::basic_header_dump() {
     RsBufferLittleEndian buf;
     if (cs_id < 64) {
-        uint8_t cid = (uint8_t) cs_id;
+        auto cid = static_cast<uint8_t>(cs_id);
         buf.write_1_byte((uint8_t) (((fmt << 6) & 0xc0) | (cid & 0x3f)));
         return buf.dump();
     } else if (cs_id < 320) {
-        uint8_t cid = (uint8_t) (cs_id - 64);
+        auto cid = static_cast<uint8_t> (cs_id - 64);
         buf.write_1_byte((uint8_t) ((fmt << 6) & 0xc0));
         buf.write_1_byte(cid);
         return buf.dump();
     } else if (cs_id < 65599) {
         buf.write_1_byte((uint8_t) ((fmt << 6) & 0xc0 + 1));
-
-        uint16_t cid = uint16_t(cs_id - 64);
+        auto cid = uint16_t(cs_id - 64);
         buf.write_1_byte((uint8_t) cid);
         buf.write_1_byte((uint8_t) (cid >> 8));
         return buf.dump();
@@ -469,7 +452,7 @@ RsRtmpChunkMessage::create_chunk_messages(uint32_t ts, std::string msg, uint8_t 
 
     // create type 3 messages
     while (!msg.empty()) {
-        RsRtmpChunkMessage *type3 = new RsRtmpChunkMessage();
+        auto *type3 = new RsRtmpChunkMessage();
         type3->fmt = 3;
         auto length = msg.length() > cs ? cs : msg.length();
         type3->chunk_data = msg.substr(0, length);
@@ -481,30 +464,14 @@ RsRtmpChunkMessage::create_chunk_messages(uint32_t ts, std::string msg, uint8_t 
     return msgs;
 }
 
-RsRtmpChunkHeaderAsync::RsRtmpChunkHeaderAsync() : _status(rs_rtmp_chunk_header_uninitialized) {
-
-}
-
-RsRtmpChunkHeaderAsync::~RsRtmpChunkHeaderAsync() {
-
-}
-
 bool RsRtmpChunkHeaderAsync::is_completed() {
     return _status == rs_rtmp_chunk_header_completed;
 }
 
-int RsRtmpChunkHeaderAsync::on_rtmp_msg(RsBufferLittleEndian &buf) {
+int RsRtmpChunkHeaderAsync::on_msg(std::vector<uint8_t> &buf) {
     int ret = ERROR_SUCCESS;
 
     return ret;
-}
-
-RsRtmpChunkMsgAsync::RsRtmpChunkMsgAsync() : _status(rs_rtmp_chunk_message_uninitialized) {
-
-}
-
-RsRtmpChunkMsgAsync::~RsRtmpChunkMsgAsync() {
-
 }
 
 bool RsRtmpChunkMsgAsync::is_completed() {
@@ -516,37 +483,17 @@ void RsRtmpChunkMsgAsync::clear() {
     _status = rs_rtmp_chunk_message_uninitialized;
 }
 
-int RsRtmpChunkMsgAsync::on_rtmp_msg(std::vector<uint8_t> &buf) {
+int RsRtmpChunkMsgAsync::on_msg(std::vector<uint8_t> &buf) {
     int ret = ERROR_SUCCESS;
 
-    std::string str_buf(buf.begin(), buf.end());
-
-    _cache_buffer.write_bytes(str_buf);
-
     do {
-        // parse header
-        if (_status == rs_rtmp_chunk_message_uninitialized) {
-            _header.on_rtmp_msg(_cache_buffer);
-
-            if (_header.is_completed()) {
-                _status = rs_rtmp_chunk_message_header_created;
-            }
-
-            break;
+        if (!_header.is_completed()) {
+            ret = _header.on_msg(buf);
+            continue;
         }
 
-        // get whole message
-        if (_status == rs_rtmp_chunk_message_header_created) {
-            break;
-        }
-
-        // can not get any data when the message is completed
-        if (_status == rs_rtmp_chunk_message_completed) {
-            assert(false);
-        }
-
-    } while (0);
-
+        // TODO:FIXME: implement this functions
+    } while (!buf.empty());
 
     return ret;
 }
