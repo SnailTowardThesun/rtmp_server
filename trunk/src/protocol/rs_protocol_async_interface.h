@@ -26,6 +26,7 @@ SOFTWARE.
 #define RS_PROTOCOL_ASYNC_INTERFACE_H_
 
 #include <vector>
+#include <stdint.h>
 
 class IRsAsyncMsg {
 public:
