@@ -25,6 +25,8 @@ SOFTWARE.
 #ifndef RS_PROTOCOL_ASYNC_INTERFACE_H_
 #define RS_PROTOCOL_ASYNC_INTERFACE_H_
 
+#include <vector>
+
 class IRsAsyncMsg {
 public:
     IRsAsyncMsg() = default;
